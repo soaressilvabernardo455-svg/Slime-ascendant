@@ -1,0 +1,8 @@
+{
+  "appId": "com.slimeascendent.game",
+  "appName": "Slime Ascendent",
+  "webDir": "www",
+  "server": {
+    "url": "https://slime-ascendant.onrender.com"
+  }
+}

@@ -1,75 +1,21 @@
 const http=require('http'),fs=require('fs'),{WebSocketServer}=require('ws');
 const R=Math.random,PW=['proj','orb','nova','raio','aura'],PS=['vida','dano','vel','recarga','ima'];
 const CLS={normal:{hp:100,sp:3.5,dm:1,pw:'proj'},mago:{hp:70,sp:3.5,dm:1.4,pw:'raio'},cavaleiro:{hp:150,sp:3,dm:1,pw:'orb'},necromante:{hp:85,sp:3.5,dm:1.2,pw:'nova'},curandeiro:{hp:110,sp:3.5,dm:.8,pw:'aura',heal:1},arqueiro:{hp:80,sp:3.8,dm:1.1,pw:'proj',pr:2}};
-const rooms={};let N=1;
-const cl=v=>Math.max(10,Math.min(1590,v)),dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
-const html=fs.readFileSync(__dirname+'/index.html');
-const srv=http.createServer((q,s)=>{s.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});s.end(html)});
-const wss=new WebSocketServer({server:srv});
+const rooms={};let N=1;const cl=v=>Math.max(10,Math.min(1590,v)),dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y),num=v=>Math.max(0,Number(v)||0);
 
-function mk(id,cls,name){cls=CLS[cls]?cls:'normal';const c=CLS[cls];
- return{id,name:String(name||'Slime').slice(0,10),cls,x:800+R()*100,y:800+R()*100,hp:c.hp,mh:c.hp,lv:1,xp:0,nx:5,pw:{[c.pw]:1},ps:{},cd:{},dx:0,dy:0,ch:null,d:0}}
-function reset(r){r.es=[];r.sh=[];r.gm=[];r.fx=[];r.ob=[];r.wave=1;r.t=0;r.sp=30;r.ov=0;
- for(const i in r.ps){const p=r.ps[i];r.ps[i]=mk(+i,p.cls,p.name)}}
-function lv(p){p.lv++;p.xp-=p.nx;p.nx=Math.ceil(p.nx*1.35+2);
- p.ch=[...PW.map(k=>'p:'+k),...PS.map(k=>'s:'+k)].filter(o=>((o[0]=='p'?p.pw:p.ps)[o.slice(2)]||0)<5).sort(()=>R()-.5).slice(0,3);
- if(!p.ch.length)p.ch=null}
-function pick(p,i){const o=p.ch&&p.ch[+i];if(!o)return;const k=o.slice(2);
- if(o[0]=='p')p.pw[k]=(p.pw[k]||0)+1;
- else{p.ps[k]=(p.ps[k]||0)+1;if(k=='vida'){const b=CLS[p.cls].hp*.2;p.mh+=b;p.hp+=b}}
- p.ch=null;if(p.xp>=p.nx)lv(p)}
-
-function step(r,L){
- r.t++;r.ob=[];if(r.t%600==0)r.wave++;
- if(--r.sp<1){const w=r.wave;r.sp=Math.max(5,36-w*2);
-  for(let i=0,n=(w>>1)+L.length;i<n;i++){const p=L[R()*L.length|0],a=R()*6.28,ty=w>2&&R()<.12?2:R()<.3?1:0,hp=[10+w*4,6+w*2,45+w*12][ty];
-   r.es.push({x:cl(p.x+Math.cos(a)*520),y:cl(p.y+Math.sin(a)*520),ty,hp,mh:hp,r:[10,8,16][ty],v:[1.4,2.4,.9][ty]+Math.min(w*.03,.8),d:[6,4,12][ty]})}}
- for(const p of L){
-  const c=CLS[p.cls],m=Math.hypot(p.dx,p.dy);if(m>1){p.dx/=m;p.dy/=m}
-  const sp=c.sp*(1+.1*(p.ps.vel||0));p.x=cl(p.x+p.dx*sp);p.y=cl(p.y+p.dy*sp);
-  const dm=c.dm*(1+.15*(p.ps.dano||0)),cd=1-.1*(p.ps.recarga||0),l=p.pw;
-  const near=g=>{let b=null;for(const e of r.es){const d=dist(e,p);if(d<g){g=d;b=e}}return b};
-  const rdy=(k,t)=>{p.cd[k]=(p.cd[k]||0)-1;if(p.cd[k]<=0){p.cd[k]=t*cd;return 1}};
-  if(l.proj&&rdy('proj',18)){const e=near(420);
-   if(e){const n=1+(l.proj>2)+(l.proj>4),a0=Math.atan2(e.y-p.y,e.x-p.x);
-    for(let i=0;i<n;i++){const a=a0+(i-(n-1)/2)*.2;r.sh.push({x:p.x,y:p.y,vx:Math.cos(a)*9,vy:Math.sin(a)*9,d:(7+3*l.proj)*dm,life:45,pr:c.pr||0})}}
-   else p.cd.proj=0}
-  if(l.orb){const n=1+l.orb;for(let i=0;i<n;i++){const a=r.t*.1+i*6.283/n,o={x:p.x+Math.cos(a)*65,y:p.y+Math.sin(a)*65};r.ob.push([o.x|0,o.y|0]);
-   for(const e of r.es)if(dist(e,o)<e.r+8)e.hp-=.3*(1+l.orb*.3)*dm}}
-  if(l.nova&&rdy('nova',90)){const rr=90+12*l.nova;r.fx.push(['n',p.x|0,p.y|0,rr,0,6]);
-   for(const e of r.es)if(dist(e,p)<rr+e.r)e.hp-=(10+5*l.nova)*dm}
-  if(l.raio&&rdy('raio',45))r.es.filter(e=>dist(e,p)<380).sort(()=>R()-.5).slice(0,1+l.raio).forEach(e=>{e.hp-=(14+4*l.raio)*dm;r.fx.push(['r',p.x|0,p.y|0,e.x|0,e.y|0,5])});
-  if(l.aura){const rr=50+8*l.aura;for(const e of r.es)if(dist(e,p)<rr+e.r)e.hp-=(.3+.12*l.aura)*dm}
-  if(c.heal&&r.t%60==0)for(const q of L)if(dist(q,p)<220)q.hp=Math.min(q.mh,q.hp+8)}
- for(const e of r.es){let b=L[0],bd=1e9;for(const p of L){const d=dist(p,e);if(d<bd){bd=d;b=p}}
-  e.x+=(b.x-e.x)/(bd||1)*e.v;e.y+=(b.y-e.y)/(bd||1)*e.v;
-  if(bd<e.r+12){b.hp-=e.d/20;if(b.hp<=0)b.d=1}}
- r.sh=r.sh.filter(s=>{s.x+=s.vx;s.y+=s.vy;if(--s.life<1)return 0;const h=s.h||(s.h=new Set());
-  for(const e of r.es)if(e.hp>0&&!h.has(e)&&dist(e,s)<e.r+4){h.add(e);e.hp-=s.d;if(s.pr-->0)continue;return 0}return 1});
- r.es=r.es.filter(e=>{if(e.hp>0)return 1;r.gm.push({x:e.x,y:e.y,v:[1,2,5][e.ty]});return 0});
- r.gm=r.gm.filter(g=>{for(const p of L){const d=dist(p,g)||1;
-  if(d<14){p.xp+=g.v;if(p.xp>=p.nx&&!p.ch)lv(p);return 0}
-  if(d<60*(1+.4*(p.ps.ima||0))){g.x+=(p.x-g.x)/d*5;g.y+=(p.y-g.y)/d*5;break}}return 1});
- r.fx=r.fx.filter(f=>--f[5]>0)}
-
-function tick(r){
- const P=Object.values(r.ps),L=P.filter(p=>!p.d),pa=P.some(p=>p.ch);
- if(P.length&&!pa){if(L.length)step(r,L);else{if(!r.ov)r.ov=90;if(--r.ov<1)reset(r)}}
- const m=JSON.stringify({w:r.wave,pa:pa?1:0,o:r.ov?1:0,
-  p:P.map(p=>({id:p.id,n:p.name,c:p.cls,x:p.x|0,y:p.y|0,h:p.hp|0,m:p.mh|0,l:p.lv,xp:p.xp,nx:p.nx,d:p.d,pw:p.pw,ps:p.ps,ch:p.ch})),
-  e:r.es.map(e=>[e.x|0,e.y|0,e.ty,e.hp/e.mh]),s:r.sh.map(s=>[s.x|0,s.y|0]),b:r.ob,g:r.gm.map(g=>[g.x|0,g.y|0]),f:r.fx});
- wss.clients.forEach(c=>{if(c.r===r&&c.readyState==1)c.send(m)})}
-setInterval(()=>{for(const k in rooms)tick(rooms[k])},33);
-
-wss.on('connection',(ws,rq)=>{
- const k=(new URL(rq.url,'http://x').searchParams.get('s')||'geral').slice(0,12);
- const r=rooms[k]||(rooms[k]={k,ps:{}});if(!r.es)reset(r);
- const id=N++;ws.r=r;
- ws.on('message',raw=>{let d;try{d=JSON.parse(raw)}catch{return}
-  if(d.t=='join'&&!r.ps[id]){r.ps[id]=mk(id,d.cls,d.name);ws.send(JSON.stringify({t:'id',id}));return}
-  const p=r.ps[id];if(!p)return;
-  if(d.t=='in'){p.dx=+d.dx||0;p.dy=+d.dy||0}
-  else if(d.t=='pick')pick(p,d.i)});
- ws.on('close',()=>{delete r.ps[id];if(!Object.keys(r.ps).length)delete rooms[k]})});
-srv.listen(process.env.PORT||3000);
-   
+// A service role existe somente neste processo; ela nunca é enviada ao cliente.
+const sbx={url:(process.env.SUPABASE_URL||'').replace(/\/$/,''),anon:process.env.SUPABASE_ANON_KEY||'',service:process.env.SUPABASE_SERVICE_ROLE_KEY||''};sbx.enabled=Boolean(sbx.url&&sbx.anon&&sbx.service);
+if(!sbx.enabled)console.warn('[supabase] desativado: defina SUPABASE_URL, SUPABASE_ANON_KEY e SUPABASE_SERVICE_ROLE_KEY no servidor.');
+async function sb(path,{method='GET',body,token}={}){if(!sbx.enabled)throw Error('Supabase não configurado.');const r=await fetch(sbx.url+path,{method,headers:{apikey:sbx.service,Authorization:'Bearer '+(token||sbx.service),'Content-Type':'application/json',Prefer:'return=representation,resolution=merge-duplicates'},body:body===undefined?undefined:JSON.stringify(body)});if(!r.ok)throw Error('Supabase '+r.status+': '+(await r.text()).slice(0,160));const t=await r.text();return t?JSON.parse(t):null}
+const t=(name,q='')=>'/rest/v1/'+name+q;
+async function verify(token){if(typeof token!=='string'||token.length<20)throw Error('Sessão inválida. Faça login novamente.');const u=await sb('/auth/v1/user',{token});if(!u||!u.id)throw Error('Sessão inválida. Faça login novamente.');return u}
+async function load(p){const id=encodeURIComponent(p.uid),q='?player_id=eq.'+id+'&select=*';const [pr,cs,iv,up,ac,qu,st]=await Promise.all([sb(t('player_profiles','?id=eq.'+id+'&select=*')),sb(t('unlocked_classes',q)),sb(t('player_inventory',q)),sb(t('player_upgrades',q)),sb(t('player_achievements',q)),sb(t('quest_progress',q)),sb(t('player_stats',q))]);const a=pr[0];if(!a)await sb(t('player_profiles'),{method:'POST',body:{id:p.uid,display_name:p.name,selected_class:p.cls,level:p.lv,experience:p.xp}});else{p.name=String(a.display_name||p.name).slice(0,10);p.cls=CLS[a.selected_class]?a.selected_class:p.cls;p.lv=Math.max(1,num(a.level)||1);p.xp=num(a.experience);p.nx=Math.max(5,Math.ceil(5*Math.pow(1.35,p.lv-1))+2*(p.lv-1));p.coins=num(a.coins);p.crystals=num(a.crystals)}p.unlocked=new Set(['normal',...cs.map(x=>x.class_key).filter(k=>CLS[k])]);p.inventory=Object.fromEntries(iv.map(x=>[x.item_key,num(x.quantity)]));p.achievements=new Set(ac.map(x=>x.achievement_key));p.quests=Object.fromEntries(qu.map(x=>[x.quest_key,{progress:num(x.progress),completedAt:x.completed_at||null}]));for(const x of up){const k=String(x.upgrade_key||''),v=num(x.level);if(k.startsWith('power:')&&PW.includes(k.slice(6)))p.pw[k.slice(6)]=v;if(k.startsWith('passive:')&&PS.includes(k.slice(8)))p.ps[k.slice(8)]=v}p.highestWave=num(st[0]&&st[0].highest_wave)}
+async function save(p,wave){if(!sbx.enabled||!p.uid||!p.dirty)return;p.dirty=false;try{const jobs=[sb(t('player_profiles?on_conflict=id'),{method:'POST',body:{id:p.uid,display_name:p.name,selected_class:p.cls,level:p.lv,experience:p.xp,coins:p.coins,crystals:p.crystals,last_seen_at:new Date().toISOString()}}),sb(t('player_stats?on_conflict=player_id'),{method:'POST',body:{player_id:p.uid,highest_wave:Math.max(p.highestWave,wave)}})];for(const k of p.unlocked)jobs.push(sb(t('unlocked_classes?on_conflict=player_id,class_key'),{method:'POST',body:{player_id:p.uid,class_key:k}}));for(const [k,v]of Object.entries(p.pw))jobs.push(sb(t('player_upgrades?on_conflict=player_id,upgrade_key'),{method:'POST',body:{player_id:p.uid,upgrade_key:'power:'+k,level:v}}));for(const [k,v]of Object.entries(p.ps))jobs.push(sb(t('player_upgrades?on_conflict=player_id,upgrade_key'),{method:'POST',body:{player_id:p.uid,upgrade_key:'passive:'+k,level:v}}));for(const[k,v]of Object.entries(p.inventory))jobs.push(sb(t('player_inventory?on_conflict=player_id,item_key'),{method:'POST',body:{player_id:p.uid,item_key:k,quantity:v}}));for(const k of p.achievements)jobs.push(sb(t('player_achievements?on_conflict=player_id,achievement_key'),{method:'POST',body:{player_id:p.uid,achievement_key:k,unlocked_at:new Date().toISOString()}}));for(const[k,v]of Object.entries(p.quests))jobs.push(sb(t('quest_progress?on_conflict=player_id,quest_key'),{method:'POST',body:{player_id:p.uid,quest_key:k,progress:num(v.progress),completed_at:v.completedAt||null}}));await Promise.all(jobs)}catch(e){p.dirty=true;console.error('[supabase] save:',e.message)}}
+function mk(id,cls,name,uid){cls=CLS[cls]?cls:'normal';const c=CLS[cls];return{id,uid,name:String(name||'Slime').slice(0,10),cls,x:800+R()*100,y:800+R()*100,hp:c.hp,mh:c.hp,lv:1,xp:0,nx:5,pw:{[c.pw]:1},ps:{},cd:{},dx:0,dy:0,ch:null,d:0,coins:0,crystals:0,unlocked:new Set(['normal']),inventory:{},achievements:new Set(),quests:{},highestWave:0,dirty:false}}
+function reset(r){r.es=[];r.sh=[];r.gm=[];r.fx=[];r.ob=[];r.wave=1;r.t=0;r.sp=30;r.ov=0;for(const i in r.ps){const p=r.ps[i],n=mk(+i,p.cls,p.name,p.uid);Object.assign(n,{unlocked:p.unlocked,inventory:p.inventory,achievements:p.achievements,quests:p.quests,coins:p.coins,crystals:p.crystals,highestWave:p.highestWave});r.ps[i]=n}}
+function lv(p){p.lv++;p.xp-=p.nx;p.nx=Math.ceil(p.nx*1.35+2);p.dirty=true;p.ch=[...PW.map(k=>'p:'+k),...PS.map(k=>'s:'+k)].filter(o=>((o[0]=='p'?p.pw:p.ps)[o.slice(2)]||0)<5).sort(()=>R()-.5).slice(0,3);if(!p.ch.length)p.ch=null}
+function pick(p,i){const o=p.ch&&p.ch[+i];if(!o)return;const k=o.slice(2);if(o[0]=='p')p.pw[k]=(p.pw[k]||0)+1;else{p.ps[k]=(p.ps[k]||0)+1;if(k=='vida'){const b=CLS[p.cls].hp*.2;p.mh+=b;p.hp+=b}}p.dirty=true;p.ch=null;if(p.xp>=p.nx)lv(p)}
+function step(r,L){r.t++;r.ob=[];if(r.t%600==0){r.wave++;for(const p of L){p.highestWave=Math.max(p.highestWave,r.wave);p.dirty=true}}if(--r.sp<1){const w=r.wave;r.sp=Math.max(5,36-w*2);for(let i=0,n=(w>>1)+L.length;i<n;i++){const p=L[R()*L.length|0],a=R()*6.28,ty=w>2&&R()<.12?2:R()<.3?1:0,hp=[10+w*4,6+w*2,45+w*12][ty];r.es.push({x:cl(p.x+Math.cos(a)*520),y:cl(p.y+Math.sin(a)*520),ty,hp,mh:hp,r:[10,8,16][ty],v:[1.4,2.4,.9][ty]+Math.min(w*.03,.8),d:[6,4,12][ty]})}}for(const p of L){const c=CLS[p.cls],m=Math.hypot(p.dx,p.dy);if(m>1){p.dx/=m;p.dy/=m}const sp=c.sp*(1+.1*(p.ps.vel||0));p.x=cl(p.x+p.dx*sp);p.y=cl(p.y+p.dy*sp);const dm=c.dm*(1+.15*(p.ps.dano||0)),cd=1-.1*(p.ps.recarga||0),l=p.pw,near=g=>{let b=null;for(const e of r.es){const d=dist(e,p);if(d<g){g=d;b=e}}return b},rdy=(k,z)=>{p.cd[k]=(p.cd[k]||0)-1;if(p.cd[k]<=0){p.cd[k]=z*cd;return 1}};if(l.proj&&rdy('proj',18)){const e=near(420);if(e){const n=1+(l.proj>2)+(l.proj>4),a0=Math.atan2(e.y-p.y,e.x-p.x);for(let i=0;i<n;i++){const a=a0+(i-(n-1)/2)*.2;r.sh.push({x:p.x,y:p.y,vx:Math.cos(a)*9,vy:Math.sin(a)*9,d:(7+3*l.proj)*dm,life:45,pr:c.pr||0})}}else p.cd.proj=0}if(l.orb){const n=1+l.orb;for(let i=0;i<n;i++){const a=r.t*.1+i*6.283/n,o={x:p.x+Math.cos(a)*65,y:p.y+Math.sin(a)*65};r.ob.push([o.x|0,o.y|0]);for(const e of r.es)if(dist(e,o)<e.r+8)e.hp-=.3*(1+l.orb*.3)*dm}}if(l.nova&&rdy('nova',90)){const rr=90+12*l.nova;r.fx.push(['n',p.x|0,p.y|0,rr,0,6]);for(const e of r.es)if(dist(e,p)<rr+e.r)e.hp-=(10+5*l.nova)*dm}if(l.raio&&rdy('raio',45))r.es.filter(e=>dist(e,p)<380).sort(()=>R()-.5).slice(0,1+l.raio).forEach(e=>{e.hp-=(14+4*l.raio)*dm;r.fx.push(['r',p.x|0,p.y|0,e.x|0,e.y|0,5])});if(l.aura){const rr=50+8*l.aura;for(const e of r.es)if(dist(e,p)<rr+e.r)e.hp-=(.3+.12*l.aura)*dm}if(c.heal&&r.t%60==0)for(const q of L)if(dist(q,p)<220)q.hp=Math.min(q.mh,q.hp+8)}for(const e of r.es){let b=L[0],bd=1e9;for(const p of L){const d=dist(p,e);if(d<bd){bd=d;b=p}}e.x+=(b.x-e.x)/(bd||1)*e.v;e.y+=(b.y-e.y)/(bd||1)*e.v;if(bd<e.r+12){b.hp-=e.d/20;if(b.hp<=0)b.d=1}}r.sh=r.sh.filter(s=>{s.x+=s.vx;s.y+=s.vy;if(--s.life<1)return 0;const h=s.h||(s.h=new Set());for(const e of r.es)if(e.hp>0&&!h.has(e)&&dist(e,s)<e.r+4){h.add(e);e.hp-=s.d;if(s.pr-->0)continue;return 0}return 1});r.es=r.es.filter(e=>{if(e.hp>0)return 1;r.gm.push({x:e.x,y:e.y,v:[1,2,5][e.ty]});return 0});r.gm=r.gm.filter(g=>{for(const p of L){const d=dist(p,g)||1;if(d<14){p.xp+=g.v;if(p.xp>=p.nx&&!p.ch)lv(p);return 0}if(d<60*(1+.4*(p.ps.ima||0))){g.x+=(p.x-g.x)/d*5;g.y+=(p.y-g.y)/d*5;break}}return 1});r.fx=r.fx.filter(f=>--f[5]>0)}
+function tick(r){const P=Object.values(r.ps),L=P.filter(p=>!p.d),pa=P.some(p=>p.ch);if(P.length&&!pa){if(L.length)step(r,L);else{if(!r.ov)r.ov=90;if(--r.ov<1){for(const p of P){p.dirty=true;save(p,r.wave)}reset(r)}}}if(r.t%1350===0)for(const p of P)save(p,r.wave);const m=JSON.stringify({w:r.wave,pa:pa?1:0,o:r.ov?1:0,p:P.map(p=>({id:p.id,n:p.name,c:p.cls,x:p.x|0,y:p.y|0,h:p.hp|0,m:p.mh|0,l:p.lv,xp:p.xp,nx:p.nx,d:p.d,pw:p.pw,ps:p.ps,ch:p.ch})),e:r.es.map(e=>[e.x|0,e.y|0,e.ty,e.hp/e.mh]),s:r.sh.map(s=>[s.x|0,s.y|0]),b:r.ob,g:r.gm.map(g=>[g.x|0,g.y|0]),f:r.fx});wss.clients.forEach(c=>{if(c.r===r&&c.readyState===1)c.send(m)})}
+const html=fs.readFileSync(__dirname+'/index.html');const srv=http.createServer((q,s)=>{if(q.url==='/api/config'){s.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-store'});return s.end(JSON.stringify({supabase:sbx.enabled?{enabled:true,url:sbx.url,anonKey:sbx.anon}:{enabled:false}}))}s.writeHead(200,{'Content-Type':'text/html; charset=utf-8'});s.end(html)});const wss=new WebSocketServer({server:srv,maxPayload:4096});setInterval(()=>{for(const k in rooms)tick(rooms[k])},33);
+wss.on('connection',(ws,rq)=>{const k=(new URL(rq.url,'http://x').searchParams.get('s')||'geral').slice(0,12),r=rooms[k]||(rooms[k]={k,ps:{}});if(!r.es)reset(r);const id=N++;ws.r=r;ws.on('message',async raw=>{let d;try{d=JSON.parse(raw)}catch{return}if(d.t==='join'&&!r.ps[id])try{const u=sbx.enabled?await verify(d.token):null,p=mk(id,d.cls,d.name,u&&u.id);if(u)await load(p);r.ps[id]=p;ws.send(JSON.stringify({t:'id',id,authenticated:Boolean(u)}))}catch(e){ws.send(JSON.stringify({t:'auth_error',message:e.message}));ws.close(4001,'auth')}else{const p=r.ps[id];if(!p)return;if(d.t==='in'){p.dx=Math.max(-1,Math.min(1,+d.dx||0));p.dy=Math.max(-1,Math.min(1,+d.dy||0))}else if(d.t==='pick')pick(p,d.i)}});ws.on('close',()=>{const p=r.ps[id];if(p)save(p,r.wave);delete r.ps[id];if(!Object.keys(r.ps).length)delete rooms[k]})});srv.listen(process.env.PORT||3000);

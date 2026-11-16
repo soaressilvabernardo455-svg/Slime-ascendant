@@ -3,26 +3,28 @@
 <title>Slime Ascendent</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#0d1a10;color:#e6f4e6;font-family:system-ui,sans-serif;overflow:hidden;touch-action:none;user-select:none}
+body{margin:0;background:#08140f;color:#e6f4e6;font-family:system-ui,-apple-system,sans-serif;overflow:hidden;touch-action:none;user-select:none}
 #c{display:block;width:100vw;height:100vh}
-#m,#u{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;text-align:center;overflow:auto}
-#m{background:#0d1a10}#u{display:none;background:#000c}
-h1{margin:0;font-size:2rem;color:#5eea8a}h2{margin:0}
-.cs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-button,input{font:inherit;color:inherit;background:#15281a;border:2px solid #2f5d3a;border-radius:10px;padding:8px 12px}
-button.s{border-color:#5eea8a;background:#1f4128}
-.cs canvas{display:block;margin:0 auto 4px}
+#m,#u{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:22px 16px;text-align:center;overflow:auto}
+#m{background:radial-gradient(circle at 50% -10%,#245b3a 0,#10281b 34%,#08140f 74%)}#m:before{content:'';position:absolute;inset:0;opacity:.22;background-image:radial-gradient(#74e89a 1px,transparent 1px);background-size:22px 22px;pointer-events:none}#m>*{position:relative}
+#u{display:none;background:#000c}h1{margin:0;color:#a8ffbf;font-size:clamp(2.15rem,8vw,3.25rem);letter-spacing:-.06em;text-shadow:0 4px 20px #0008}h2{margin:0}.brand p{margin:6px 0 0;color:#b8d9be;font-size:.93rem}.eyebrow{display:block;color:#74e89a;font-size:.7rem;font-weight:800;letter-spacing:.16em}.lobby{width:min(94vw,430px);padding:16px;border:1px solid #5eea8a55;border-radius:20px;background:#0c1e15e8;box-shadow:0 18px 45px #0007;display:grid;gap:12px;text-align:left}.field{display:grid;gap:5px;color:#9fc6a7;font-size:.74rem;font-weight:750;letter-spacing:.08em;text-transform:uppercase}.sectionTitle{display:flex;justify-content:space-between;align-items:center;color:#d9f6dc;font-size:.82rem;font-weight:800}.sectionTitle small{color:#75da93;font-weight:650;letter-spacing:0;text-transform:none}
+.cs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.cs button{min-height:82px;padding:6px 3px;font-size:.73rem;line-height:1.1}.cs button.s{border-color:#7dffa2;background:linear-gradient(145deg,#235d36,#173524);box-shadow:inset 0 0 0 1px #b1ffc355}
+button,input{font:inherit;color:inherit;background:#12291b;border:1px solid #397246;border-radius:12px;padding:10px 12px}button{cursor:pointer;transition:transform .14s,background .14s,border-color .14s}button:active{transform:scale(.97)}button.s{border-color:#5eea8a;background:#1f4128}.cs canvas{display:block;margin:0 auto 4px}
 .cd{width:min(90vw,320px);text-align:left}
-#go{background:#5eea8a;color:#0d1a10;font-weight:700;border-color:#5eea8a}
+#go{width:100%;background:linear-gradient(135deg,#a4ffb9,#53dc7d);color:#092111;font-weight:850;border-color:#a8ffbf;box-shadow:0 8px 20px #3fd86a44}
 small{opacity:.7}
+#auth{display:grid;gap:8px}.authActions{display:flex;gap:8px}.authActions button{flex:1}#authStatus{min-height:1.2em;color:#fbbf24;text-align:center}.roomRow{display:grid;grid-template-columns:1fr auto;gap:8px}.roomRow button{padding-inline:14px;color:#a9ffbc}
+#touchControls{display:none;position:fixed;inset:auto 0 0;z-index:4;padding:max(18px,env(safe-area-inset-bottom)) 18px 20px;pointer-events:none;justify-content:space-between;align-items:end}.moveZone{width:132px;height:132px;border:2px solid #d8ffe044;border-radius:50%;background:#0d211488;box-shadow:inset 0 0 24px #66ed8a18;position:relative;pointer-events:auto}.moveZone:before{content:'MOVER';position:absolute;inset:0;display:grid;place-items:center;color:#e4ffe8a6;font-size:.62rem;font-weight:800;letter-spacing:.13em}.moveKnob{position:absolute;left:40px;top:40px;width:48px;height:48px;border-radius:50%;background:#b7ffc799;border:2px solid #edffef;box-shadow:0 4px 12px #0007;transform:translate(0,0)}.actionReserve{min-width:112px;padding:12px 10px;border-radius:18px;border:1px solid #f4ffad44;background:#18220fcc;text-align:center;color:#f4ffad;font-size:.68rem;font-weight:800;letter-spacing:.08em;line-height:1.35;text-transform:uppercase}.actionReserve span{display:block;color:#f1ffcf88;font-size:.58rem;font-weight:650;letter-spacing:.04em}
+@media (pointer:coarse){#touchControls{display:flex}}@media (max-height:700px){#m{justify-content:flex-start}.brand p{display:none}.lobby{gap:8px;padding:12px}.cs button{min-height:68px}.cs canvas{transform:scale(.78);margin:-4px auto -7px}}
 </style></head><body>
 <canvas id="c"></canvas>
-<div id="m"><h1>Slime Ascendent</h1>
-<input id="n" placeholder="Seu nome" maxlength="10">
-<div class="cs" id="cs"></div>
-<input id="r" placeholder="Código da sala" value="geral" maxlength="12">
-<button id="go">Jogar</button>
-<small>Seus amigos entram com o mesmo código de sala.</small></div>
+<div id="touchControls" aria-hidden="true"><div class="moveZone" id="moveZone"><i class="moveKnob" id="moveKnob"></i></div><div class="actionReserve">⚔ ataque automático<span>Área livre para ações</span></div></div>
+<div id="m"><div class="brand"><span class="eyebrow">CO-OP • SOBREVIVA ÀS ONDAS</span><h1>Slime Ascendent</h1><p>Escolha sua classe, entre na sala e cresça junto com a equipe.</p></div><main class="lobby">
+<label class="field">Seu aventureiro<input id="n" placeholder="Como quer ser chamado?" maxlength="10"></label>
+<div id="auth"><label class="field">Conta<input id="email" type="email" placeholder="seuemail@exemplo.com"></label><label class="field">Senha<input id="pw" type="password" placeholder="Mínimo de 6 caracteres"></label><div class="authActions"><button id="login">Entrar</button><button id="signup">Cadastrar</button></div><small id="authStatus">Verificando autenticação...</small></div>
+<div class="sectionTitle"><span>Escolha sua classe</span><small>toque para selecionar</small></div><div class="cs" id="cs"></div>
+<label class="field">Sala da equipe<div class="roomRow"><input id="r" placeholder="Código da sala" value="geral" maxlength="12"><button type="button">🔗</button></div></label>
+<button id="go">Entrar na aventura</button><small>Compartilhe o código da sala com os amigos.</small></main></div>
 <div id="u"></div>
 <script>
 const $=i=>document.getElementById(i),cv=$('c'),x=cv.getContext('2d'),U=3,RENDER='SEU-APP.onrender.com';
@@ -37,7 +39,14 @@ curandeiro:[[-1,-3,2,5,'#fff'],[-3,-1,6,1,'#fff']],
 arqueiro:[[-5,-1,10,2,'#166534'],[3,-3,1,3,'#fde047'],[7,3,1,6,'#92400e'],[6,2,1,1,'#92400e'],[6,9,1,1,'#92400e']]};
 const NM={'p:proj':['💧 Gosma','Atira no inimigo mais próximo'],'p:orb':['⚪ Orbes','Orbes giram ao seu redor'],'p:nova':['💥 Pulso','Explosão em área'],'p:raio':['⚡ Relâmpago','Raios em inimigos próximos'],'p:aura':['🌀 Aura','Dano contínuo ao redor'],'s:vida':['❤️ Vida','+20% de vida máxima'],'s:dano':['⚔️ Força','+15% de dano'],'s:vel':['👟 Agilidade','+10% de velocidade'],'s:recarga':['⏱️ Recarga','Poderes 10% mais rápidos'],'s:ima':['🧲 Ímã','Atrai o XP de mais longe']};
 const EC=['#ef4444','#f59e0b','#7c3aed'],ER=[10,8,16];
-let me=0,S=null,ws,cls='normal',keys={},joy=null,last='';
+let me=0,S=null,ws,cls='normal',keys={},joy=null,last='',auth={enabled:false,url:'',anonKey:'',token:localStorage.getItem('slime_access_token')||''};
+
+function authMessage(v){$('authStatus').textContent=v}
+async function authRequest(path,body){const r=await fetch(auth.url+path,{method:'POST',headers:{apikey:auth.anonKey,'Content-Type':'application/json'},body:JSON.stringify(body)});const d=await r.json();if(!r.ok)throw Error(d.error_description||d.msg||'Não foi possível autenticar.');return d}
+async function setupAuth(){try{const r=await fetch('/api/config',{cache:'no-store'}),d=await r.json();Object.assign(auth,d.supabase||{});if(!auth.enabled){$('auth').style.display='none';return}if(auth.token){const check=await fetch(auth.url+'/auth/v1/user',{headers:{apikey:auth.anonKey,Authorization:'Bearer '+auth.token}});if(check.ok){authMessage('Sessão recuperada.');return}localStorage.removeItem('slime_access_token');auth.token=''}authMessage('Entre ou crie sua conta para salvar seu progresso.')}catch(e){authMessage('Não foi possível verificar a autenticação.')}}
+$('login').onclick=async()=>{try{authMessage('Entrando...');const d=await authRequest('/auth/v1/token?grant_type=password',{email:$('email').value.trim(),password:$('pw').value});auth.token=d.access_token;localStorage.setItem('slime_access_token',auth.token);authMessage('Conta conectada!');}catch(e){authMessage(e.message)}};
+$('signup').onclick=async()=>{try{authMessage('Criando conta...');const d=await authRequest('/auth/v1/signup',{email:$('email').value.trim(),password:$('pw').value});if(d.access_token){auth.token=d.access_token;localStorage.setItem('slime_access_token',auth.token);authMessage('Conta criada e conectada!')}else authMessage('Conta criada! Confirme o e-mail e entre.')}catch(e){authMessage(e.message)}};
+setupAuth();
 
 function slime(c,px,py,k,t){
  const b=Math.round(Math.sin(t/200)),W=[4,8,10,12,12,12,12,10];
@@ -53,10 +62,11 @@ CL.forEach(k=>{const b=document.createElement('button'),c=document.createElement
 $('cs').children[0].click();
 
 $('go').onclick=()=>{
+ if(auth.enabled&&!auth.token){authMessage('Entre na sua conta antes de jogar.');return}
  const H=location.port||location.hostname!='localhost'?location.host:RENDER;
  ws=new WebSocket((location.protocol=='http:'?'ws://':'wss://')+H+'/?s='+encodeURIComponent($('r').value.trim()||'geral'));
- ws.onopen=()=>{ws.send(JSON.stringify({t:'join',cls,name:$('n').value}));$('m').style.display='none'};
- ws.onmessage=e=>{const d=JSON.parse(e.data);if(d.t=='id')me=d.id;else S=d};
+ ws.onopen=()=>{ws.send(JSON.stringify({t:'join',cls,name:$('n').value,token:auth.token}));$('m').style.display='none'};
+ ws.onmessage=e=>{const d=JSON.parse(e.data);if(d.t=='id')me=d.id;else if(d.t=='auth_error'){authMessage(d.message);ws.close()}else S=d};
  ws.onclose=()=>{S=null;$('u').style.display='none';$('m').style.display='flex'}};
 function pick(i){ws.send(JSON.stringify({t:'pick',i}))}
 function ui(p){const u=$('u'),ch=p&&p.ch;if(!ch){u.style.display='none';return}u.style.display='flex';
@@ -64,9 +74,14 @@ function ui(p){const u=$('u'),ch=p&&p.ch;if(!ch){u.style.display='none';return}u
   return`<button class="cd" onclick="pick(${i})"><b>${a}</b> · ${o[0]=='p'?'poder':'passiva'} nível ${n+1}<br><small>${b}</small></button>`}).join('')}
 
 onkeydown=e=>keys[e.key.toLowerCase()]=1;onkeyup=e=>keys[e.key.toLowerCase()]=0;
-cv.ontouchstart=cv.ontouchmove=e=>{e.preventDefault();const t=e.touches[0];if(e.type=='touchstart')joy={x:t.clientX,y:t.clientY};
- const dx=t.clientX-joy.x,dy=t.clientY-joy.y,d=Math.hypot(dx,dy)||1,m=Math.min(d,50)/50;joy.dx=dx/d*m;joy.dy=dy/d*m;joy.px=t.clientX;joy.py=t.clientY};
-cv.ontouchend=()=>joy=null;
+let touchId=null;
+function moveFromTouch(t){const z=$('moveZone').getBoundingClientRect(),cx=z.left+z.width/2,cy=z.top+z.height/2,dx=t.clientX-cx,dy=t.clientY-cy,d=Math.hypot(dx,dy)||1,m=Math.min(d,48)/48;joy={x:cx,y:cy,dx:dx/d*m,dy:dy/d*m,px:cx+dx/d*Math.min(d,48),py:cy+dy/d*Math.min(d,48)};$('moveKnob').style.transform=`translate(${joy.px-cx}px,${joy.py-cy}px)`}
+const moveZone=$('moveZone');
+moveZone.ontouchstart=e=>{e.preventDefault();const t=e.changedTouches[0];touchId=t.identifier;moveFromTouch(t)};
+moveZone.ontouchmove=e=>{e.preventDefault();const t=[...e.touches].find(q=>q.identifier===touchId);if(t)moveFromTouch(t)};
+moveZone.ontouchend=moveZone.ontouchcancel=e=>{if([...e.changedTouches].some(t=>t.identifier===touchId)){touchId=null;joy=null;$('moveKnob').style.transform='translate(0,0)'}};
+cv.ontouchstart=cv.ontouchmove=e=>{if(e.touches[0]&&e.touches[0].clientX<innerWidth*.5){e.preventDefault();const t=e.touches[0];if(e.type=='touchstart')joy={x:t.clientX,y:t.clientY};const dx=t.clientX-joy.x,dy=t.clientY-joy.y,d=Math.hypot(dx,dy)||1,m=Math.min(d,50)/50;joy.dx=dx/d*m;joy.dy=dy/d*m;joy.px=t.clientX;joy.py=t.clientY}};
+cv.ontouchend=()=>{if(touchId===null)joy=null};
 setInterval(()=>{if(!ws||ws.readyState!=1)return;
  let dx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),dy=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);
  if(joy){dx=joy.dx;dy=joy.dy}ws.send(JSON.stringify({t:'in',dx,dy}))},50);

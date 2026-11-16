@@ -1,0 +1,104 @@
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Slime Ascendent</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0d1a10;color:#e6f4e6;font-family:system-ui,sans-serif;overflow:hidden;touch-action:none;user-select:none}
+#c{display:block;width:100vw;height:100vh}
+#m,#u{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;text-align:center;overflow:auto}
+#m{background:#0d1a10}#u{display:none;background:#000c}
+h1{margin:0;font-size:2rem;color:#5eea8a}h2{margin:0}
+.cs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+button,input{font:inherit;color:inherit;background:#15281a;border:2px solid #2f5d3a;border-radius:10px;padding:8px 12px}
+button.s{border-color:#5eea8a;background:#1f4128}
+.cs canvas{display:block;margin:0 auto 4px}
+.cd{width:min(90vw,320px);text-align:left}
+#go{background:#5eea8a;color:#0d1a10;font-weight:700;border-color:#5eea8a}
+small{opacity:.7}
+</style></head><body>
+<canvas id="c"></canvas>
+<div id="m"><h1>Slime Ascendent</h1>
+<input id="n" placeholder="Seu nome" maxlength="10">
+<div class="cs" id="cs"></div>
+<input id="r" placeholder="Código da sala" value="geral" maxlength="12">
+<button id="go">Jogar</button>
+<small>Seus amigos entram com o mesmo código de sala.</small></div>
+<div id="u"></div>
+<script>
+const $=i=>document.getElementById(i),cv=$('c'),x=cv.getContext('2d'),U=3,RENDER='SEU-APP.onrender.com';
+const CL=['normal','mago','cavaleiro','necromante','curandeiro','arqueiro'];
+const LB={normal:'Slime',mago:'Mago',cavaleiro:'Cavaleiro',necromante:'Necromante',curandeiro:'Curandeiro',arqueiro:'Arqueiro'};
+const CO={normal:'#4ade80',mago:'#60a5fa',cavaleiro:'#cbd5e1',necromante:'#a78bfa',curandeiro:'#f9a8d4',arqueiro:'#a3e635'};
+const AC={normal:[[0,-3,1,3,'#166534'],[1,-3,2,1,'#16a34a']],
+mago:[[-5,-1,10,1,'#4c1d95'],[-3,-3,6,2,'#6d28d9'],[-1,-5,2,2,'#6d28d9']],
+cavaleiro:[[-6,0,12,3,'#94a3b8'],[-1,-3,2,3,'#ef4444']],
+necromante:[[-6,-1,12,2,'#3b0764'],[-4,-2,8,1,'#3b0764']],
+curandeiro:[[-1,-3,2,5,'#fff'],[-3,-1,6,1,'#fff']],
+arqueiro:[[-5,-1,10,2,'#166534'],[3,-3,1,3,'#fde047'],[7,3,1,6,'#92400e'],[6,2,1,1,'#92400e'],[6,9,1,1,'#92400e']]};
+const NM={'p:proj':['💧 Gosma','Atira no inimigo mais próximo'],'p:orb':['⚪ Orbes','Orbes giram ao seu redor'],'p:nova':['💥 Pulso','Explosão em área'],'p:raio':['⚡ Relâmpago','Raios em inimigos próximos'],'p:aura':['🌀 Aura','Dano contínuo ao redor'],'s:vida':['❤️ Vida','+20% de vida máxima'],'s:dano':['⚔️ Força','+15% de dano'],'s:vel':['👟 Agilidade','+10% de velocidade'],'s:recarga':['⏱️ Recarga','Poderes 10% mais rápidos'],'s:ima':['🧲 Ímã','Atrai o XP de mais longe']};
+const EC=['#ef4444','#f59e0b','#7c3aed'],ER=[10,8,16];
+let me=0,S=null,ws,cls='normal',keys={},joy=null,last='';
+
+function slime(c,px,py,k,t){
+ const b=Math.round(Math.sin(t/200)),W=[4,8,10,12,12,12,12,10];
+ c.fillStyle=CO[k];W.forEach((w,i)=>{w+=2*b*(i>3);c.fillRect(px-w*U/2,py-(8-i)*U,w*U,U)});
+ c.fillStyle='#0003';c.fillRect(px-5*U,py-2*U,10*U,2*U);
+ c.fillStyle='#fff';c.fillRect(px-3*U,py-5*U,2*U,2*U);c.fillRect(px+U,py-5*U,2*U,2*U);
+ c.fillStyle=k=='necromante'?'#f43f5e':'#111';c.fillRect(px-2*U,py-4*U,U,U);c.fillRect(px+2*U,py-4*U,U,U);
+ AC[k].forEach(([dx,dy,w,h,col])=>{c.fillStyle=col;c.fillRect(px+dx*U,py-8*U+dy*U,w*U,h*U)})}
+
+CL.forEach(k=>{const b=document.createElement('button'),c=document.createElement('canvas');c.width=48;c.height=48;
+ slime(c.getContext('2d'),24,42,k,0);b.append(c,LB[k]);
+ b.onclick=()=>{cls=k;[...$('cs').children].forEach(e=>e.className='');b.className='s'};$('cs').append(b)});
+$('cs').children[0].click();
+
+$('go').onclick=()=>{
+ const H=location.port||location.hostname!='localhost'?location.host:RENDER;
+ ws=new WebSocket((location.protocol=='http:'?'ws://':'wss://')+H+'/?s='+encodeURIComponent($('r').value.trim()||'geral'));
+ ws.onopen=()=>{ws.send(JSON.stringify({t:'join',cls,name:$('n').value}));$('m').style.display='none'};
+ ws.onmessage=e=>{const d=JSON.parse(e.data);if(d.t=='id')me=d.id;else S=d};
+ ws.onclose=()=>{S=null;$('u').style.display='none';$('m').style.display='flex'}};
+function pick(i){ws.send(JSON.stringify({t:'pick',i}))}
+function ui(p){const u=$('u'),ch=p&&p.ch;if(!ch){u.style.display='none';return}u.style.display='flex';
+ u.innerHTML='<h2>Subiu de nível!</h2>'+ch.map((o,i)=>{const[a,b]=NM[o],n=(o[0]=='p'?p.pw:p.ps)[o.slice(2)]||0;
+  return`<button class="cd" onclick="pick(${i})"><b>${a}</b> · ${o[0]=='p'?'poder':'passiva'} nível ${n+1}<br><small>${b}</small></button>`}).join('')}
+
+onkeydown=e=>keys[e.key.toLowerCase()]=1;onkeyup=e=>keys[e.key.toLowerCase()]=0;
+cv.ontouchstart=cv.ontouchmove=e=>{e.preventDefault();const t=e.touches[0];if(e.type=='touchstart')joy={x:t.clientX,y:t.clientY};
+ const dx=t.clientX-joy.x,dy=t.clientY-joy.y,d=Math.hypot(dx,dy)||1,m=Math.min(d,50)/50;joy.dx=dx/d*m;joy.dy=dy/d*m;joy.px=t.clientX;joy.py=t.clientY};
+cv.ontouchend=()=>joy=null;
+setInterval(()=>{if(!ws||ws.readyState!=1)return;
+ let dx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),dy=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);
+ if(joy){dx=joy.dx;dy=joy.dy}ws.send(JSON.stringify({t:'in',dx,dy}))},50);
+onresize=()=>{cv.width=innerWidth;cv.height=innerHeight};onresize();
+
+function draw(t){requestAnimationFrame(draw);if(!S)return;
+ const W=cv.width,H=cv.height,p=S.p.find(q=>q.id==me);if(!p)return;
+ const cx=Math.max(0,Math.min(1600-W,p.x-W/2)),cy=Math.max(0,Math.min(1600-H,p.y-H/2));
+ for(let i=Math.floor(cx/32);i<50&&i*32<cx+W;i++)for(let j=Math.floor(cy/32);j<50&&j*32<cy+H;j++){x.fillStyle=(i+j)%2?'#1c2e20':'#223626';x.fillRect(i*32-cx,j*32-cy,32,32)}
+ x.fillStyle='#22d3ee';S.g.forEach(([a,b])=>x.fillRect(a-cx-2,b-cy-2,5,5));
+ S.e.forEach(([a,b,ty,h])=>{const s=ER[ty],X=a-cx,Y=b-cy;x.fillStyle=EC[ty];x.fillRect(X-s,Y-s,s*2,s*2);
+  x.fillStyle='#fff';x.fillRect(X-s+3,Y-s/2,3,3);x.fillRect(X+s-6,Y-s/2,3,3);
+  if(h<1){x.fillStyle='#000';x.fillRect(X-s,Y-s-5,s*2,3);x.fillStyle='#f43f5e';x.fillRect(X-s,Y-s-5,s*2*h,3)}});
+ x.fillStyle='#fde047';S.s.forEach(([a,b])=>x.fillRect(a-cx-2,b-cy-2,5,5));
+ x.fillStyle='#e0f2fe';S.b.forEach(([a,b])=>x.fillRect(a-cx-4,b-cy-4,8,8));
+ x.lineWidth=3;S.f.forEach(([k,a,b,c,d])=>{x.beginPath();
+  if(k=='n'){x.strokeStyle='#f0abfc';x.arc(a-cx,b-cy,c,0,7)}else{x.strokeStyle='#fde047';x.moveTo(a-cx,b-cy);x.lineTo(c-cx,d-cy)}x.stroke()});
+ x.textAlign='center';x.font='11px sans-serif';
+ S.p.forEach(q=>{const X=q.x-cx,Y=q.y-cy;x.globalAlpha=q.d?.4:1;
+  if(q.pw.aura){x.strokeStyle='#4ade8088';x.lineWidth=2;x.beginPath();x.arc(X,Y,50+8*q.pw.aura,0,7);x.stroke()}
+  slime(x,X,Y+12,q.c,t);x.fillStyle='#fff';x.fillText(q.n,X,Y-34);
+  x.fillStyle='#000';x.fillRect(X-15,Y+16,30,3);x.fillStyle='#ef4444';x.fillRect(X-15,Y+16,30*Math.max(0,q.h/q.m),3);x.globalAlpha=1});
+ x.fillStyle='#0009';x.fillRect(8,8,170,56);
+ x.fillStyle='#ef4444';x.fillRect(12,12,162*Math.max(0,p.h/p.m),10);
+ x.fillStyle='#38bdf8';x.fillRect(12,26,162*p.xp/p.nx,8);
+ x.fillStyle='#fff';x.font='13px sans-serif';x.textAlign='left';x.fillText('Nv '+p.l+'   Onda '+S.w+'   HP '+p.h,12,54);
+ x.textAlign='center';x.font='20px sans-serif';
+ if(joy){x.strokeStyle='#fff6';x.lineWidth=2;x.beginPath();x.arc(joy.x,joy.y,50,0,7);x.stroke();x.fillStyle='#fff4';x.beginPath();x.arc(joy.px,joy.py,18,0,7);x.fill()}
+ x.fillStyle='#fff';
+ if(S.o){x.fillStyle='#000a';x.fillRect(0,0,W,H);x.fillStyle='#fff';x.fillText('Fim de jogo! Reiniciando...',W/2,H/2)}
+ else if(p.d)x.fillText('Você caiu! Espere os amigos.',W/2,90);
+ else if(S.pa&&!p.ch)x.fillText('Jogo pausado: alguém escolhe uma melhoria',W/2,90);
+ const key=p.ch?p.ch.join():'';if(key!=last){last=key;ui(p)}}
+requestAnimationFrame(draw);
+</script></body></html>

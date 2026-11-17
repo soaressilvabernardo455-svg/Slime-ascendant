@@ -62,6 +62,8 @@ assert.ok(app.includes("if(connectTimer)clearTimeout(connectTimer)"), 'watchdog 
 assert.match(html, /version-pill">v4\.0</, 'a versão exibida no lobby precisa aumentar');
 
 assert.match(server, /MAX_PLAYERS=4/, 'limite de quatro jogadores ausente');
+assert.match(server, /MAX_CONNECTIONS=40/, 'limite de conexões simultâneas ausente');
+assert.match(server, /let k=.*r=null/, 'a sala deve ser criada somente após join');
 assert.match(server, /MAX_MESSAGE_RATE=45/, 'limite de frequência WebSocket ausente');
 assert.match(server, /maxPayload:2048/, 'limite de tamanho de mensagem WebSocket ausente');
 assert.match(server, /function cleanPlayerData/, 'validação dos dados enviados pelo cliente ausente');

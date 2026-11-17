@@ -357,6 +357,10 @@ input,textarea,select{touch-action:auto;user-select:text}
 #powhud .power-badge{padding:0;min-width:34px;min-height:34px;cursor:pointer;touch-action:manipulation}
 #powhud .ascension-badge{--skill-color:#fbbf24;background:radial-gradient(circle at 30% 24%,#fff 0 5%,#ffffff44 10%,transparent 36%),radial-gradient(circle at 38% 32%,#fbbf24,#78350f 83%);color:#fff5c2;font-weight:1000}
 #tt{top:auto;bottom:calc(104px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100vw - 28px);white-space:normal;text-align:center;line-height:1.3;pointer-events:none}
+/* Botão compacto para recolher/abrir a lista de habilidades. */
+#power-toggle{position:fixed;right:12px;top:calc(env(safe-area-inset-top,0px) + 56px);z-index:16;display:none;place-items:center;width:46px;height:46px;padding:5px;border:1px solid #d8c5ff;border-radius:15px;background:linear-gradient(145deg,#57359b,#17152d);box-shadow:0 5px 18px #0009;color:#fff}
+.power-toggle-icon{font-size:25px;line-height:1;text-shadow:0 0 10px #e9d5ff}
+.power-count{position:absolute;right:-5px;top:-5px;min-width:19px;height:19px;padding:0 4px;display:grid;place-items:center;border:1px solid #fff;border-radius:10px;background:#fbbf24;color:#241506;font:900 11px/1 system-ui}
 /* Inventário recolhido em um único botão de mochila. */
 #item-toggle{position:fixed;left:12px;top:50%;transform:translateY(-50%);z-index:16;display:none;place-items:center;min-width:48px;min-height:48px;padding:7px;border:1px solid #9ae6b4;border-radius:15px;background:linear-gradient(145deg,#193c2aee,#07150fee);box-shadow:0 5px 18px #0009;color:#fff}
 .item-toggle-icon{font-size:24px;line-height:1}
@@ -423,7 +427,7 @@ input,textarea,select{touch-action:auto;user-select:text}
  <section class="loading-card glass"><div class="loading-orb">✦</div><h2 id="loading-title">Acordando servidor...</h2><p id="loading-message">Preparando a conexão com o mundo.</p><div class="loading-track"><span></span></div><button id="cancel-loading">Cancelar</button></section>
 </div>
 <div id="tt"></div><div id="fim"><h1>Fim de jogo</h1><div id="fr"></div><button id="vl">Voltar ao lobby</button></div>
-<div id="u"></div><div id="powhud"></div>
+<div id="u"></div><button id="power-toggle" type="button" aria-label="Abrir habilidades" aria-expanded="false" onclick="togglePowerHUD()"><span class="power-toggle-icon">✦</span><span id="power-count" class="power-count">0</span></button><div id="powhud"></div>
 <script>
 const $=i=>document.getElementById(i),cv=$('c'),x=cv.getContext('2d'),U=3,RENDER='slime-ascendant.onrender.com';
 const CL=['normal','mago','cavaleiro','necromante','curandeiro','arqueiro'];
@@ -585,7 +589,8 @@ function setGameState(next,title,message){
  $('loading-overlay').classList.toggle('h',!loading);
  if(loading){$('loading-title').textContent=title||'Acordando servidor...';$('loading-message').textContent=message||'Preparando a conexão com o mundo.'}
  $('fim').style.display=next==='GAMEOVER'?'flex':'none';
- $('ex').style.display=playing?'block':'none';$('powhud').style.display=playing?'flex':'none';$('item-hud').style.display='none';$('item-toggle').style.display='none';$('item-toggle').dataset.open='0';$('item-toggle').setAttribute('aria-expanded','false');
+ if(!playing)powerHudOpen=false;
+ $('ex').style.display=playing?'block':'none';$('power-toggle').style.display=playing?'grid':'none';$('power-toggle').setAttribute('aria-expanded',String(powerHudOpen));$('power-toggle').setAttribute('aria-label',powerHudOpen?'Fechar habilidades':'Abrir habilidades');$('powhud').style.display=playing&&powerHudOpen?'flex':'none';$('item-hud').style.display='none';$('item-toggle').style.display='none';$('item-toggle').dataset.open='0';$('item-toggle').setAttribute('aria-expanded','false');
  $('go').disabled=loading;$('priv').disabled=loading;$('off').disabled=loading;
  if(inLobby){$('u').style.display='none';$('fim').style.display='none';$('powhud').innerHTML='';lastPow=''}
 }
@@ -1194,8 +1199,10 @@ $('ex').onclick=returnToLobby;$('vl').onclick=returnToLobby;
 const SKICON={proj:'💧',orb:'🪐',nova:'💥',raio:'⚡',aura:'🌀',vida:'❤️',dano:'⚔️',vel:'👟',recarga:'⏱️',ima:'🧲',regen:'🌿',xp:'✨',meteoro:'☄️',armadura:'🛡️',lanca:'🔱',corrente:'⛓️',espinhos:'🌵',furacao:'🌪️',crit:'💠',sorte:'🍀'};
 const SKCOLOR={proj:'#38bdf8',orb:'#a78bfa',nova:'#fb7185',raio:'#facc15',aura:'#34d399',meteoro:'#f97316',lanca:'#60a5fa',corrente:'#facc15',espinhos:'#84cc16',furacao:'#c084fc',vida:'#fb7185',dano:'#f97316',vel:'#84cc16',recarga:'#60a5fa',ima:'#c084fc',regen:'#4ade80',xp:'#fbbf24',armadura:'#94a3b8',crit:'#67e8f9',sorte:'#4ade80'};
 let lastPow='';
+let powerHudOpen=false;
 let lastItemHudKey='';
 function toggleItemInventory(){const button=$('item-toggle'),panel=$('item-hud'),open=button.dataset.open!=='1';button.dataset.open=open?'1':'0';button.setAttribute('aria-expanded',String(open));button.setAttribute('aria-label',open?'Fechar inventário':'Abrir inventário');panel.style.display=open?'flex':'none'}
+function togglePowerHUD(){powerHudOpen=!powerHudOpen;const button=$('power-toggle');$('powhud').style.display=powerHudOpen?'flex':'none';button.setAttribute('aria-expanded',String(powerHudOpen));button.setAttribute('aria-label',powerHudOpen?'Fechar habilidades':'Abrir habilidades')}
 function updateItemHUD(p){const items=Array.isArray(p&&p.it)?p.it:SV.items,key=items.join('|'),active=GAME_STATE==='PLAYING'||GAME_STATE==='GAMEOVER',visible=active&&items.length>0,button=$('item-toggle'),panel=$('item-hud');button.style.display=visible?'grid':'none';$('item-count').textContent=String(items.length);if(!visible){button.dataset.open='0';button.setAttribute('aria-expanded','false');panel.style.display='none'}if(key!==lastItemHudKey){lastItemHudKey=key;const meta={espada:['⚔️','Espada'],escudo:['🛡️','Escudo'],botas:['👢','Botas'],amuleto:['🔮','Amuleto'],anel:['💍','Anel'],coracao:['💚','Coração']};panel.innerHTML='<b class="inventory-title">ITENS EQUIPADOS</b>'+items.map(k=>meta[k]?'<span class="item-hud-chip">'+meta[k][0]+' <small>'+meta[k][1]+'</small></span>':'').join('')}if(visible)panel.style.display=button.dataset.open==='1'?'flex':'none'}
 function powerHUD(p){
  const powers=Object.entries(p.pw||{}).filter(([k,v])=>v>0).map(([k,v])=>[k,v,0]);
@@ -1203,6 +1210,7 @@ function powerHUD(p){
  const all=[...powers,...passives],key=all.map(a=>a.join(':')).join('|')+'|asc:'+(p.l>=5?1:0);
  if(key===lastPow)return;lastPow=key;
  const badges=all.map(([k,v,pass])=>{const id=(pass?'s:':'p:')+k,meta=NM[id]||['Poder'];return '<button type="button" class="power-badge '+(pass?'passive':'')+'" style="--skill-color:'+(SKCOLOR[k]||'#38bdf8')+'" title="'+meta[0]+'" aria-label="'+meta[0]+'" data-skill="'+id+'" onclick="showSkillInfo(this.dataset.skill)">'+svgIcon(k,'power-svg')+'<em>'+v+'</em></button>'}).join('');
+ $('power-count').textContent=String(all.length+(p.l>=5?1:0));
  $('powhud').innerHTML=badges+(p.l>=5?'<button type="button" class="power-badge ascension-badge" title="Explosão de Ascensão" aria-label="Explosão de Ascensão" data-skill="ascensao" onclick="showSkillInfo(this.dataset.skill)">✦<em>5</em></button>':'');
 }
 function showSkillInfo(id){

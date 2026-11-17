@@ -203,3 +203,7 @@ assert.ok(app.includes('offlineDropChestNearPlayer') && app.includes("q.type==='
 assert.ok(server.includes("p.cls==='cavaleiro'&&rdy('knightSword',48)")&&app.includes("p.cls==='cavaleiro'&&rdy('knightSword',48)"), 'Cavaleiro precisa atacar com espada em intervalos de 1,6 segundo');
 assert.ok(server.includes("b.cls==='cavaleiro'&&(b.shieldUntil||0)>=r.t")&&app.includes("p.cls==='cavaleiro'&&(p.shieldUntil||0)>=r.t"), 'escudo temporário do Cavaleiro precisa bloquear contato online e offline');
 assert.ok(app.includes("else if(k==='s')"), 'golpe de espada do Cavaleiro precisa ter efeito visual');
+assert.ok(app.includes("if(ty===2){")&&app.includes("else if(ty===5){")&&app.includes("else if(ty===6){"), 'golem, fantasma e monstro vegetal precisam de silhuetas diferentes');
+assert.ok(server.includes("w>2&&q<.08?5")&&app.includes("w>2&&q<.08?5")&&server.includes("w>1&&q<.36?4"), 'inimigos variados precisam começar a aparecer nas primeiras ondas');
+assert.ok(app.includes("max||(!developerModeEnabled&&SV.co<cost)"), 'upgrades gratuitos de teste não podem depender do saldo normal');
+assert.ok(app.includes("developerModeEnabled?'🪙 ∞　💎 ∞'"), 'modo de teste deve exibir saldo ilimitado sem alterar o perfil');

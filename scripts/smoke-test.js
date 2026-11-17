@@ -81,7 +81,7 @@ assert.ok(app.includes("joinOnline(code,$('create-room'))"), 'sala privada preci
 assert.ok(html.includes('id="ts"')&&html.includes('data-t="s"'), 'aba de configurações ausente');
 assert.ok(app.includes('id="reset-game"')&&app.includes('Todo o progresso deste perfil será apagado'), 'reset precisa pedir confirmação');
 assert.ok(app.includes('SV.quality===0?1:DEVICE_DPR_CAP'), 'configuração de qualidade precisa alterar resolução');
-assert.ok(app.includes("$('setting-fps')")&&app.includes("' FPS'"), 'opção de FPS precisa exibir contador');
+assert.ok(app.includes("settings.querySelector('#setting-fps')")&&app.includes("' FPS'"), 'opção de FPS precisa exibir contador');
 assert.ok(app.includes('refreshAccountWhenActive'), 'sessão deve ser revalidada ao voltar ao jogo');
 assert.equal((app.match(/if\(p\.cls==='necromante'\)/g)||[]).length,1, 'invocação offline não pode executar duplicada');
 assert.match(app, /const MAPS=\[\['Floresta Antiga',0,0\],\['Deserto Dourado',6000,0\],\['Tundra Gelada',15000,0\],\['Vulcão Carmesim',0,300\]\]/);

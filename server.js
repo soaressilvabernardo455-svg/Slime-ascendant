@@ -95,7 +95,7 @@ wss.on('connection',(ws,rq)=>{
  ws.on('message',raw=>{let d;try{d=JSON.parse(raw)}catch{return}
   if(d.t=='join'&&!r.ps[id]){if(!Object.keys(r.ps).length)r.map=Math.min(3,Math.max(0,+d.map||0));r.ps[id]=mk(id,d.cls,d.name,d.up,d.it);ws.send(JSON.stringify({t:'id',id}));return}
   const p=r.ps[id];if(!p)return;
-  if(d.t=='in'){const dx=+d.dx||0,dy=+d.dy||0;if(dx||dy){p.dx=dx;p.dy=dy;p.stopAfterStep=0;p.stopRequested=0}else if(!p.stopRequested&&(p.dx||p.dy)){p.stopAfterStep=3;p.stopRequested=1}}
+  if(d.t=='in'){const dx=+d.dx||0,dy=+d.dy||0;if(dx||dy){p.dx=dx;p.dy=dy;p.stopAfterStep=0;p.stopRequested=0}else if(!p.stopRequested&&(p.dx||p.dy)){p.stopAfterStep=1;p.stopRequested=1}}
   else if(d.t=='pick')pick(p,d.i)});
  ws.on('close',()=>{delete r.ps[id];if(!Object.keys(r.ps).length)delete rooms[k]})});
 srv.listen(process.env.PORT||3000);

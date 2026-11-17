@@ -516,11 +516,8 @@ SV.up={vida:SV.up.vida||0,dano:SV.up.dano||0,vel:SV.up.vel||0,moeda:SV.up.moeda|
 SV.mute=SV.mute?1:0;
 const save=()=>{try{localStorage.slimeSave=JSON.stringify(SV)}catch(e){}};
 function sanitizeSaveBackup(raw){if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('Código de progresso inválido.');const classes=Array.isArray(raw.cls)?[...new Set(raw.cls.filter(k=>CL.includes(k)))]:['normal'];if(!classes.includes('normal'))classes.unshift('normal');const maps=Array.isArray(raw.maps)?[...new Set(raw.maps.map(Number).filter(i=>Number.isInteger(i)&&i>=0&&i<MAPS.length))]:[0];if(!maps.includes(0))maps.unshift(0);const up={};for(const key of Object.keys(UPG)){const n=Number(raw.up&&raw.up[key]);up[key]=Number.isFinite(n)?Math.max(0,Math.min(10,Math.floor(n))):0}const amount=v=>{const n=Number(v);return Number.isFinite(n)?Math.max(0,Math.min(1000000000,Math.floor(n))):0};let map=Number(raw.map);if(!Number.isInteger(map)||!maps.includes(map))map=0;return{co:amount(raw.co),cr:amount(raw.cr),cls:classes,sel:classes.includes(raw.sel)?raw.sel:'normal',name:String(raw.name||'').slice(0,10),up,maps,map,best:amount(raw.best),items:Array.isArray(raw.items)?[...new Set(raw.items.filter(k=>Object.prototype.hasOwnProperty.call(ITEMS,k)))]:[],ach:Array.isArray(raw.ach)?[...new Set(raw.ach.map(Number).filter(v=>[5,10,15,20].includes(v)))]:[],day:typeof raw.day==='string'?raw.day:'',mute:raw.mute?1:0}}
-function createBackupCode(){const payload={game:'slime-ascendant',version:1,save:SV};return 'SLIME1:'+btoa(unescape(encodeURIComponent(JSON.stringify(payload)))).replace(/\\+/g,'-').replace(/\\//g,'_').replace(/=+$/,'')}
-function importBackupCode(code){const value=String(code||'').trim();if(!value.startsWith('SLIME1:'))throw new Error('Esse código não é um backup do Slime Ascendent.');const base=value.slice(7).replace(/-/g,'+').replace(/_/g,'/');const parsed=JSON.parse(decodeURIComponent(escape(atob(base))));if(!parsed||parsed.game!=='slime-ascendant'||parsed.version!==1)throw new Error('Versão do backup não reconhecida.');SV=sanitizeSaveBackup(parsed.save);save();lobby();toast('Progresso restaurado com sucesso.')}
-function localDayKey(date=new Date()){const y=date.getFullYear(),m=String(date.getMonth()+1).padStart(2,'0'),d=String(date.getDate()).padStart(2,'0');return y+'-'+m+'-'+d}
-function dailyClaimed(){const today=localDayKey();return SV.day===today||SV.day===new Date().toDateString()}
-function claimDailyReward(){if(dailyClaimed()){const button=$('dl');button.disabled=true;button.innerHTML=svgIcon('daily','button-svg')+'Recompensa coletada';toast('A recompensa diária já foi coletada hoje.');return false}SV.day=localDayKey();SV.co+=100;SV.cr+=2;save();toast('+100 moedas e +2 cristais');lobby();return true}
+function createBackupCode(){const payload={game:'slime-ascendant',version:1,save:SV};return 'SLIME1:'+btoa(unescape(encodeURIComponent(JSON.stringify(payload))))}
+function importBackupCode(code){const value=String(code||'').trim();if(!value.startsWith('SLIME1:'))throw new Error('Esse código não é um backup do Slime Ascendent.');const base=value.slice(7),padded=base+'='.repeat((4-base.length%4)%4);const parsed=JSON.parse(decodeURIComponent(escape(atob(padded))));if(!parsed||parsed.game!=='slime-ascendant'||parsed.version!==1)throw new Error('Versão do backup não reconhecida.');SV=sanitizeSaveBackup(parsed.save);save();lobby();toast('Progresso restaurado com sucesso.')}
 const toast=m=>{const e=$('tt');e.textContent=m;e.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>e.style.display='none',3000)};
 let AU=null,lsx=0,musicBuffer=null,musicSource=null,musicGain=null;
 function ensureAudio(){try{if(!AU)AU=new(window.AudioContext||window.webkitAudioContext)();if(AU&&AU.state==='suspended')AU.resume().catch(()=>{});return AU}catch(e){return null}}
@@ -807,7 +804,7 @@ function joinOnline(roomCode,button){
    if(attempt!==joinAttempt)return;
    let data;try{data=JSON.parse(e.data)}catch{return}
    if(data.t==='error'){abortJoin(attempt,data.message||'Não foi possível entrar na sala.');return}
-    if(data.t==='room'){updateRoomWait(data);return}
+    if(data.t==='room'){if(connectTimer)clearTimeout(connectTimer);if(connectStatusTimer)clearTimeout(connectStatusTimer);connectTimer=0;connectStatusTimer=0;updateRoomWait(data);return}
     if(data.t==='id'){me=data.id;return}
    if(!Array.isArray(data.p))return;
    const player=data.p.find(q=>q.id==me);

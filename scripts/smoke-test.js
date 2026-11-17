@@ -199,3 +199,7 @@ assert.ok(app.includes("developerModeEnabled?Object.keys(ITEMS)") && app.include
 assert.ok(app.includes("if(!player.dev&&data.w>SV.best)") && app.includes('if(!p.devMode&&p.co>gc)'), 'resultados do modo de teste não podem contaminar o progresso normal');
 assert.ok(server.includes('dropChestNearPlayer') && server.includes("q.type==='medkit'") && server.includes("q.type==='bomb'"), 'baús online precisam entregar moedas, gemas, cura, kit médico e explosivos');
 assert.ok(app.includes('offlineDropChestNearPlayer') && app.includes("q.type==='medkit'") && app.includes("q.type==='bomb'") && app.includes('(S.ch||[])'), 'baús precisam funcionar e aparecer no modo offline');
+
+assert.ok(server.includes("p.cls==='cavaleiro'&&rdy('knightSword',48)")&&app.includes("p.cls==='cavaleiro'&&rdy('knightSword',48)"), 'Cavaleiro precisa atacar com espada em intervalos de 1,6 segundo');
+assert.ok(server.includes("b.cls==='cavaleiro'&&(b.shieldUntil||0)>=r.t")&&app.includes("p.cls==='cavaleiro'&&(p.shieldUntil||0)>=r.t"), 'escudo temporário do Cavaleiro precisa bloquear contato online e offline');
+assert.ok(app.includes("else if(k==='s')"), 'golpe de espada do Cavaleiro precisa ter efeito visual');

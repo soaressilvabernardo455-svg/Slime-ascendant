@@ -6,7 +6,7 @@ const rooms={};let N=1,roomSequence=1;const ITEMS=['espada','escudo','botas','am
 const MAX_PLAYERS=4,MAX_MESSAGE_RATE=45,VIEW_RADIUS=640,UPGRADE_KEYS=['vida','dano','vel','moeda'];
 function allowMessage(ws){const now=Date.now();if(!ws.rateWindow||now-ws.rateWindow>=1000){ws.rateWindow=now;ws.rateCount=0}ws.rateCount++;return ws.rateCount<=MAX_MESSAGE_RATE}
 function newRoom(k){return{k,ps:{},started:false,locked:false,startAt:0,hostId:0,lastRoomBroadcast:0,lastSnapshotAt:0}}
-function cleanPlayerData(data){data=data&&typeof data==='object'?data:{};const cls=Object.prototype.hasOwnProperty.call(CLS,data.cls)?data.cls:'normal',name=String(data.name||'Slime').replace(/[<>\\u0000-\\u001f]/g,'').trim().slice(0,10)||'Slime',up={};for(const key of UPGRADE_KEYS){const n=Number(data.up&&data.up[key]);up[key]=Number.isFinite(n)?Math.max(0,Math.min(10,Math.floor(n))):0}const it=Array.isArray(data.it)?[...new Set(data.it.filter(key=>ITEMS.includes(key)))].slice(0,ITEMS.length):[];return{cls,name,up,it}}
+function cleanPlayerData(data){data=data&&typeof data==='object'?data:{};const cls=Object.prototype.hasOwnProperty.call(CLS,data.cls)?data.cls:'normal',name=String(data.name||'Slime').replace(/[<>\\x00-\\x1f]/g,'').trim().slice(0,10)||'Slime',up={};for(const key of UPGRADE_KEYS){const n=Number(data.up&&data.up[key]);up[key]=Number.isFinite(n)?Math.max(0,Math.min(10,Math.floor(n))):0}const it=Array.isArray(data.it)?[...new Set(data.it.filter(key=>ITEMS.includes(key)))].slice(0,ITEMS.length):[];return{cls,name,up,it}}
 const cl=v=>Math.max(10,Math.min(1590,v)),dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const html=fs.readFileSync(__dirname+'/index.html');
 const {handleAuthRequest}=require('./auth');
@@ -77,7 +77,8 @@ function step(r,L){
   if(c.heal&&r.t%60==0)for(const q of L)if(!q.d&&dist(q,p)<220)q.hp=Math.min(q.mh,q.hp+8)}
  for(const e of r.es){let b=null,bd=1e9;for(const p of L){if(p.d)continue;const d=dist(p,e);if(d<bd){bd=d;b=p}}
   if(!b)break;
-  e.x+=(b.x-e.x)/(bd||1)*e.v;e.y+=(b.y-e.y)/(bd||1)*e.v;
+  let separateX=0,separateY=0;for(const other of r.es){if(other===e)continue;const dx=e.x-other.x,dy=e.y-other.y,d=Math.hypot(dx,dy);if(d>0&&d<26){const force=(26-d)/26;separateX+=dx/d*force;separateY+=dy/d*force}}
+  e.x=cl(e.x+(b.x-e.x)/(bd||1)*e.v+separateX*.55);e.y=cl(e.y+(b.y-e.y)/(bd||1)*e.v+separateY*.55);
   if(bd<e.r+12){const armor=Math.min(.85,.08*(b.ps.armadura||0)),damage=e.d/20*(1-armor)*(b.it.includes('escudo')?.85:1);b.hp=Math.max(0,b.hp-damage);if(b.hp===0){b.d=1;b.ch=null}}}
  r.sh=r.sh.filter(s=>{s.x+=s.vx;s.y+=s.vy;if(--s.life<1)return 0;const h=s.h||(s.h=new Set());
   for(const e of r.es)if(e.hp>0&&!h.has(e)&&dist(e,s)<e.r+4){h.add(e);e.hp-=s.d;if(s.pr-->0)continue;return 0}return 1});

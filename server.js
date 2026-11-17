@@ -111,7 +111,7 @@ function step(r,L){
   const contact=dist(b,e);if(contact<e.r+34){e.attackCooldown=(e.attackCooldown||0)-1;if(e.attackCooldown<=0){if(b.cls==='cavaleiro'&&(b.shieldUntil||0)>=r.t){e.attackCooldown=24;r.fx.push(['n',b.x|0,b.y|0,54,0,4])}else{const armor=Math.min(.85,.08*(b.ps.armadura||0)),damage=Math.max(1,e.d*(1-armor)*(b.it.includes('escudo')?.85:1));b.hp=Math.max(0,b.hp-damage);e.attackCooldown=75;if(b.hp===0){b.d=1;b.ch=null}}}}else if(e.attackCooldown>0)e.attackCooldown--}
  r.sh=r.sh.filter(s=>{s.x+=s.vx;s.y+=s.vy;if(--s.life<1)return 0;const h=s.h||(s.h=new Set());
   for(const e of r.es)if(e.hp>0&&!h.has(e)&&dist(e,s)<e.r+4){h.add(e);e.hp-=s.d;if(s.pr-->0)continue;return 0}return 1});
- r.es=r.es.filter(e=>{if(e.hp>0)return 1;const E=ET[e.ty];r.gm.push({x:e.x,y:e.y,v:E.x,life:1800});if(r.gm.length>120)r.gm.splice(0,r.gm.length-120);if(R()<.05){r.hr.push({x:e.x,y:e.y,life:1800});if(r.hr.length>20)r.hr.shift()}if(e.ty===3)dropChest(r,e.x,e.y,'boss');else if(R()<.018)dropChest(r,e.x,e.y);
+ r.es=r.es.filter(e=>{if(e.hp>0)return 1;const E=ET[e.ty];r.gm.push({x:e.x,y:e.y,v:E.x,life:1800});if(r.gm.length>30)r.gm.splice(0,r.gm.length-30);if(R()<.05){r.hr.push({x:e.x,y:e.y,life:1800});if(r.hr.length>20)r.hr.shift()}if(e.ty===3)dropChest(r,e.x,e.y,'boss');else if(R()<.018)dropChest(r,e.x,e.y);
   for(const p of L){if(p.d||p.devMode)continue;p.co+=Math.ceil(E.c*(1+.1*p.u.moeda+.1*(p.ps.sorte||0))*(p.it.includes('anel')?1.15:1));if(e.ty==2&&R()<.12)p.cr++;if(e.ty==3)p.cr+=3}return 0});
  r.gm=r.gm.filter(g=>{if(--g.life<=0)return 0;for(const p of L){if(p.d)continue;const d=dist(p,g)||1;
   if(d<14){p.xp+=g.v*(1+.15*(p.ps.xp||0))*(p.it.includes('amuleto')?1.15:1);if(p.xp>=p.nx&&!p.ch)lv(p);return 0}
@@ -138,7 +138,7 @@ function snapshot(r,own){
   e:r.es.filter(e=>visible(e.x,e.y)).map(e=>[e.x|0,e.y|0,e.ty,Math.max(0,e.hp/e.mh)]),
   s:r.sh.filter(q=>visible(q.x,q.y)).slice(-80).map(q=>[q.x|0,q.y|0]),
   b:r.ob.filter(q=>visible(q[0],q[1])),
-  g:r.gm.filter(q=>visible(q.x,q.y)).map(q=>[q.x|0,q.y|0]),
+  g:r.gm.filter(q=>visible(q.x,q.y)).slice(-30).map(q=>[q.x|0,q.y|0]),
   f:effects,hr:r.hr.filter(q=>visible(q.x,q.y)).map(q=>[q.x|0,q.y|0]),ch:(r.ch||[]).filter(q=>visible(q.x,q.y)).map(q=>[q.x|0,q.y|0,q.type])});
 }
 function tick(r){

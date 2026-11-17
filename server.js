@@ -5,8 +5,10 @@ const ET=[{h:w=>18+w*9,r:10,v:1.4,d:7,c:1,x:1},{h:w=>10+w*5,r:8,v:2.4,d:5,c:2,x:
 const rooms={};let N=1;const ITEMS=['espada','escudo','botas','amuleto','anel','coracao'];
 const cl=v=>Math.max(10,Math.min(1590,v)),dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const html=fs.readFileSync(__dirname+'/index.html');
-const srv=http.createServer((q,s)=>{
+const {handleAuthRequest}=require('./auth');
+const srv=http.createServer(async(q,s)=>{
  const path=new URL(q.url,'http://x').pathname;
+ if(await handleAuthRequest(q,s,path))return;
  const assets={'/sw.js':['sw.js','application/javascript; charset=utf-8'],'/manifest.webmanifest':['manifest.webmanifest','application/manifest+json; charset=utf-8'],'/icon.svg':['icon.svg','image/svg+xml']};
  if(assets[path]){
   const [file,type]=assets[path];

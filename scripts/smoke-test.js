@@ -63,7 +63,9 @@ assert.ok(app.includes('(S.k||[])'), 'esqueletos precisam ser desenhados na part
 assert.ok(!app.includes('wx(W,H,S.mp|0,t)'), 'efeitos de partículas da tela do lobby não devem aparecer na partida');
 assert.ok(!app.includes('const grain=86'), 'remover granulação de pontos do mapa durante a partida');
 assert.equal((app.match(/if\(p\.cls==='necromante'\)/g)||[]).length,1, 'invocação offline não pode executar duplicada');
-assert.match(app, /const MAPS=\[\['Floresta Antiga',0,0\],\['Deserto Dourado',12000,0\],\['Tundra Gelada',30000,0\]/);
+assert.match(app, /const MAPS=\[\['Floresta Antiga',0,0\],\['Deserto Dourado',6000,0\],\['Tundra Gelada',15000,0\],\['Vulcão Carmesim',0,300\]\]/);
+assert.match(app, /const ITEMS=\{espada:\['Espada Afiada','\+12% de dano',1800,0\],escudo:\['Escudo','-15% de dano recebido',2200,0\],botas:\['Botas Velozes','\+8% de velocidade',1400,0\],amuleto:\['Amuleto','\+15% de XP',0,120\],anel:\['Anel da Sorte','\+15% de moedas',0,160\],coracao:\['Coração de Cristal','\+25% de vida máxima',0,200\]\}/);
+assert.match(app, /const ucost=l=>Math\.round\(220\*Math\.pow\(l\+1,1\.42\)\)/);
 assert.ok(app.includes("SV.co+=25;SV.cr+=2"), 'recompensa diária deve refletir a economia reajustada');
 assert.ok(app.includes('function claimDailyReward('), 'trava da recompensa diária ausente');
 assert.ok(app.includes('function startMusic('), 'música do jogo ausente');

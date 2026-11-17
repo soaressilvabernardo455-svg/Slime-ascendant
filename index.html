@@ -355,7 +355,7 @@ input,textarea,select{touch-action:auto;user-select:text}
 <div id="m" class="lobby-screen">
  <header class="lobby-top">
   <div class="brand-panel glass">
-   <div class="brand-line"><div class="brand-emblem">✦</div><div class="brand-copy"><div class="brand-title">SLIME ASCENDANT <span class="version-pill">v4.0</span></div><div id="sel" class="brand-subtitle">Slime • Aventureiro</div></div></div>
+   <div class="brand-line"><div class="brand-emblem">✦</div><div class="brand-copy"><div class="brand-title">SLIME ASCENDANT <span class="version-pill">v4.1</span></div><div id="sel" class="brand-subtitle">Slime • Aventureiro</div></div></div>
    <div class="player-chips"><span id="rec">🏆 Recorde: onda 0</span><span id="bal">🪙 0　💎 0</span></div>
   </div>
   <div class="account-top glass">
@@ -426,8 +426,8 @@ const NM={
 's:vida':['❤️ Vitalidade','+20% de vida máxima'],'s:dano':['⚔️ Poder','+15% de dano'],'s:vel':['👟 Agilidade','+10% de velocidade'],'s:recarga':['⏱️ Recarga Rápida','-10% no tempo dos poderes'],'s:ima':['🧲 Ímã','Atrai experiência de mais longe'],'s:regen':['🌿 Regeneração','Recupera vida continuamente'],'s:xp':['✨ Sabedoria','+15% de experiência'],'s:armadura':['🛡️ Armadura','-8% de dano recebido'],'s:crit':['💠 Crítico','Chance de causar dano dobrado'],'s:sorte':['🍀 Sorte','+10% de moedas']
 };
 const ER=[10,8,16,26,11,12,13],KS=[2,2,3,5,2,2,2];
-const ITEMS={espada:['Espada Afiada','+12% de dano',300,0],escudo:['Escudo','-15% de dano recebido',400,0],botas:['Botas Velozes','+8% de velocidade',250,0],amuleto:['Amuleto','+15% de XP',0,15],anel:['Anel da Sorte','+15% de moedas',0,15],coracao:['Coração de Cristal','+25% de vida máxima',0,25]};
-const MAPS=[['Floresta Antiga',0,0],['Deserto Dourado',225,0],['Tundra Gelada',450,0],['Vulcão Carmesim',0,35]];
+const ITEMS={espada:['Espada Afiada','+12% de dano',5000,0],escudo:['Escudo','-15% de dano recebido',6500,0],botas:['Botas Velozes','+8% de velocidade',3500,0],amuleto:['Amuleto','+15% de XP',0,300],anel:['Anel da Sorte','+15% de moedas',0,400],coracao:['Coração de Cristal','+25% de vida máxima',0,500]};
+const MAPS=[['Floresta Antiga',0,0],['Deserto Dourado',12000,0],['Tundra Gelada',30000,0],['Vulcão Carmesim',0,600]];
 const TH=[
 {a:'#1c2e20',b:'#213524',bg:'#0a120c',vg:'#000a',d:(X,Y,h)=>{if(h%9==0){x.fillStyle='#2f5a36';const a=(h>>3)%24,b=(h>>6)%24;x.fillRect(X+a,Y+b,2,5);x.fillRect(X+a+3,Y+b+2,2,3)}if(h%47==0){x.fillStyle='#f9a8d4';x.fillRect(X+(h>>4)%26,Y+(h>>7)%26,3,3)}}},
 {a:'#c9a45c',b:'#d1ac66',bg:'#5a431c',vg:'#3b2a0faa',d:(X,Y,h)=>{if(h%23==0){x.fillStyle='#3f7d3a';x.fillRect(X+8,Y+6,4,14);x.fillRect(X+4,Y+10,4,3);x.fillRect(X+12,Y+8,4,3);x.fillStyle='#2c5a2a';x.fillRect(X+10,Y+6,2,14)}if(h%11==0){x.fillStyle='#a8854a';x.fillRect(X+(h>>3)%24,Y+(h>>6)%24,4,3)}}},
@@ -489,11 +489,11 @@ function wx(W,H,m,t){x.fillStyle=['#fde047','#e7c98aaa','#fff','#fb923c'][m];PA.
  else if(m==2){q.y+=q.v*.003;q.x+=Math.sin(t/700+q.v*9)*.0007}
  else{q.y-=q.v*.003;q.x+=Math.sin(t/500+q.v*9)*.0007}
  q.x=(q.x+1)%1;q.y=(q.y+1)%1;x.fillRect(q.x*W,q.y*H,q.s,q.s);x.globalAlpha=1})}
-const PRICE={normal:[0,0],arqueiro:[150,0],cavaleiro:[350,0],mago:[550,0],curandeiro:[0,30],necromante:[0,55]};
+const PRICE={normal:[0,0],arqueiro:[5000,0],cavaleiro:[12000,0],mago:[25000,0],curandeiro:[0,400],necromante:[0,800]};
 const UPG={vida:['Vida','+10% de vida máxima por nível'],dano:['Dano','+8% de dano por nível'],vel:['Velocidade','+4% de velocidade por nível'],moeda:['Moedas','+10% de moedas por nível']};
 const CLASS_INFO={normal:'Equilibrado e fácil de dominar',mago:'Magia e dano à distância',cavaleiro:'Resistente e feito para a linha de frente',necromante:'Energia sombria e explosões',curandeiro:'Suporte e recuperação de vida',arqueiro:'Ataques rápidos e perfurantes'};
 const MAP_INFO=['Campos verdes, ruínas e flores brilhantes','Dunas douradas e formações rochosas','Gelo azul, neve e cristais','Pedras vulcânicas e rios de lava'];
-const ucost=l=>60*(l+1),W8=[4,8,10,12,12,12,12,10];
+const ucost=l=>Math.round(500*Math.pow(l+1,1.55)),W8=[4,8,10,12,12,12,12,10];
 const dk=(h,f)=>'#'+[1,3,5].map(i=>Math.max(0,Math.min(255,Math.round(parseInt(h.substr(i,2),16)*f))).toString(16).padStart(2,'0')).join('');
 const hs=(i,j)=>((i*73856093)^(j*19349663))>>>0;
 let SV;try{SV=JSON.parse(localStorage.getItem('slimeSave')||'null')}catch(e){SV=null}
@@ -514,10 +514,11 @@ SV.name=String(SV.name||'').slice(0,10);
 SV.day=typeof SV.day==='string'?SV.day:'';
 SV.up={vida:SV.up.vida||0,dano:SV.up.dano||0,vel:SV.up.vel||0,moeda:SV.up.moeda||0};
 SV.mute=SV.mute?1:0;
-const save=()=>{try{localStorage.slimeSave=JSON.stringify(SV)}catch(e){}};
+let accountAuthenticated=false,cloudSyncReady=false,cloudSyncBusy=false,cloudSyncPending=false,cloudSyncTimer=0;
+const save=()=>{try{localStorage.slimeSave=JSON.stringify(SV)}catch(e){}scheduleCloudSave()};
 function localDayKey(date=new Date()){const y=date.getFullYear(),m=String(date.getMonth()+1).padStart(2,'0'),d=String(date.getDate()).padStart(2,'0');return y+'-'+m+'-'+d}
 function dailyClaimed(){const today=localDayKey();return SV.day===today||SV.day===new Date().toDateString()}
-function claimDailyReward(){if(dailyClaimed()){toast('A recompensa diária já foi coletada hoje.');lobby();return false}SV.day=localDayKey();SV.co+=100;SV.cr+=2;save();toast('+100 moedas e +2 cristais');lobby();return true}
+function claimDailyReward(){if(dailyClaimed()){toast('A recompensa diária já foi coletada hoje.');lobby();return false}SV.day=localDayKey();SV.co+=25;SV.cr+=2;save();toast('+25 moedas e +2 cristais');lobby();return true}
 function sanitizeSaveBackup(raw){if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new Error('Código de progresso inválido.');const classes=Array.isArray(raw.cls)?[...new Set(raw.cls.filter(k=>CL.includes(k)))]:['normal'];if(!classes.includes('normal'))classes.unshift('normal');const maps=Array.isArray(raw.maps)?[...new Set(raw.maps.map(Number).filter(i=>Number.isInteger(i)&&i>=0&&i<MAPS.length))]:[0];if(!maps.includes(0))maps.unshift(0);const up={};for(const key of Object.keys(UPG)){const n=Number(raw.up&&raw.up[key]);up[key]=Number.isFinite(n)?Math.max(0,Math.min(10,Math.floor(n))):0}const amount=v=>{const n=Number(v);return Number.isFinite(n)?Math.max(0,Math.min(1000000000,Math.floor(n))):0};let map=Number(raw.map);if(!Number.isInteger(map)||!maps.includes(map))map=0;return{co:amount(raw.co),cr:amount(raw.cr),cls:classes,sel:classes.includes(raw.sel)?raw.sel:'normal',name:String(raw.name||'').slice(0,10),up,maps,map,best:amount(raw.best),items:Array.isArray(raw.items)?[...new Set(raw.items.filter(k=>Object.prototype.hasOwnProperty.call(ITEMS,k)))]:[],ach:Array.isArray(raw.ach)?[...new Set(raw.ach.map(Number).filter(v=>[5,10,15,20].includes(v)))]:[],day:typeof raw.day==='string'?raw.day:'',mute:raw.mute?1:0}}
 function createBackupCode(){const payload={game:'slime-ascendant',version:1,save:SV};return 'SLIME1:'+btoa(unescape(encodeURIComponent(JSON.stringify(payload))))}
 function importBackupCode(code){const value=String(code||'').trim();if(!value.startsWith('SLIME1:'))throw new Error('Esse código não é um backup do Slime Ascendent.');const base=value.slice(7),padded=base+'='.repeat((4-base.length%4)%4);const parsed=JSON.parse(decodeURIComponent(escape(atob(padded))));if(!parsed||parsed.game!=='slime-ascendant'||parsed.version!==1)throw new Error('Versão do backup não reconhecida.');SV=sanitizeSaveBackup(parsed.save);save();lobby();toast('Progresso restaurado com sucesso.')}
@@ -586,12 +587,16 @@ function slime(c,px,py,k,t,moving=false,lookX=0,lookY=0){
  const body=c.createLinearGradient(-5,-36,5,5);
  body.addColorStop(0,light);body.addColorStop(.22,color);body.addColorStop(.68,color);body.addColorStop(1,dark);
  c.shadowColor=dark;c.shadowBlur=4;
- c.beginPath();c.moveTo(-18,-3);
- c.bezierCurveTo(-24,-9,-20,-23,-13,-29);
- c.bezierCurveTo(-8,-37,7,-36,13,-29);
- c.bezierCurveTo(22,-22,23,-8,17,-2);
- c.bezierCurveTo(12,4,-12,5,-18,-3);c.closePath();
- c.fillStyle=body;c.fill();c.shadowBlur=0;
+ c.beginPath();c.moveTo(-18,-4);
+ c.bezierCurveTo(-25,-10,-23,-23,-15,-29);
+ c.bezierCurveTo(-12,-37,-4,-39,2,-35);
+ c.bezierCurveTo(12,-39,20,-31,19,-22);
+ c.bezierCurveTo(25,-13,23,-5,15,1);
+ c.bezierCurveTo(7,7,-10,6,-18,-4);c.closePath();
+ c.fillStyle=body;c.fill();c.save();c.clip();
+ const volume=c.createRadialGradient(-10,-27,1,1,-13,34);volume.addColorStop(0,'#ffffff88');volume.addColorStop(.24,'#ffffff24');volume.addColorStop(.62,'#ffffff05');volume.addColorStop(1,'#07140d66');c.fillStyle=volume;c.fillRect(-26,-42,52,52);
+ const shine=c.createRadialGradient(-9,-27,0,-8,-25,17);shine.addColorStop(0,'#ffffffa8');shine.addColorStop(.42,'#ffffff35');shine.addColorStop(1,'#ffffff00');c.fillStyle=shine;c.fillRect(-25,-43,35,32);
+ c.fillStyle='#ffffff30';c.beginPath();c.ellipse(12,-25,3.8,1.6,-.5,0,Math.PI*2);c.fill();c.restore();c.shadowBlur=0;
  c.lineWidth=2;c.strokeStyle=dk(color,.38);c.stroke();
  c.beginPath();c.moveTo(-13,-23);c.bezierCurveTo(-9,-32,2,-33,7,-28);
  c.bezierCurveTo(0,-29,-6,-23,-7,-17);c.bezierCurveTo(-11,-14,-15,-18,-13,-23);c.fillStyle='#ffffff88';c.fill();
@@ -711,7 +716,7 @@ function drawGround(cx,cy,W,H,map){
 function lobby(){
  $('bal').textContent='🪙 '+SV.co+'　💎 '+SV.cr;$('sel').textContent=LB[SV.sel]+' · Nível 1';$('rec').textContent='🏆 Onda '+SV.best;$('lobby-map-name').textContent=(MAPS[SV.map]||MAPS[0])[0];$('n').value=SV.name||$('n').value;
  const mapIcons=['forest','desert','snow','volcano'],mapColors=['#73d64d','#f3bc52','#a5e4ff','#ff8650'];
- const tm=$('tm');tm.innerHTML='<div class="section-intro"><span>EXPLORAÇÃO</span><h2>Escolha seu mundo</h2><p>Quatro biomas com cenários e desafios próprios.</p></div>';
+ const tm=$('tm');tm.innerHTML='<div class="section-intro"><span>EXPLORAÇÃO</span><h2>Escolha seu mundo</h2><p>Quatro biomas procedurais, gerados sem bordas.</p></div>';
  MAPS.forEach(([nm,pc,pk],i)=>{const own=SV.maps.includes(i),b=document.createElement('button'),art=document.createElement('span'),copy=document.createElement('span'),title=document.createElement('b'),desc=document.createElement('small'),state=document.createElement('em');
   b.className='map-card'+(own&&SV.map===i?' s':'');art.className='map-icon';art.style.setProperty('--map-color',mapColors[i]);art.innerHTML=svgIcon(mapIcons[i]);
   copy.className='map-copy';title.textContent=nm;desc.textContent=MAP_INFO[i];state.textContent=own?(SV.map===i?'EM USO':'DESBLOQUEADO'):(pc?pc+' moedas':pk+' cristais');
@@ -725,11 +730,7 @@ function lobby(){
   b.textContent=own?'ADQUIRIDO':(pc?pc+' moedas':pk+' cristais');b.disabled=own||(pc?SV.co<pc:SV.cr<pk);
   b.onclick=()=>{if(own)return;if(pc?SV.co<pc:SV.cr<pk){toast('Saldo insuficiente.');return}if(pc)SV.co-=pc;else SV.cr-=pk;SV.items.push(k);save();lobby()};
   r.append(art,copy,b);ti.append(r)});
- const backup=document.createElement('section');backup.className='backup-card';backup.innerHTML='<b>Backup do progresso</b><small>Gere um código para guardar ou transferir suas moedas, classes, mapas, itens e melhorias.</small><input id="backup-code" type="text" placeholder="Seu código de backup" autocomplete="off"><div class="backup-actions"><button id="backup-export">Exportar</button><button id="backup-import">Importar</button></div>';
- const exportButton=backup.querySelector('#backup-export'),importButton=backup.querySelector('#backup-import'),backupInput=backup.querySelector('#backup-code');
- exportButton.onclick=async()=>{backupInput.value=createBackupCode();backupInput.focus();backupInput.select();try{await navigator.clipboard.writeText(backupInput.value);toast('Código copiado. Guarde-o em local seguro.')}catch(e){toast('Código gerado. Selecione e copie o texto.')}};
- importButton.onclick=()=>{try{importBackupCode(backupInput.value)}catch(e){toast(e.message||'Não foi possível importar o backup.')}};
- ti.append(backup);
+
  const daily=dailyClaimed();$('dl').innerHTML=svgIcon('daily','button-svg')+(daily?'Recompensa coletada':'Recompensa diária · +100 moedas / +2 cristais');$('dl').disabled=daily;
  $('mu').innerHTML=svgIcon(SV.mute?'mute':'sound','button-svg')+(SV.mute?'Música desligada':'Música ligada');
  const cs=$('tc');cs.innerHTML='<div class="section-intro"><span>PERSONAGENS</span><h2>Escolha sua classe</h2><p>Cada slime tem atributos e um estilo de combate diferente.</p></div>';
@@ -813,7 +814,7 @@ function joinOnline(roomCode,button){
    const player=data.p.find(q=>q.id==me);
    if(!player)return;
    $('room-wait').classList.add('h');S=data;OFF=false;OR=null;lw=0;gc=0;gk=0;lastPow='';clearConnectTimers();setGameState('PLAYING');
-   if(data.w>SV.best){SV.best=data.w;[[5,50,0],[10,0,5],[15,0,10],[20,0,20]].forEach(([w,co,cr])=>{if(data.w>=w&&!SV.ach.includes(w)){SV.ach.push(w);SV.co+=co;SV.cr+=cr;toast('🏆 Onda '+w+'! +'+(co?co+' 🪙':cr+' 💎'))}});save()}
+   if(data.w>SV.best){SV.best=data.w;[[5,15,0],[10,0,2],[15,0,5],[20,0,10]].forEach(([w,co,cr])=>{if(data.w>=w&&!SV.ach.includes(w)){SV.ach.push(w);SV.co+=co;SV.cr+=cr;toast('🏆 Onda '+w+'! +'+(co?co+' 🪙':cr+' 💎'))}});save()}
    if(player.co>gc||player.cr>gk){SV.co+=player.co-gc;SV.cr+=player.cr-gk;gc=player.co;gk=player.cr;save()}
   };
   socket.onerror=()=>{if(attempt===joinAttempt&&GAME_STATE==='LOADING')toast('A conexão falhou. Tentando encerrar com segurança...')};
@@ -954,12 +955,12 @@ function ui(p){
 let OFF=false,OR=null,offlineTimer=0;
 const OCLS={normal:{hp:100,sp:4.8,dm:.8,pw:'proj'},mago:{hp:70,sp:4.8,dm:1.1,pw:'raio'},cavaleiro:{hp:150,sp:4.2,dm:.9,pw:'orb'},necromante:{hp:85,sp:4.8,dm:1,pw:'nova'},curandeiro:{hp:110,sp:4.8,dm:.7,pw:'aura',heal:1},arqueiro:{hp:80,sp:5.2,dm:.9,pw:'proj',pr:2}};
 const OET=[{h:w=>18+w*9,r:10,v:1.4,d:7,c:1,x:1},{h:w=>10+w*5,r:8,v:2.4,d:5,c:2,x:2},{h:w=>90+w*25,r:16,v:.9,d:14,c:6,x:5},{h:w=>500+w*90,r:26,v:.8,d:20,c:40,x:40},{h:w=>14+w*6,r:11,v:1.9,d:6,c:3,x:3},{h:w=>30+w*8,r:12,v:1.6,d:9,c:3,x:3},{h:w=>70+w*14,r:13,v:.7,d:10,c:4,x:4}];
-const oClamp=v=>Math.max(10,Math.min(1590,v)),oDist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+const oClamp=v=>Math.max(-1000000000,Math.min(1000000000,v)),oDist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 function offlinePlayer(){
  const cls=OCLS[SV.sel]?SV.sel:'normal',c=OCLS[cls],u={};
  for(const k of Object.keys(UPG))u[k]=Math.min(10,Math.max(0,Math.floor(+SV.up[k]||0)));
  const it=Array.isArray(SV.items)?SV.items.slice():[],mh=Math.round(c.hp*(1+.1*u.vida)*(it.includes('coracao')?1.25:1));
- return{id:1,name:String($('n').value||SV.name||'Slime').slice(0,10),cls,u,up:SV.up,it,x:800,y:800,hp:mh,mh,lv:1,xp:0,nx:5,pw:{[c.pw]:1},ps:{},cd:{},dx:0,dy:0,ch:null,d:0,co:0,cr:0,stopAfterStep:0,stopRequested:0};
+ return{id:1,name:String($('n').value||SV.name||'Slime').slice(0,10),cls,u,up:SV.up,it,x:0,y:0,hp:mh,mh,lv:1,xp:0,nx:5,pw:{[c.pw]:1},ps:{},cd:{},dx:0,dy:0,ch:null,d:0,co:0,cr:0,stopAfterStep:0,stopRequested:0};
 }
 function offlineLevel(p){
  p.lv++;p.xp-=p.nx;p.nx=Math.ceil(p.nx*1.35+2);
@@ -1023,7 +1024,7 @@ function offlineSnapshot(){
  p:[{id:1,n:p.name,c:p.cls,x:p.x|0,y:p.y|0,h:p.hp|0,m:p.mh|0,l:p.lv,xp:p.xp,nx:p.nx,d:p.d,pw:p.pw,ps:p.ps,ch:p.ch,co:p.co,cr:p.cr,sp:+sp.toFixed(2)}],
  e:r.es.map(e=>[e.x|0,e.y|0,e.ty,Math.max(0,e.hp/e.mh)]),s:r.sh.map(q=>[q.x|0,q.y|0]),b:r.ob,g:r.gm.map(q=>[q.x|0,q.y|0]),f:r.fx,hr:r.hr.map(q=>[q.x|0,q.y|0])};
  const d=S;
- if(d.w>SV.best){SV.best=d.w;[[5,50,0],[10,0,5],[15,0,10],[20,0,20]].forEach(([w,co,cr])=>{if(d.w>=w&&!SV.ach.includes(w)){SV.ach.push(w);SV.co+=co;SV.cr+=cr;toast('🏆 Onda '+w+'! Recompensa recebida')}});save()}
+ if(d.w>SV.best){SV.best=d.w;[[5,15,0],[10,0,2],[15,0,5],[20,0,10]].forEach(([w,co,cr])=>{if(d.w>=w&&!SV.ach.includes(w)){SV.ach.push(w);SV.co+=co;SV.cr+=cr;toast('🏆 Onda '+w+'! Recompensa recebida')}});save()}
  if(p.co>gc){SV.co+=p.co-gc;gc=p.co;save()}if(p.cr>gk){SV.cr+=p.cr-gk;gk=p.cr;save()}
 }
 function offlineTick(){if(!OFF||!OR)return;const p=OR.ps[1];if(!p.ch&&!p.d)offlineStep(OR,p);offlineSnapshot()}
@@ -1095,9 +1096,9 @@ function draw(t){requestAnimationFrame(draw);
  x.setTransform(DPR,0,0,DPR,0,0);const W=innerWidth,H=innerHeight,p=S.p.find(q=>q.id==me);if(!p)return;powerHUD(p);if(!S.o)$('fim').style.display='none';
  if(p.h<lh){sfx(110,.12,'sawtooth',.05)}if(p.xp>lx&&t-lsx>90){lsx=t;sfx(1000,.04,'sine',.02)}lx=p.xp;if(S.w!=lw){lw=S.w;if(lw>1)toast(lw%5==0?'⚠ O CHEFE CHEGOU!':'Onda '+lw);if(lw%5==0)sfx(90,.5,'sawtooth',.06)}lh=p.h;sh=0;
  const dt=Math.min((t-lt)/33.3,3),sp=p.sp||3.5;lt=t;if(!pp||S.o||Math.hypot(p.x-pp.x,p.y-pp.y)>80)pp={x:p.x,y:p.y};
- if(!p.d&&!S.pa){const[dx,dy]=getDir(),m=Math.hypot(dx,dy),k=m>1?1/m:1;pp.x=Math.max(10,Math.min(1590,pp.x+dx*k*sp*dt));pp.y=Math.max(10,Math.min(1590,pp.y+dy*k*sp*dt))}
+ if(!p.d&&!S.pa){const[dx,dy]=getDir(),m=Math.hypot(dx,dy),k=m>1?1/m:1;pp.x=Math.max(-1000000000,Math.min(1000000000,pp.x+dx*k*sp*dt));pp.y=Math.max(-1000000000,Math.min(1000000000,pp.y+dy*k*sp*dt))}
  const ex=p.x-pp.x,ey=p.y-pp.y,err=Math.hypot(ex,ey);if(err>1.5){const corr=err>50 ? .35 : .22;pp.x+=ex*corr;pp.y+=ey*corr}
- const cx=Math.max(0,Math.min(1600-W,pp.x-W/2)),cy=Math.max(0,Math.min(1600-H,pp.y-H/2));
+ const cx=pp.x-W/2,cy=pp.y-H/2;
  const T=TH[S.mp|0];x.save();drawGround(cx,cy,W,H,S.mp|0);
  S.g.forEach(([a,b])=>{const o=Math.sin(t/200+a)*2,X=a-cx,Y=b-cy+o;x.fillStyle='#22d3ee';x.fillRect(X-1,Y-4,3,9);x.fillRect(X-3,Y-2,7,5);x.fillStyle='#cffafe';x.fillRect(X-1,Y-2,2,2)});
  (S.hr||[]).forEach(([a,b])=>{const X=a-cx,Y=b-cy+Math.sin(t/150+a)*2;x.fillStyle='#f43f5e';x.fillRect(X-5,Y-4,4,4);x.fillRect(X+1,Y-4,4,4);x.fillRect(X-5,Y-1,10,4);x.fillRect(X-3,Y+3,6,2);x.fillRect(X-1,Y+5,2,1);x.fillStyle='#fecdd3';x.fillRect(X-4,Y-3,2,2)});

@@ -1142,7 +1142,7 @@ const SKICON={proj:'💧',orb:'🪐',nova:'💥',raio:'⚡',aura:'🌀',vida:'�
 const SKCOLOR={proj:'#38bdf8',orb:'#a78bfa',nova:'#fb7185',raio:'#facc15',aura:'#34d399',meteoro:'#f97316',lanca:'#60a5fa',corrente:'#facc15',espinhos:'#84cc16',furacao:'#c084fc',vida:'#fb7185',dano:'#f97316',vel:'#84cc16',recarga:'#60a5fa',ima:'#c084fc',regen:'#4ade80',xp:'#fbbf24',armadura:'#94a3b8',crit:'#67e8f9',sorte:'#4ade80'};
 let lastPow='';
 let lastItemHudKey='';
-function updateItemHUD(p){const items=Array.isArray(p&&p.it)?p.it:SV.items,key=items.join('|');if(key===lastItemHudKey)return;lastItemHudKey=key;const meta={espada:['⚔️','Espada'],escudo:['🛡️','Escudo'],botas:['👢','Botas'],amuleto:['🔮','Amuleto'],anel:['💍','Anel'],coracao:['💚','Coração']};$('item-hud').innerHTML=items.map(k=>meta[k]?'<span class="item-hud-chip">'+meta[k][0]+' <small>'+meta[k][1]+'</small></span>':'').join('')}
+function updateItemHUD(p){const items=Array.isArray(p&&p.it)?p.it:SV.items,key=items.join('|');if(key===lastItemHudKey)return;lastItemHudKey=key;const meta={espada:['⚔️','Espada'],escudo:['🛡️','Escudo'],botas:['👢','Botas'],amuleto:['🔮','Amuleto'],anel:['💍','Anel'],coracao:['💚','Coração']};$('item-hud').innerHTML=items.map(k=>meta[k]?'<span class="item-hud-chip">'+meta[k][0]+' <small>'+meta[k][1]+'</small></span>':'').join('');const display=(GAME_STATE==='PLAYING'||GAME_STATE==='GAMEOVER')&&items.length?'flex':'none';if($('item-hud').style.display!==display)$('item-hud').style.display=display}
 function powerHUD(p){
  const powers=Object.entries(p.pw||{}).filter(([k,v])=>v>0).map(([k,v])=>[k,v,0]);
  const passives=Object.entries(p.ps||{}).filter(([k,v])=>v>0).map(([k,v])=>[k,v,1]);
@@ -1150,7 +1150,7 @@ function powerHUD(p){
  if(key===lastPow)return;lastPow=key;
  $('powhud').innerHTML=all.map(([k,v,pass])=>'<span class="power-badge '+(pass?'passive':'')+'" style="--skill-color:'+(SKCOLOR[k]||'#38bdf8')+'" title="'+(NM[(pass?'s:':'p:')+k]||['Poder'])[0]+'">'+svgIcon(k,'power-svg')+'<em>'+v+'</em></span>').join('');
 }
-function pick(i){if(OFF){offlinePick(i);return}if(ws&&ws.readyState===1)ws.send(JSON.stringify({t:'pick',i}))}
+function pick(i){if(OFF){offlinePick(i);return}if(ws&&ws.readyState===1){try{ws.send(JSON.stringify({t:'pick',i}))}catch(e){clearGameInput();toast('A conexão caiu. Tente entrar novamente.')}}}
 function ui(p){
  const u=$('u'),ch=p&&p.ch;if(!ch){u.style.display='none';return}u.style.display='flex';
  u.innerHTML='<h2>Escolha uma habilidade</h2>'+ch.map((o,i)=>{
@@ -1270,7 +1270,7 @@ function sendIn(f){
   ld=[dx,dy];return
  }
  if(!ws||ws.readyState!=1)return;
- if(f||Math.abs(dx-ld[0])>.02||Math.abs(dy-ld[1])>.02){const stopping=!dx&&!dy,now=Date.now();if(!stopping&&now-lastInputSentAt<30)return;lastInputSentAt=now;ld=[dx,dy];ws.send(JSON.stringify({t:'in',dx,dy}))}
+ if(f||Math.abs(dx-ld[0])>.02||Math.abs(dy-ld[1])>.02){const stopping=!dx&&!dy,now=Date.now();if(!stopping&&now-lastInputSentAt<30)return;lastInputSentAt=now;ld=[dx,dy];try{ws.send(JSON.stringify({t:'in',dx,dy}))}catch(e){clearGameInput()}}
 }
 onkeydown=e=>{if(e.target&&/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName))return;const k=e.key.toLowerCase();if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault();keys[k]=1;sendIn()};
 onkeyup=e=>{keys[e.key.toLowerCase()]=0;if(!(e.target&&/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)))sendIn()};

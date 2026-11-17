@@ -76,9 +76,9 @@ assert.ok(app.includes('if(h%2===0)drawBiomeLandmark(X,Y,map,h)'), 'biomas preci
 assert.ok(app.includes('c.scale(1.12*(1+squash),.92*(1-squash))'), 'slime não pode ficar excessivamente largo');
 assert.ok(app.includes('function drawGround(cx,cy,W,H,map){')&&app.includes('Grandes manchas de terreno fixas no mundo'), 'textura de terreno limpa ausente');
 assert.ok(!app.includes('drawGround(0,0,W,H,map);wx(W,H,map,t)'), 'partículas flutuantes não devem aparecer no lobby');
-assert.ok(app.includes('id="create-room"')&&app.includes("$('create-room').onclick"), 'criação de sala privada ausente');
+assert.ok(html.includes('id="create-room"')&&app.includes("$('create-room').onclick"), 'criação de sala privada ausente');
 assert.ok(app.includes("joinOnline(code,$('create-room'))"), 'sala privada precisa conectar com código compartilhável');
-assert.ok(app.includes('id="ts"')&&app.includes('data-t="s"'), 'aba de configurações ausente');
+assert.ok(html.includes('id="ts"')&&html.includes('data-t="s"'), 'aba de configurações ausente');
 assert.ok(app.includes('id="reset-game"')&&app.includes('Todo o progresso deste perfil será apagado'), 'reset precisa pedir confirmação');
 assert.ok(app.includes('SV.quality===0?1:DEVICE_DPR_CAP'), 'configuração de qualidade precisa alterar resolução');
 assert.ok(app.includes("$('setting-fps')")&&app.includes("' FPS'"), 'opção de FPS precisa exibir contador');

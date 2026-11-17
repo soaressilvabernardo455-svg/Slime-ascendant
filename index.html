@@ -455,7 +455,7 @@ function drawGround(cx,cy,W,H,map){
  }
 }
 function lobby(){
- $('bal').textContent='🪙 '+SV.co+'　💎 '+SV.cr;$('sel').textContent=LB[SV.sel]+' · Nível 1';$('rec').textContent='🏆 Onda '+SV.best;$('lobby-map-name').textContent=(MAPS[SV.map]||MAPS[0])[0];
+ $('bal').textContent='🪙 '+SV.co+'　💎 '+SV.cr;$('sel').textContent=LB[SV.sel]+' · Nível 1';$('rec').textContent='🏆 Onda '+SV.best;$('lobby-map-name').textContent=(MAPS[SV.map]||MAPS[0])[0];$('n').value=SV.name||$('n').value;
  const tm=$('tm');tm.innerHTML='';
  MAPS.forEach(([nm,pc,pk],i)=>{const own=SV.maps.includes(i),b=document.createElement('button');
   b.innerHTML=nm+'<br><small>'+(own?(SV.map==i?'Selecionado':'Escolher'):(pc?'🪙 '+pc:'💎 '+pk))+'</small>';b.className=own&&SV.map==i?'s':'';
@@ -481,35 +481,87 @@ document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{document.querySe
 $('dl').onclick=()=>{SV.day=new Date().toDateString();SV.co+=100;SV.cr+=2;save();toast('+100 🪙 e +2 💎');lobby()};
 $('mu').onclick=()=>{SV.mute=SV.mute?0:1;save();lobby()};
 
+async function refreshServerStatus(){
+ try{
+  const response=await fetch('/health',{cache:'no-store'});
+  if(!response.ok)throw new Error('Servidor indisponível');
+  const data=await response.json();
+  $('server-dot').className='server-dot';
+  $('server-label').textContent='Servidor online';
+  $('online-count').textContent=(Number(data.players)||0)+' jogadores online';
+ }catch(e){
+  $('server-dot').className='server-dot offline';
+  $('server-label').textContent='Servidor acordando';
+  $('online-count').textContent='Conexão pendente';
+ }
+}
+function abortJoin(attempt,message){
+ if(attempt!==joinAttempt)return;
+ clearConnectTimers();
+ const old=ws;ws=null;
+ if(old){old.onopen=old.onmessage=old.onerror=old.onclose=null;try{old.close()}catch(e){}}
+ S=null;pp=null;last='';lastPow='';keys={};joy=null;
+ setGameState('LOBBY');lobby();refreshServerStatus();
+ if(message)toast(message);
+}
 function joinOnline(roomCode,button){
- if(ws&&(ws.readyState===0||ws.readyState===1))return;
- const goButton=button||$('go');goButton.disabled=true;goButton.textContent='Conectando...';
- SV.name=$('n').value;save();try{AU=AU||new(window.AudioContext||window.webkitAudioContext)()}catch(e){}
- const H=location.host||RENDER,socket=new WebSocket((location.protocol=='http:'?'ws://':'wss://')+H+'/?s='+encodeURIComponent(roomCode));
- ws=socket;op=0;
- socket.onopen=()=>{
-  goButton.disabled=false;goButton.textContent=button?'🔑 Sala privada':'🌐 Sala pública';op=1;OFF=false;OR=null;lw=0;gc=gk=0;lastPow='';
-  socket.send(JSON.stringify({t:'join',cls:SV.cls.includes(SV.sel)?SV.sel:'normal',map:SV.map,it:SV.items,name:SV.name,up:SV.up}));
-  $('m').style.display='none';$('ex').style.display='block';$('powhud').style.display='flex';
+ if(GAME_STATE!=='LOBBY'||(ws&&(ws.readyState===0||ws.readyState===1)))return;
+ const attempt=++joinAttempt;
+ SV.name=$('n').value.trim().slice(0,10);save();
+ try{AU=AU||new(window.AudioContext||window.webkitAudioContext)()}catch(e){}
+ setGameState('LOADING','Acordando servidor...','O Render pode precisar iniciar o servidor antes de abrir a sala.');
+ clearConnectTimers();
+ connectStatusTimer=setTimeout(()=>{if(attempt===joinAttempt&&GAME_STATE==='LOADING')setGameState('LOADING','Conectando à sala...','O servidor respondeu. Estamos entrando no mundo.')},6500);
+ connectTimer=setTimeout(()=>abortJoin(attempt,'O servidor demorou para responder. Tente novamente.'),42000);
+ const openSocket=()=>{
+  if(attempt!==joinAttempt||GAME_STATE!=='LOADING')return;
+  let socket;
+  try{
+   const H=location.host||RENDER;
+   socket=new WebSocket((location.protocol==='http:'?'ws://':'wss://')+H+'/?s='+encodeURIComponent(roomCode));
+  }catch(e){abortJoin(attempt,'Não foi possível iniciar a conexão.');return}
+  ws=socket;op=0;
+  socket.onopen=()=>{
+   if(attempt!==joinAttempt)return;
+   op=1;
+   setGameState('LOADING','Conectando à sala...','Autenticando a conexão e aguardando o primeiro estado da partida.');
+   socket.send(JSON.stringify({t:'join',cls:SV.cls.includes(SV.sel)?SV.sel:'normal',map:SV.map,it:SV.items,name:SV.name,up:SV.up}));
+  };
+  socket.onmessage=e=>{
+   if(attempt!==joinAttempt)return;
+   let data;try{data=JSON.parse(e.data)}catch{return}
+   if(data.t==='id'){me=data.id;return}
+   if(!Array.isArray(data.p))return;
+   const player=data.p.find(q=>q.id==me);
+   if(!player)return;
+   S=data;OFF=false;OR=null;lw=0;gc=0;gk=0;lastPow='';clearConnectTimers();setGameState('PLAYING');
+   if(data.w>SV.best){SV.best=data.w;[[5,50,0],[10,0,5],[15,0,10],[20,0,20]].forEach(([w,co,cr])=>{if(data.w>=w&&!SV.ach.includes(w)){SV.ach.push(w);SV.co+=co;SV.cr+=cr;toast('🏆 Onda '+w+'! +'+(co?co+' 🪙':cr+' 💎'))}});save()}
+   if(player.co>gc||player.cr>gk){SV.co+=player.co-gc;SV.cr+=player.cr-gk;gc=player.co;gk=player.cr;save()}
+  };
+  socket.onerror=()=>{if(attempt===joinAttempt&&GAME_STATE==='LOADING')toast('A conexão falhou. Tentando encerrar com segurança...')};
+  socket.onclose=()=>{
+   if(attempt!==joinAttempt)return;
+   const previous=GAME_STATE;clearConnectTimers();ws=null;S=null;pp=null;last='';lastPow='';
+   setGameState('LOBBY');lobby();refreshServerStatus();
+   if(previous==='LOADING')toast('Não foi possível entrar. O servidor pode estar iniciando; tente novamente.');
+   else if(previous==='PLAYING'||previous==='GAMEOVER')toast('Conexão encerrada. Você voltou ao lobby.');
+  };
  };
- socket.onmessage=e=>{
-  const d=JSON.parse(e.data);if(d.t=='id'){me=d.id;return}S=d;
-  if(d.w>SV.best){SV.best=d.w;[[5,50,0],[10,0,5],[15,0,10],[20,0,20]].forEach(([w,co,cr])=>{if(d.w>=w&&!SV.ach.includes(w)){SV.ach.push(w);SV.co+=co;SV.cr+=cr;toast('🏆 Onda '+w+'! +'+(co?co+' 🪙':cr+' 💎'))}});save()}
-  const p=d.p.find(q=>q.id==me);if(p){if(p.co<gc)gc=p.co;if(p.cr<gk)gk=p.cr;if(p.co>gc||p.cr>gk){SV.co+=p.co-gc;SV.cr+=p.cr-gk;gc=p.co;gk=p.cr;save()}}
- };
- socket.onerror=()=>{goButton.disabled=false;goButton.textContent=button?'🔑 Sala privada':'🌐 Sala pública';toast('Não foi possível conectar. Tente novamente.')};
- socket.onclose=()=>{
-  if(OFF)return;goButton.disabled=false;goButton.textContent=button?'🔑 Sala privada':'🌐 Entrar na sala pública';
-  if(!lv2)toast(op?'Conexão perdida':'Servidor indisponível');lv2=0;ws=null;S=null;last='';lastPow='';
-  $('u').style.display='none';$('powhud').style.display='none';$('fim').style.display='none';$('ex').style.display='none';$('m').style.display='flex';lobby();
- };
+ const warm=fetch('/health',{cache:'no-store'}).catch(()=>null);
+ Promise.race([warm,new Promise(resolve=>setTimeout(resolve,7000))]).then(()=>{
+  if(attempt===joinAttempt&&GAME_STATE==='LOADING'){setGameState('LOADING','Conectando à sala...','Abrindo a conexão da partida.');openSocket()}
+ });
 }
 $('go').onclick=()=>joinOnline('geral',$('go'));
 $('priv').onclick=()=>{
- const code=$('r').value.trim();if(!code){$('r').classList.add('show');$('r').focus();toast('Digite um código para a sala privada.');return}
+ const code=$('r').value.trim();
+ if(!code){$('r').classList.add('show');$('r').focus();toast('Digite o código da sala privada.');return}
  joinOnline(code,$('priv'));
 };
 $('off').onclick=offlineStart;
+$('cancel-loading').onclick=()=>abortJoin(joinAttempt,'Conexão cancelada.');
+if(serverPollTimer)clearInterval(serverPollTimer);
+refreshServerStatus();serverPollTimer=setInterval(()=>{if(!document.hidden&&GAME_STATE==='LOBBY')refreshServerStatus()},20000);
 
 async function accountRequest(path,method,body){
  const options={method,credentials:'same-origin',headers:{}};
@@ -519,46 +571,82 @@ async function accountRequest(path,method,body){
  if(!response.ok)throw new Error(data.error||'Não foi possível concluir a solicitação.');
  return data;
 }
+let accountMode='login';
 function accountMessage(message,error){
  const e=$('account-message');e.textContent=message;e.style.color=error?'#fecaca':'#bed0c0';
 }
+function openAccount(mode){
+ accountMode=mode;$('account-modal').classList.remove('h');$('account-dropdown').classList.add('h');
+ const deleting=mode==='delete';
+ $('account-modal-title').textContent=deleting?'Excluir conta':mode==='register'?'Criar conta':'Entrar na conta';
+ $('account-safety').classList.toggle('h',mode!=='register');
+ $('account-form').classList.toggle('h',deleting);
+ $('account-active').classList.toggle('h',!deleting);
+ $('account-password').value='';$('account-delete-password').value='';$('account-delete-confirm').value='';
+ $('account-password').setAttribute('autocomplete',mode==='register'?'new-password':'current-password');
+ accountMessage(deleting?'Esta ação é permanente. A confirmação exige senha e a palavra EXCLUIR.':'',false);
+}
+function closeAccountModal(){$('account-modal').classList.add('h')}
 function showAccount(data){
  const active=!!(data&&data.authenticated);
- $('account-form').classList.toggle('h',active);
- $('account-active').classList.toggle('h',!active);
- $('account-status').textContent=active?'Conectado como '+data.email:'Você não está conectado.';
- if(!active)$('account-delete-password').value='';
+ $('account-guest').classList.toggle('h',active);
+ $('account-logged').classList.toggle('h',!active);
+ $('account-status').textContent=active?data.email:'Você não está conectado.';
+ $('account-user').textContent=active?(data.email.length>22?data.email.slice(0,19)+'…':data.email)+'　⌄':'Minha conta　⌄';
+ if(!active){$('account-dropdown').classList.add('h');$('account-delete-password').value='';$('account-delete-confirm').value=''}
 }
 async function refreshAccount(){
  try{showAccount(await accountRequest('/api/auth/me','GET'))}
- catch(e){showAccount({authenticated:false});accountMessage(e.message,true)}
+ catch(e){showAccount({authenticated:false});}
 }
+$('account-open-login').onclick=()=>openAccount('login');
+$('account-open-register').onclick=()=>openAccount('register');
+$('account-close').onclick=closeAccountModal;
+$('account-modal').onclick=e=>{if(e.target===$('account-modal'))closeAccountModal()};
+$('account-user').onclick=()=>$('account-dropdown').classList.toggle('h');
 $('account-register').onclick=async()=>{
- const email=$('account-email').value,password=$('account-password').value;
- accountMessage('Criando conta...',false);
- try{const result=await accountRequest('/api/auth/register','POST',{email,password});$('account-password').value='';showAccount(result);accountMessage('Conta criada e conectada neste aparelho.',false)}
+ const email=$('account-email').value.trim(),password=$('account-password').value;
+ if(password.length<6){accountMessage('A senha precisa ter pelo menos 6 caracteres.',true);return}
+ if(!email){accountMessage('Digite seu email.',true);return}
+ const button=$('account-register');button.disabled=true;accountMessage('Criando sua conta...',false);
+ try{const result=await accountRequest('/api/auth/register','POST',{email,password});showAccount(result);$('account-password').value='';closeAccountModal();toast('Conta criada e conectada neste aparelho.')}
  catch(e){accountMessage(e.message,true)}
+ finally{button.disabled=false}
 };
 $('account-login').onclick=async()=>{
- const email=$('account-email').value,password=$('account-password').value;
- accountMessage('Entrando...',false);
- try{const result=await accountRequest('/api/auth/login','POST',{email,password});$('account-password').value='';showAccount(result);accountMessage('Login realizado.',false)}
+ const email=$('account-email').value.trim(),password=$('account-password').value;
+ if(!email||password.length<6){accountMessage('Digite seu email e uma senha com pelo menos 6 caracteres.',true);return}
+ const button=$('account-login');button.disabled=true;accountMessage('Entrando...',false);
+ try{const result=await accountRequest('/api/auth/login','POST',{email,password});showAccount(result);$('account-password').value='';closeAccountModal();toast('Login realizado.')}
  catch(e){accountMessage(e.message,true)}
+ finally{button.disabled=false}
 };
 $('account-logout').onclick=async()=>{
- try{await accountRequest('/api/auth/logout','POST',{});showAccount({authenticated:false});$('account-password').value='';$('account-delete-password').value='';accountMessage('Você saiu da conta neste aparelho.',false)}
- catch(e){accountMessage(e.message,true)}
+ $('account-dropdown').classList.add('h');
+ try{await accountRequest('/api/auth/logout','POST',{});showAccount({authenticated:false});toast('Você saiu da conta neste aparelho.')}
+ catch(e){accountMessage(e.message,true);openAccount('login')}
 };
+$('account-delete-open').onclick=()=>openAccount('delete');
 $('account-delete').onclick=async()=>{
- const password=$('account-delete-password').value;
- if(!password){accountMessage('Digite sua senha para confirmar a exclusão.',true);return}
- if(!confirm('Excluir esta conta definitivamente? Essa ação não pode ser desfeita.'))return;
- try{await accountRequest('/api/auth/account','DELETE',{password});showAccount({authenticated:false});$('account-password').value='';$('account-delete-password').value='';accountMessage('Conta excluída. O progresso local deste aparelho não foi apagado.',false)}
+ const password=$('account-delete-password').value,confirmation=$('account-delete-confirm').value.trim();
+ if(!password){accountMessage('Digite a senha da conta.',true);return}
+ if(confirmation!=='EXCLUIR'){accountMessage('Digite EXCLUIR para confirmar a exclusão.',true);return}
+ const button=$('account-delete');button.disabled=true;accountMessage('Excluindo a conta...',false);
+ try{await accountRequest('/api/auth/account','DELETE',{password});showAccount({authenticated:false});closeAccountModal();toast('Conta excluída. O progresso local continua salvo neste aparelho.')}
  catch(e){accountMessage(e.message,true)}
+ finally{button.disabled=false}
 };
-
 refreshAccount();
-$('ex').onclick=$('vl').onclick=()=>{if(OFF){stopOffline();return}lv2=1;if(ws)ws.close();else{$('m').style.display='flex';$('ex').style.display='none';$('powhud').style.display='none';lobby()}};
+function cleanupGameSession(){
+ clearConnectTimers();joinAttempt++;
+ if(ws){const old=ws;ws=null;old.onopen=old.onmessage=old.onerror=old.onclose=null;try{old.close()}catch(e){}}
+ if(offlineTimer)clearInterval(offlineTimer);offlineTimer=0;OFF=false;OR=null;S=null;me=0;
+ keys={};joy=null;pp=null;lt=0;last='';lastPow='';gc=0;gk=0;ld=[9,9];
+ $('u').style.display='none';$('powhud').innerHTML='';$('fim').style.display='none';
+ setGameState('LOBBY');
+}
+function returnToLobby(){cleanupGameSession();lobby();refreshServerStatus()}
+$('ex').onclick=returnToLobby;$('vl').onclick=returnToLobby;
 
 const SKICON={proj:'💧',orb:'🪐',nova:'💥',raio:'⚡',aura:'🌀',vida:'❤️',dano:'⚔️',vel:'👟',recarga:'⏱️',ima:'🧲',regen:'🌿',xp:'✨',meteoro:'☄️',armadura:'🛡️',lanca:'🔱',corrente:'⛓️',espinhos:'🌵',furacao:'🌪️',crit:'💠',sorte:'🍀'};
 const SKCOLOR={proj:'#38bdf8',orb:'#a78bfa',nova:'#fb7185',raio:'#facc15',aura:'#34d399',meteoro:'#f97316',lanca:'#60a5fa',corrente:'#facc15',espinhos:'#84cc16',furacao:'#c084fc',vida:'#fb7185',dano:'#f97316',vel:'#84cc16',recarga:'#60a5fa',ima:'#c084fc',regen:'#4ade80',xp:'#fbbf24',armadura:'#94a3b8',crit:'#67e8f9',sorte:'#4ade80'};
@@ -644,17 +732,15 @@ function offlineSnapshot(){
 }
 function offlineTick(){if(!OFF||!OR)return;const p=OR.ps[1];if(!p.ch&&!p.d)offlineStep(OR,p);offlineSnapshot()}
 function offlineStart(){
- SV.name=$('n').value;save();try{AU=AU||new(window.AudioContext||window.webkitAudioContext)()}catch(e){}
- if(ws){try{ws.onclose=null;ws.close()}catch(e){}ws=null}
+ if(GAME_STATE!=='LOBBY')return;
+ SV.name=$('n').value.trim().slice(0,10);save();try{AU=AU||new(window.AudioContext||window.webkitAudioContext)()}catch(e){}
+ cleanupGameSession();
  OFF=true;OR={ps:{1:offlinePlayer()},es:[],sh:[],gm:[],hr:[],fx:[],ob:[],wave:1,t:0,sp:30,map:SV.map};
  me=1;gc=0;gk=0;lw=0;pp=null;lt=0;last='';lastPow='';
- $('m').style.display='none';$('ex').style.display='block';$('powhud').style.display='flex';
- clearInterval(offlineTimer);offlineTimer=setInterval(offlineTick,33);offlineTick();toast('Modo offline ativo · progresso salvo no aparelho');
+ setGameState('PLAYING');
+ offlineTimer=setInterval(offlineTick,33);offlineTick();toast('Modo offline ativo · progresso salvo no aparelho');
 }
-function stopOffline(){
- if(offlineTimer)clearInterval(offlineTimer);offlineTimer=0;OFF=false;OR=null;S=null;pp=null;last='';lastPow='';
- $('powhud').style.display='none';$('u').style.display='none';$('fim').style.display='none';$('ex').style.display='none';$('m').style.display='flex';lobby();
-}
+function stopOffline(){cleanupGameSession();lobby();refreshServerStatus()}
 
 let ld=[9,9];
 function getDir(){let dx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),dy=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);if(joy){dx=joy.dx;dy=joy.dy}return[dx,dy]}
@@ -671,7 +757,7 @@ function sendIn(f){
 }
 onkeydown=e=>{const k=e.key.toLowerCase();if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault();keys[k]=1;sendIn()};
 onkeyup=e=>{keys[e.key.toLowerCase()]=0;sendIn()};
-function clearGameInput(){keys={};joy=null;sendIn(1)}
+function clearGameInput(){keys={};joy=null;if(OFF&&OR){const p=OR.ps[1];if(p){p.dx=0;p.dy=0;p.stopAfterStep=0;p.stopRequested=0}}else if(ws&&ws.readyState===1){try{ws.send(JSON.stringify({t:'in',dx:0,dy:0}))}catch(e){}}ld=[0,0]}
 addEventListener('blur',clearGameInput);document.addEventListener('visibilitychange',()=>{if(document.hidden)clearGameInput()});
 cv.ontouchstart=cv.ontouchmove=e=>{
  e.preventDefault();const t=e.touches[0];if(!t)return;
@@ -719,7 +805,7 @@ function draw(t){requestAnimationFrame(draw);
  x.textAlign='center';x.font='bold 15px sans-serif';x.fillStyle=S.w%5==0?'#fbbf24':'#fff';x.fillText('ONDA '+S.w+(S.w%5==0?'  ⚠ CHEFE':''),W/2,96);
  x.font='16px sans-serif';x.fillStyle='#fff';
  if(joy){x.strokeStyle='#fff6';x.lineWidth=2;x.beginPath();x.arc(joy.x,joy.y,50,0,7);x.stroke();x.fillStyle='#fff4';x.beginPath();x.arc(joy.px,joy.py,18,0,7);x.fill();x.fillStyle='#fff'}
- if(S.o){$('fim').style.display='flex';$('fr').textContent='Você chegou à onda '+S.w+'! Recorde: onda '+SV.best}
+ if(S.o){if(GAME_STATE!=='GAMEOVER')setGameState('GAMEOVER');$('fim').style.display='flex';$('fr').textContent='Você chegou à onda '+S.w+'! Recorde: onda '+SV.best}
  else if(p.d)x.fillText('Você caiu! Espere os amigos.',W/2,128);
  else if(S.pa&&!p.ch)x.fillText('Jogo pausado: alguém escolhe uma melhoria',W/2,128);
  const key=p.ch?p.ch.join():'';if(key!=last){last=key;ui(p)}}

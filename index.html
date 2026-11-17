@@ -155,7 +155,7 @@ onkeydown=e=>{keys[e.key.toLowerCase()]=1;sendIn()};onkeyup=e=>{keys[e.key.toLow
 cv.ontouchstart=cv.ontouchmove=e=>{e.preventDefault();const t=e.touches[0];if(e.type=='touchstart')joy={x:t.clientX,y:t.clientY};
  const dx=t.clientX-joy.x,dy=t.clientY-joy.y,d=Math.hypot(dx,dy)||1,m=d<5?0:Math.min(1,d/25);joy.dx=dx/d*m;joy.dy=dy/d*m;joy.px=t.clientX;joy.py=t.clientY;sendIn()};
 cv.ontouchend=()=>{joy=null;sendIn()};
-setInterval(()=>sendIn(1),33);
+setInterval(()=>sendIn(1),16);
 const DPR=Math.min(devicePixelRatio||1,1.5);onresize=()=>{cv.width=innerWidth*DPR;cv.height=innerHeight*DPR};onresize();
 
 function draw(t){requestAnimationFrame(draw);if(!S){const g=$('pv').getContext('2d');g.clearRect(0,0,64,64);slime(g,32,52,SV.sel,t);return}

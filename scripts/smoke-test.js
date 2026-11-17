@@ -72,6 +72,9 @@ assert.ok(auth.includes('economyVersion: Math.max(0, Math.min(1,'), 'servidor pr
 const joinSection=app.match(/function joinOnline\(roomCode,button\)\{([\s\S]*?)const openSocket/);
 assert.ok(joinSection&&/lw=0;gc=0;gk=0/.test(joinSection[1]), 'contadores precisam iniciar uma vez por partida');
 assert.ok(app.includes('function drawBiomeLandmark('), 'decorações grandes dos biomas ausentes');
+assert.ok(app.includes('function mkS(ty){')&&app.includes('for(let i=0;i<7;i++)SPR[i]=mkS(i)'), 'monstros precisam usar sprites vetoriais suaves em alta resolução');
+assert.ok(app.includes('c.imageSmoothingEnabled=true;c.drawImage(SPR[ty]'), 'sprites de monstros precisam ser renderizados com suavização');
+assert.ok(server.includes("'/cover.svg':['cover.svg','image/svg+xml']"), 'servidor precisa entregar a capa SVG do jogo');
 assert.ok(app.includes('if(h%2===0)drawBiomeLandmark(X,Y,map,h)'), 'biomas precisam renderizar árvores, dunas, gelo e rochas de lava');
 assert.ok(app.includes('c.scale(1.04*(1+squash),.98*(1-squash))'), 'slime precisa manter proporções mais equilibradas');
 assert.ok(app.includes('function drawGround(cx,cy,W,H,map){')&&app.includes('Grandes manchas de terreno fixas no mundo'), 'textura de terreno limpa ausente');

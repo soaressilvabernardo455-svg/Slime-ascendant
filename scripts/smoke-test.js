@@ -59,8 +59,8 @@ assert.ok(app.includes('const cx=pp.x-W/2,cy=pp.y-H/2'), 'a câmera deve seguir 
 assert.match(app, /const oClamp=v=>Math\.max\(-1000000000/);
 assert.match(app, /const PRICE=\{normal:\[0,0\],arqueiro:\[900,0\],cavaleiro:\[3000,0\],mago:\[5000,0\],curandeiro:\[0,600\],necromante:\[0,900\]\}/);
 assert.ok(app.includes("if(p.cls==='necromante')"), 'necromante precisa invocar esqueletos');
-assert.ok(server.includes('p.lv===5&&(p.pw.meteoro||0)<5'), 'servidor não deve oferecer Meteoro já maximizado no nível 5');
-assert.ok(app.includes('p.lv===5&&(p.pw.meteoro||0)<5'), 'modo offline não deve oferecer Meteoro já maximizado no nível 5');
+assert.ok(server.includes('p.lv===5&&(p.pw.meteoro||0)<5&&((p.pw.meteoro||0)>0||op.length<5)'), 'servidor não pode obrigar o Meteoro sem espaço para um novo poder');
+assert.ok(app.includes('p.lv===5&&(p.pw.meteoro||0)<5&&((p.pw.meteoro||0)>0||op.length<5)'), 'modo offline não pode obrigar o Meteoro sem espaço para um novo poder');
 assert.ok(app.includes('(S.k||[])'), 'esqueletos precisam ser desenhados na partida');
 assert.ok(!app.includes('wx(W,H,S.mp|0,t)'), 'efeitos de partículas da tela do lobby não devem aparecer na partida');
 assert.ok(!app.includes('const grain=86'), 'remover granulação de pontos do mapa durante a partida');
@@ -85,7 +85,8 @@ assert.ok(html.includes('id="create-room"')&&app.includes("$('create-room').oncl
 assert.ok(app.includes("joinOnline(code,$('create-room'))"), 'sala privada precisa conectar com código compartilhável');
 assert.ok(html.includes('id="ts"')&&html.includes('data-t="s"'), 'aba de configurações ausente');
 assert.ok(app.includes('id="reset-game"')&&app.includes('Todo o progresso deste perfil será apagado'), 'reset precisa pedir confirmação');
-assert.ok(app.includes('SV.quality===0?1:DEVICE_DPR_CAP'), 'configuração de qualidade precisa alterar resolução');
+assert.ok(app.includes('const qualityDprCap=()=>SV.quality===0?1:SV.quality===1?DEVICE_DPR_CAP:Math.min(2,DEVICE_DPR_CAP+.5)'), 'qualidade alta precisa ter teto de resolução maior');
+assert.ok(app.includes('Math.min(Math.min(devicePixelRatio||1,qualityDprCap())'), 'ajuste automático não pode rebaixar o modo Alto para o teto do modo Padrão');
 assert.ok(app.includes("settings.querySelector('#setting-fps')")&&app.includes("' FPS'"), 'opção de FPS precisa exibir contador');
 assert.ok(app.includes('refreshAccountWhenActive'), 'sessão deve ser revalidada ao voltar ao jogo');
 assert.equal((app.match(/if\(p\.cls==='necromante'\)/g)||[]).length,1, 'invocação offline não pode executar duplicada');

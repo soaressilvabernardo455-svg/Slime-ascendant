@@ -2,7 +2,8 @@
   "name": "slime-ascendent",
   "version": "1.0.0",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "node scripts/smoke-test.js"
   },
   "dependencies": {
     "ws": "^8.18.0",

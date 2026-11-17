@@ -72,7 +72,7 @@ function step(r,L){
  r.t++;r.ob=[];
  if(r.t%600==0){r.wave++;if(r.wave%2==0)for(const p of L)if(!p.devMode)p.cr++;if(r.wave%2===0)dropChestNearPlayer(r,L);if(r.wave%5==0)spawn(r,L,3)}
  if(--r.sp<1){const w=r.wave;r.sp=Math.max(20,60-w*2);
-  if(r.es.length<45)for(let i=0,n=1+(w>>2)+L.length-1;i<n&&r.es.length<45;i++){const q=R();spawn(r,L,w>5&&q<.1?5:w>4&&q<.2?6:w>3&&q<.3?4:w>2&&q<.4?2:q<.65?1:0)}}
+  if(r.es.length<45)for(let i=0,n=1+(w>>2)+L.length-1;i<n&&r.es.length<45;i++){const q=R();spawn(r,L,w>2&&q<.08?5:w>3&&q<.17?6:w>1&&q<.36?4:w>2&&q<.46?2:q<.7?1:0)}}
  for(const p of L){
   if(p.ch)continue;
   const c=CLS[p.cls],m=Math.hypot(p.dx,p.dy);if(m>1){p.dx/=m;p.dy/=m}

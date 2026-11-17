@@ -103,7 +103,7 @@ function step(r,L){
   if(p.lv>=5&&rdy('ascensao',540)){const rr=150;for(const e of r.es)if(dist(e,p)<rr+e.r)e.hp-=hit((24+4*p.lv)*dm);p.hp=Math.min(p.mh,p.hp+Math.ceil(p.mh*.08));r.fx.push(['a',p.x|0,p.y|0,rr,0,18])}
   if(p.ps.regen&&r.t%30==0)p.hp=Math.min(p.mh,p.hp+p.ps.regen);
   if(c.heal&&r.t%60==0)for(const q of L)if(!q.d&&dist(q,p)<220)q.hp=Math.min(q.mh,q.hp+8)}
- if(r.sh.length>240)r.sh.splice(0,r.sh.length-240);
+ if(r.sh.length>80)r.sh.splice(0,r.sh.length-80);
  for(const e of r.es){let b=null,bd=1e9;for(const p of L){if(p.d)continue;const d=dist(p,e);if(d<bd){bd=d;b=p}}
   if(!b)continue;
   let separateX=0,separateY=0;for(const other of r.es){if(other===e)continue;const dx=e.x-other.x,dy=e.y-other.y,d=Math.hypot(dx,dy),gap=e.r+other.r+10;if(d>0&&d<gap){const force=(gap-d)/gap;separateX+=dx/d*force;separateY+=dy/d*force}}
@@ -136,7 +136,7 @@ function snapshot(r,own){
  return JSON.stringify({w:r.wave,mp:r.map|0,pa:!!own.ch,o:P.length>0&&!L.length?1:0,
   k:P.flatMap(p=>(p.sk||[]).map(q=>[q.x|0,q.y|0])),p:P.map(p=>({id:p.id,n:p.name,c:p.cls,x:p.x|0,y:p.y|0,h:p.hp|0,m:p.mh|0,l:p.lv,xp:p.xp,nx:p.nx,d:p.d,pw:p.pw,ps:p.ps,ch:p.ch,chType:p.chType,it:p.it,shield:p.shieldUntil>r.t?p.shieldUntil-r.t:0,co:p.devMode?999999999:p.co,cr:p.devMode?999999999:p.cr,dev:!!p.devMode,sp:+(CLS[p.cls].sp*(1+.1*(p.ps.vel||0))*(1+.04*p.u.vel)*(p.it.includes('botas')?1.08:1)).toFixed(2)})),
   e:r.es.filter(e=>visible(e.x,e.y)).map(e=>[e.x|0,e.y|0,e.ty,Math.max(0,e.hp/e.mh)]),
-  s:r.sh.filter(q=>visible(q.x,q.y)).slice(-240).map(q=>[q.x|0,q.y|0]),
+  s:r.sh.filter(q=>visible(q.x,q.y)).slice(-80).map(q=>[q.x|0,q.y|0]),
   b:r.ob.filter(q=>visible(q[0],q[1])),
   g:r.gm.filter(q=>visible(q.x,q.y)).map(q=>[q.x|0,q.y|0]),
   f:effects,hr:r.hr.filter(q=>visible(q.x,q.y)).map(q=>[q.x|0,q.y|0]),ch:(r.ch||[]).filter(q=>visible(q.x,q.y)).map(q=>[q.x|0,q.y|0,q.type])});

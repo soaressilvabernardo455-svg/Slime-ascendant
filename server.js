@@ -2,11 +2,11 @@ const http=require('http'),fs=require('fs'),{WebSocketServer}=require('ws');
 const R=Math.random,PW=['proj','orb','nova','raio','aura','meteoro','lanca','corrente','espinhos','furacao'],PS=['vida','dano','vel','recarga','ima','regen','xp','armadura','crit','sorte'];
 const CLS={normal:{hp:100,sp:4.8,dm:.8,pw:'proj'},mago:{hp:70,sp:4.8,dm:1.1,pw:'raio'},cavaleiro:{hp:150,sp:4.2,dm:.9,pw:'orb'},necromante:{hp:85,sp:4.8,dm:1,pw:'nova'},curandeiro:{hp:110,sp:4.8,dm:.7,pw:'aura',heal:1},arqueiro:{hp:80,sp:5.2,dm:.9,pw:'proj',pr:2}};
 const ET=[{h:w=>18+w*9,r:10,v:1.4,d:7,c:1,x:1},{h:w=>10+w*5,r:8,v:2.4,d:5,c:2,x:2},{h:w=>90+w*25,r:16,v:.9,d:14,c:6,x:5},{h:w=>500+w*90,r:26,v:.8,d:20,c:40,x:40},{h:w=>14+w*6,r:11,v:1.9,d:6,c:3,x:3},{h:w=>30+w*8,r:12,v:1.6,d:9,c:3,x:3},{h:w=>70+w*14,r:13,v:.7,d:10,c:4,x:4}];
-const rooms={};let N=1,roomSequence=1;const ITEMS=['espada','escudo','botas','amuleto','anel','coracao'];
+const rooms=Object.create(null);let N=1,roomSequence=1;const ITEMS=['espada','escudo','botas','amuleto','anel','coracao'];
 const MAX_PLAYERS=4,MAX_MESSAGE_RATE=45,VIEW_RADIUS=640,UPGRADE_KEYS=['vida','dano','vel','moeda'];
 function allowMessage(ws){const now=Date.now();if(!ws.rateWindow||now-ws.rateWindow>=1000){ws.rateWindow=now;ws.rateCount=0}ws.rateCount++;return ws.rateCount<=MAX_MESSAGE_RATE}
 function newRoom(k){return{k,ps:{},started:false,locked:false,startAt:0,hostId:0,lastRoomBroadcast:0,lastSnapshotAt:0}}
-function cleanPlayerData(data){data=data&&typeof data==='object'?data:{};const cls=Object.prototype.hasOwnProperty.call(CLS,data.cls)?data.cls:'normal',name=String(data.name||'Slime').replace(/[<>\\x00-\\x1f]/g,'').trim().slice(0,10)||'Slime',up={};for(const key of UPGRADE_KEYS){const n=Number(data.up&&data.up[key]);up[key]=Number.isFinite(n)?Math.max(0,Math.min(10,Math.floor(n))):0}const it=Array.isArray(data.it)?[...new Set(data.it.filter(key=>ITEMS.includes(key)))].slice(0,ITEMS.length):[];return{cls,name,up,it}}
+function cleanPlayerData(data){data=data&&typeof data==='object'?data:{};const cls=Object.prototype.hasOwnProperty.call(CLS,data.cls)?data.cls:'normal',name=String(data.name||'Slime').replace(/[<>]/g,'').trim().slice(0,10)||'Slime',up={};for(const key of UPGRADE_KEYS){const n=Number(data.up&&data.up[key]);up[key]=Number.isFinite(n)?Math.max(0,Math.min(10,Math.floor(n))):0}const it=Array.isArray(data.it)?[...new Set(data.it.filter(key=>ITEMS.includes(key)))].slice(0,ITEMS.length):[];return{cls,name,up,it}}
 const cl=v=>Math.max(10,Math.min(1590,v)),dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const html=fs.readFileSync(__dirname+'/index.html');
 const {handleAuthRequest}=require('./auth');
@@ -27,7 +27,7 @@ const srv=http.createServer(async(q,s)=>{
  }
  s.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});s.end(html);
 });
-const wss=new WebSocketServer({server:srv});
+const wss=new WebSocketServer({server:srv,maxPayload:2048,perMessageDeflate:false});
 
 function mk(id,cls,name,up,it){const data=cleanPlayerData({cls,name,up,it});cls=data.cls;name=data.name;up=data.up;it=data.it;const c=CLS[cls],u={};
  for(const k of UPGRADE_KEYS)u[k]=data.up[k];
@@ -93,7 +93,7 @@ function step(r,L){
 function roomMessage(r){
  const players=Object.values(r.ps).map(p=>({id:p.id,name:p.name,cls:p.cls}));
  const now=Date.now(),countdown=r.startAt?Math.max(0,Math.ceil((r.startAt-now)/1000)):0;
- const payload=JSON.stringify({t:'room',phase:r.started?'playing':r.locked?'countdown':'waiting',countdown,hostId:r.hostId,players});
+ const payload=JSON.stringify({t:'room',phase:r.started?'playing':r.locked?'countdown':'waiting',countdown,hostId:r.hostId,roomCode:r.k,players});
  wss.clients.forEach(c=>{if(c.r===r&&c.readyState===1)c.send(payload)});
 }
 function snapshot(r,own){

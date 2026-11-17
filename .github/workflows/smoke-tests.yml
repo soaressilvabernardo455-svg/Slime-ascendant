@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - 'index.html'
+      - 'manifest.webmanifest'
+      - 'android-app/**'
       - 'server.js'
       - 'auth.js'
       - 'sw.js'

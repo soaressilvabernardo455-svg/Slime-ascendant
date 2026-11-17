@@ -166,17 +166,18 @@ async function currentAccount(req) {
 
 const PROGRESS_CLASSES = new Set(['normal', 'mago', 'cavaleiro', 'necromante', 'curandeiro', 'arqueiro']);
 const PROGRESS_MAPS = new Set([0, 1, 2, 3]);
+const MAP_ACCESS_VERSION = 1;
 const PROGRESS_ITEMS = new Set(['espada', 'escudo', 'botas', 'amuleto', 'anel', 'coracao']);
 function cleanProgress(raw) {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('INVALID_PROGRESS');
   const list = (value, allowed) => Array.isArray(value) ? [...new Set(value.filter(item => allowed.has(item)))].slice(0, allowed.size) : [];
   const cls = list(raw.cls, PROGRESS_CLASSES); if (!cls.includes('normal')) cls.unshift('normal');
-  const maps = list(raw.maps, PROGRESS_MAPS); if (!maps.includes(0)) maps.unshift(0);
+  const maps = list(raw.maps, PROGRESS_MAPS); const mapAccessVersion = Number(raw.mapAccessVersion) || 0; if (mapAccessVersion < MAP_ACCESS_VERSION) { const volcanoIndex = maps.indexOf(3); if (volcanoIndex >= 0) maps.splice(volcanoIndex, 1); } if (!maps.includes(0)) maps.unshift(0);
   const number = value => { const n = Number(value); return Number.isFinite(n) ? Math.max(0, Math.min(1000000000, Math.floor(n))) : 0; };
   const up = {}; for (const key of ['vida', 'dano', 'vel', 'moeda']) { const n = Number(raw.up && raw.up[key]); up[key] = Number.isFinite(n) ? Math.max(0, Math.min(10, Math.floor(n))) : 0; }
   const map = Number(raw.map);
   const quality = Number(raw.quality);
-  return { co: number(raw.co), cr: number(raw.cr), economyVersion: Math.max(0, Math.min(1, Math.floor(Number(raw.economyVersion) || 0))), cls, sel: cls.includes(raw.sel) ? raw.sel : 'normal', name: String(raw.name || '').replace(/[<>]/g, '').trim().slice(0, 10), up, maps, map: Number.isInteger(map) && maps.includes(map) ? map : 0, best: number(raw.best), items: list(raw.items, PROGRESS_ITEMS), ach: Array.isArray(raw.ach) ? [...new Set(raw.ach.map(Number).filter(value => [5, 10, 15, 20].includes(value)))].slice(0, 4) : [], day: typeof raw.day === 'string' ? raw.day.slice(0, 20) : '', quality: Number.isInteger(quality) ? Math.max(0, Math.min(2, quality)) : 1, showFps: raw.showFps ? 1 : 0, mute: raw.mute ? 1 : 0 };
+  return { co: number(raw.co), cr: number(raw.cr), economyVersion: Math.max(0, Math.min(1, Math.floor(Number(raw.economyVersion) || 0))), cls, sel: cls.includes(raw.sel) ? raw.sel : 'normal', name: String(raw.name || '').replace(/[<>]/g, '').trim().slice(0, 10), up, maps, map: Number.isInteger(map) && maps.includes(map) ? map : 0, mapAccessVersion: MAP_ACCESS_VERSION, best: number(raw.best), items: list(raw.items, PROGRESS_ITEMS), ach: Array.isArray(raw.ach) ? [...new Set(raw.ach.map(Number).filter(value => [5, 10, 15, 20].includes(value)))].slice(0, 4) : [], day: typeof raw.day === 'string' ? raw.day.slice(0, 20) : '', quality: Number.isInteger(quality) ? Math.max(0, Math.min(2, quality)) : 1, showFps: raw.showFps ? 1 : 0, mute: raw.mute ? 1 : 0 };
 }
 
 async function handleAuthRequest(req, res, pathname) {

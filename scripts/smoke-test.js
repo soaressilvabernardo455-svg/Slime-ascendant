@@ -73,7 +73,7 @@ const joinSection=app.match(/function joinOnline\(roomCode,button\)\{([\s\S]*?)c
 assert.ok(joinSection&&/lw=0;gc=0;gk=0/.test(joinSection[1]), 'contadores precisam iniciar uma vez por partida');
 assert.ok(app.includes('function drawBiomeLandmark('), 'decorações grandes dos biomas ausentes');
 assert.ok(app.includes('if(h%2===0)drawBiomeLandmark(X,Y,map,h)'), 'biomas precisam renderizar árvores, dunas, gelo e rochas de lava');
-assert.ok(app.includes('c.scale(1.12*(1+squash),.92*(1-squash))'), 'slime não pode ficar excessivamente largo');
+assert.ok(app.includes('c.scale(1.04*(1+squash),.98*(1-squash))'), 'slime precisa manter proporções mais equilibradas');
 assert.ok(app.includes('function drawGround(cx,cy,W,H,map){')&&app.includes('Grandes manchas de terreno fixas no mundo'), 'textura de terreno limpa ausente');
 assert.ok(!app.includes('drawGround(0,0,W,H,map);wx(W,H,map,t)'), 'partículas flutuantes não devem aparecer no lobby');
 assert.ok(html.includes('id="create-room"')&&app.includes("$('create-room').onclick"), 'criação de sala privada ausente');

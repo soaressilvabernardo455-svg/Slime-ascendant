@@ -188,3 +188,14 @@ console.log('Smoke tests aprovados. Referências DOM: ' + usedIds.length + '; cl
 assert.ok(app.includes("if(t===b.dataset.t)panel.scrollTop=0"), 'trocar de aba deve voltar o painel ao topo');
 assert.ok(app.includes("h%53==0")&&!app.includes("h%9==0"), 'floresta deve evitar ruído excessivo de pequenos pixels');
 assert.ok(app.includes('gameSafeTop+88'), 'HUD da partida deve respeitar a área segura superior');
+assert.ok(app.includes('.player-chips{display:flex!important'), 'saldo de moedas e cristais precisa estar visível no lobby');
+assert.ok(app.includes('MAP_ACCESS_VERSION=1') && app.includes('filter(i=>Number(i)!==3)'), 'Vulcão Carmesim antigo liberado sem pagamento deve voltar a exigir cristais');
+assert.ok(auth.includes('MAP_ACCESS_VERSION = 1') && auth.includes('maps.splice(volcanoIndex, 1)'), 'migração de mapa antigo precisa ocorrer também na nuvem');
+assert.ok(app.includes('async function toggleDeveloperMode()') && app.includes("fetch('/api/dev/unlock'"), 'painel de desenvolvedor precisa autenticar no servidor');
+assert.ok(server.includes("path==='/api/dev/unlock'") && server.includes('crypto.timingSafeEqual'), 'ativação de desenvolvedor precisa validar segredo no servidor');
+assert.ok(server.includes('r.devRoom!==devMode') && server.includes("devMode&&k==='geral'"), 'sala de desenvolvedor precisa ficar isolada da sala pública e de jogadores normais');
+assert.ok(app.includes('devToken:developerModeEnabled?developerToken'), 'token de desenvolvedor precisa ser enviado na conexão de teste');
+assert.ok(app.includes("developerModeEnabled?Object.keys(ITEMS)") && app.includes("p.pw=Object.fromEntries"), 'modo de teste offline precisa liberar itens, poderes e recursos');
+assert.ok(app.includes("if(!player.dev&&data.w>SV.best)") && app.includes('if(!p.devMode&&p.co>gc)'), 'resultados do modo de teste não podem contaminar o progresso normal');
+assert.ok(server.includes('dropChestNearPlayer') && server.includes("q.type==='medkit'") && server.includes("q.type==='bomb'"), 'baús online precisam entregar moedas, gemas, cura, kit médico e explosivos');
+assert.ok(app.includes('offlineDropChestNearPlayer') && app.includes("q.type==='medkit'") && app.includes("q.type==='bomb'") && app.includes('(S.ch||[])'), 'baús precisam funcionar e aparecer no modo offline');

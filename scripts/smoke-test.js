@@ -78,9 +78,9 @@ assert.match(auth, /Secure/, 'cookie precisa usar HTTPS em produção');
 
 assert.equal(manifest.orientation, 'any', 'manifest deve aceitar retrato e paisagem');
 assert.equal(capacitor.server.errorPath, 'offline.html', 'APK precisa apontar para a página local de reconexão');
-const offlineScript = offlinePage.match(/<script>([\\s\\S]*?)<\\/script>/i);
+const offlineScript = offlinePage.split('<script>')[1]?.split('</script>')[0];
 assert.ok(offlineScript, 'página offline do APK precisa ter lógica de nova tentativa');
-new vm.Script(offlineScript[1], { filename: 'android-app/www/offline.html' });
+new vm.Script(offlineScript, { filename: 'android-app/www/offline.html' });
 assert.ok(offlinePage.includes('window.location.replace(target)'), 'página offline precisa tentar abrir o jogo automaticamente');
 
 

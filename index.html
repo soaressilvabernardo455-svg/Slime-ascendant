@@ -284,7 +284,7 @@ function offlineStep(r,p){
  const c=OCLS[p.cls],m=Math.hypot(p.dx,p.dy);if(m>1){p.dx/=m;p.dy/=m}
  const sp=c.sp*(1+.1*(p.ps.vel||0))*(1+.04*p.u.vel)*(p.it.includes('botas')?1.08:1);
  p.x=oClamp(p.x+p.dx*sp);p.y=oClamp(p.y+p.dy*sp);
- if(p.stopAfterStep){p.dx=0;p.dy=0;p.stopAfterStep=0}
+ if(p.stopAfterStep>0&&--p.stopAfterStep===0){p.dx=0;p.dy=0}
  const dm=c.dm*(1+.15*(p.ps.dano||0))*(1+.08*p.u.dano)*(p.it.includes('espada')?1.12:1),cd=1-.1*(p.ps.recarga||0),hit=d=>d*(Math.random()<.05*(p.ps.crit||0)?2:1);
  const near=g=>{let b=null;for(const e of r.es){const d=oDist(e,p);if(d<g){g=d;b=e}}return b};
  const rdy=(k,t)=>{p.cd[k]=(p.cd[k]||0)-1;if(p.cd[k]<=0){p.cd[k]=t*cd;return 1}},l=p.pw;

@@ -1134,7 +1134,7 @@ function offlineSpawn(r,p,ty){
 function offlineStep(r,p){
  r.t++;r.ob=[];
  if(r.t%600===0){r.wave++;if(r.wave%2===0)p.cr++;if(r.wave%5===0)offlineSpawn(r,p,3)}
- if(--r.sp<1){const w=r.wave;r.sp=Math.max(20,60-w*2);if(r.es.length<45)for(let i=0,n=1+(w>>2);i<n;i++){const q=Math.random();offlineSpawn(r,p,w>5&&q<.1?5:w>4&&q<.2?6:w>3&&q<.3?4:w>2&&q<.4?2:q<.65?1:0)}}
+ if(--r.sp<1){const w=r.wave;r.sp=Math.max(20,60-w*2);if(r.es.length<45)for(let i=0,n=1+(w>>2);i<n&&r.es.length<45;i++){const q=Math.random();offlineSpawn(r,p,w>5&&q<.1?5:w>4&&q<.2?6:w>3&&q<.3?4:w>2&&q<.4?2:q<.65?1:0)}}
  const c=OCLS[p.cls],m=Math.hypot(p.dx,p.dy);if(m>1){p.dx/=m;p.dy/=m}
  const sp=c.sp*(1+.1*(p.ps.vel||0))*(1+.04*p.u.vel)*(p.it.includes('botas')?1.08:1);
  p.x=oClamp(p.x+p.dx*sp);p.y=oClamp(p.y+p.dy*sp);

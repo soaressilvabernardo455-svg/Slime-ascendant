@@ -9,7 +9,7 @@ function sendJson(res,status,payload){res.writeHead(status,{'Content-Type':'appl
 async function readSmallJson(req){const chunks=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>2048)throw new Error('REQUEST_TOO_LARGE');chunks.push(chunk)}try{return JSON.parse(Buffer.concat(chunks).toString('utf8'))}catch{throw new Error('INVALID_JSON')}}
 const MAX_PLAYERS=4,MAX_CONNECTIONS=40,MAX_MESSAGE_RATE=45,VIEW_RADIUS=640,UPGRADE_KEYS=['vida','dano','vel','moeda'];
 function allowMessage(ws){const now=Date.now();if(!ws.rateWindow||now-ws.rateWindow>=1000){ws.rateWindow=now;ws.rateCount=0}ws.rateCount++;return ws.rateCount<=MAX_MESSAGE_RATE}
-function newRoom(k){return{k,ps:{},started:false,locked:false,startAt:0,hostId:0,lastRoomBroadcast:0,lastSnapshotAt:0,publicRoom:k==='geral',autoStartAt:0}}
+function newRoom(k){return{k,ps:{},started:false,locked:false,startAt:0,hostId:0,lastRoomBroadcast:0,lastSnapshotAt:0,publicRoom:k==='geral',devRoom:null,autoStartAt:0}}
 function roomForJoin(key){if(key==='geral'){let room=rooms.geral;if(room&&(room.locked||room.started||Object.keys(room.ps||{}).length>=MAX_PLAYERS)){const archived='@public-'+roomSequence++;room.k=archived;rooms[archived]=room;delete rooms.geral;room=null}if(!room)room=rooms.geral=newRoom('geral');return room}return rooms[key]||(rooms[key]=newRoom(key))}
 const BLOCKED_NAME_WORDS=['admin','administrator','moderador','moderator','staff','owner','suporte','support','system','developer','porra','caralho','merda','bosta','puta','puto','foda','foder','viado','piranha','cacete','buceta','nazi','hitler'];
 function normalizePlayerName(value){return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/0/g,'o').replace(/1/g,'i').replace(/3/g,'e').replace(/4/g,'a').replace(/5/g,'s').replace(/7/g,'t').replace(/@/g,'a').replace(/\$/g,'s')}
@@ -169,12 +169,17 @@ wss.on('connection',(ws,rq)=>{
   if(!d||typeof d!=='object'||Array.isArray(d))return;
   if(d.t==='join'&&!ws.playerId){
    if(!isAllowedPlayerName(d.name)){ws.send(JSON.stringify({t:'error',message:'Esse nome não é permitido. Escolha outro.'}));return}
-   if(!r){r=roomForJoin(k);if(!r.es)reset(r);ws.r=r}
+   const devMode=validDevToken(d.devToken);
+   if(devMode&&k==='geral'){ws.send(JSON.stringify({t:'error',message:'O modo de desenvolvedor precisa usar uma sala privada.'}));return}
+   if(!r){r=roomForJoin(k);if(!r.es)reset(r)}
+   if(r.devRoom===null||typeof r.devRoom==='undefined')r.devRoom=devMode;
+   if(r.devRoom!==devMode){ws.send(JSON.stringify({t:'error',message:'Esta sala pertence a outro modo de jogo.'}));ws.close(4003,'Tipo de sala incompatível');return}
    if(r.locked||r.started){ws.send(JSON.stringify({t:'error',message:'Esta sala já começou e não aceita novos jogadores.'}));ws.close(4001,'Sala fechada');return}
    if(Object.keys(r.ps).length>=MAX_PLAYERS){ws.send(JSON.stringify({t:'error',message:'Sala cheia. O limite é de 4 jogadores.'}));ws.close(4002,'Sala cheia');return}
+   ws.r=r;
    const id=N++,data=cleanPlayerData(d);
    if(!Object.keys(r.ps).length){r.map=Math.max(0,Math.min(3,Math.floor(Number(d.map)||0)));r.hostId=id;if(r.publicRoom&&!r.autoStartAt)r.autoStartAt=Date.now()+12000}
-   const devMode=validDevToken(d.devToken);const player=mk(id,data.cls,data.name,data.up,data.it,devMode);r.ps[id]=player;ws.playerId=id;
+   const player=mk(id,data.cls,data.name,data.up,data.it,devMode);r.ps[id]=player;ws.playerId=id;
    if(r.publicRoom&&Object.keys(r.ps).length>=MAX_PLAYERS)r.autoStartAt=Date.now()+1200;
    ws.send(JSON.stringify({t:'id',id,host:id===r.hostId,roomCode:r.k}));
    r.lastRoomBroadcast=0;roomMessage(r);return;

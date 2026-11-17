@@ -3,6 +3,7 @@
   "appName": "Slime Ascendent",
   "webDir": "www",
   "server": {
-    "url": "https://slime-ascendant.onrender.com"
+    "url": "https://slime-ascendant.onrender.com",
+    "errorPath": "offline.html"
   }
 }

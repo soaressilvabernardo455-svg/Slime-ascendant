@@ -86,13 +86,182 @@ small{opacity:.7}
 #tc canvas{image-rendering:auto;width:70px;height:70px}
 #tc button{min-height:142px;padding:9px 6px}
 @media(max-height:620px){.account-panel{padding:8px;gap:5px}.account-buttons button{padding:7px 4px}#tc button{min-height:118px}}
+
+/* Lobby HUD 3.9 */
+:root{--glass-bg:rgba(10,24,18,.68);--glass-border:rgba(218,255,225,.18);--mint:#76f1a0;--text:#f0fff3}
+body{background:#0b1710;color:var(--text)}
+#c{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse at 50% 46%,#294f33 0,#102319 56%,#08120c 100%)}
+.glass{background:var(--glass-bg);border:1px solid var(--glass-border);box-shadow:0 18px 50px #0007,inset 0 1px #ffffff16;backdrop-filter:blur(18px) saturate(1.25);-webkit-backdrop-filter:blur(18px) saturate(1.25)}
+#m.lobby-screen{position:fixed;inset:0;z-index:3;display:block;padding:0;overflow:hidden;background:linear-gradient(180deg,#07130b4d 0%,#07130b08 38%,#07130b44 100%);text-align:left;pointer-events:none}
+.lobby-top{position:absolute;top:12px;left:14px;right:14px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;pointer-events:none}
+.brand-panel,.account-top{pointer-events:auto;border-radius:18px;padding:10px 13px}
+.brand-panel{width:min(390px,55vw)}
+.brand-line{display:flex;align-items:center;gap:10px}
+.brand-emblem{width:38px;height:38px;display:grid;place-items:center;border-radius:13px;background:radial-gradient(circle at 35% 25%,#ddffe6,#4acb78 45%,#14542e 100%);color:#09381d;font-size:25px;box-shadow:0 0 24px #56e68a55,inset 0 1px 4px #fff}
+.brand-copy{min-width:0}.brand-title{font-weight:950;letter-spacing:.055em;font-size:clamp(.9rem,2.2vw,1.18rem);white-space:nowrap}
+.version-pill{font-size:.62rem;letter-spacing:0;font-weight:800;border:1px solid #ffffff30;border-radius:20px;padding:3px 6px;color:#d1f9db;vertical-align:middle}
+.brand-subtitle{font-size:.76rem;color:#cae7d1;margin-top:2px}
+.player-chips{display:flex;gap:7px;flex-wrap:wrap;margin:9px 0 0 48px}
+.player-chips span{font-size:.68rem;padding:5px 8px;border-radius:20px;background:#ffffff0d;border:1px solid #ffffff15;color:#d6eddb;white-space:nowrap}
+.account-top{position:relative;min-width:145px;max-width:min(260px,42vw);padding:7px}
+.account-guest,.account-logged{display:flex;align-items:center;gap:7px}
+.account-guest button,.account-user{font-size:.78rem;padding:9px 11px;border:1px solid #ffffff25;border-radius:11px}
+.account-quiet{background:#ffffff10;border-color:#ffffff32}
+.account-create{background:linear-gradient(135deg,#8cf6a9,#37b96a);border-color:#c4ffd1;color:#082b15;font-weight:850}
+.account-user{width:100%;max-width:220px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;background:#1e3928}
+.account-dropdown{position:absolute;right:7px;top:calc(100% + 8px);width:190px;padding:9px;border:1px solid #ffffff24;border-radius:14px;background:#0d1c14f5;box-shadow:0 16px 36px #0009;display:flex;flex-direction:column;gap:7px;z-index:10}
+.account-dropdown #account-status{font-size:.72rem;color:#bfe7ca;padding:4px 5px;overflow-wrap:anywhere}
+.account-dropdown button{width:100%;font-size:.8rem;text-align:left;border:1px solid #ffffff20}
+.account-delete-open{background:#57262b!important;border-color:#d77a82!important;color:#ffe8e9}
+.lobby-tagline{position:absolute;left:50%;top:clamp(82px,18vh,130px);transform:translateX(-50%);display:flex;align-items:center;gap:8px;color:#d9f5dfb8;font-size:.67rem;font-weight:800;letter-spacing:.13em;white-space:nowrap;text-shadow:0 2px 12px #000}
+.live-dot,.server-dot{width:7px;height:7px;border-radius:50%;background:#6eea91;box-shadow:0 0 12px #6eea91;display:inline-block}
+.tagline-map{letter-spacing:0;border-left:1px solid #ffffff35;padding-left:8px;color:#e5f6e8}
+#tab-panels{position:absolute;left:16px;bottom:88px;width:min(354px,calc(100vw - 32px));max-height:min(58vh,390px);pointer-events:auto}
+.tab-panel{width:100%;max-height:min(58vh,390px);overflow:auto;padding:15px;border-radius:20px;scrollbar-width:thin;scrollbar-color:#ffffff35 transparent}
+#tj{display:flex;flex-direction:column;gap:9px}
+.panel-eyebrow{font-size:.62rem;font-weight:900;letter-spacing:.15em;color:#91e8a8}
+#tj h2{font-size:1.1rem;margin:0 0 1px;color:#f3fff5}
+.player-name-input{width:100%;background:#06140c99;border:1px solid #ffffff20;border-radius:11px;padding:10px 12px;font-size:.85rem}
+.server-line{display:flex;align-items:center;gap:7px;font-size:.7rem;color:#d5ebda}
+.server-line b{margin-left:auto;font-size:.66rem;font-weight:700;color:#a7d8b2}
+.server-dot.pending{background:#facc15;box-shadow:0 0 10px #facc15}.server-dot.offline{background:#fb7185;box-shadow:0 0 10px #fb7185}
+.public-play{width:100%;display:flex;align-items:center;justify-content:space-between;padding:13px 15px;border:1px solid #b5ffca;border-radius:14px;background:linear-gradient(120deg,#7cf3a0,#24a95d);color:#062413;font-weight:950;font-size:.94rem;box-shadow:0 7px 24px #28c76c42}
+.public-play span{font-size:1.5rem;line-height:.7}
+.private-entry{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px}
+.private-entry input{min-width:0;width:100%;font-size:.78rem;background:#07140dcc;border:1px solid #ffffff24}
+#priv{font-size:.76rem;padding:9px 11px;background:#213c2d;border:1px solid #80c995;color:#effff2}
+.offline-play{width:100%;padding:9px;border:1px solid #ffffff24;background:#ffffff0a;border-radius:11px;font-size:.78rem}
+.panel-footer{display:flex;justify-content:space-between;gap:8px}
+.panel-footer button{font-size:.68rem;padding:6px 8px;border:1px solid #ffffff1d;background:#ffffff09}
+.panel-note{font-size:.66rem;line-height:1.35;color:#b8d3be}
+#nav-tabs{position:absolute;left:50%;bottom:13px;transform:translateX(-50%);width:min(560px,calc(100vw - 26px));display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;padding:7px;border-radius:18px;pointer-events:auto}
+#nav-tabs button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:1px solid transparent;border-radius:12px;background:transparent;padding:7px 2px;font-size:.67rem;color:#c8dfce}
+#nav-tabs button.s{background:linear-gradient(145deg,#2a6842,#173c28);border-color:#6fcb8a;color:#fff;box-shadow:inset 0 1px #ffffff24}
+#nav-tabs .tab-icon{font-size:1.1rem;margin:0}
+#tc,#tu,#tm,#ti{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+#tc{grid-template-columns:repeat(2,minmax(0,1fr))}
+#tu{grid-template-columns:1fr}
+#tm{grid-template-columns:repeat(2,minmax(0,1fr))}
+#ti{grid-template-columns:1fr}
+#tc button{min-width:0}
+#pv{display:none!important}
+.modal-backdrop{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:18px;background:#020a05bd;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);pointer-events:auto}
+.modal-card,.loading-card{position:relative;width:min(100%,390px);padding:22px;border-radius:22px;background:rgba(11,25,17,.96);border:1px solid #ffffff30}
+.modal-close{position:absolute;top:11px;right:12px;width:33px;height:33px;padding:0;border-radius:10px;background:#ffffff12;border:1px solid #ffffff20;font-size:1.35rem}
+.modal-kicker{font-size:.62rem;letter-spacing:.16em;color:#89e8a2;font-weight:900;margin-bottom:7px}
+.modal-card h2,.loading-card h2{font-size:1.25rem;margin:0 0 12px}
+.modal-card label{display:block;font-size:.74rem;color:#c7dfcd;margin:9px 0 5px}
+.modal-card input{width:100%;background:#07140c;border:1px solid #ffffff2a;border-radius:11px;padding:11px;font-size:.9rem}
+.modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.modal-actions button,#account-delete{padding:11px 8px;font-size:.82rem;border-radius:11px}
+.account-safety{font-size:.77rem;line-height:1.45;color:#cde7d3;background:#ffffff0a;padding:10px;border-radius:11px}
+#account-active p{font-size:.78rem;line-height:1.4;color:#e6f4e9}
+#account-active #account-delete{width:100%;margin-top:12px}
+.account-message{display:block;margin-top:12px;color:#bfd9c4;font-size:.7rem;line-height:1.4}
+.loading-card{text-align:center;padding:26px}
+.loading-orb{width:52px;height:52px;border-radius:50%;margin:0 auto 14px;display:grid;place-items:center;background:radial-gradient(circle at 30% 25%,#fff,#6de994 25%,#155b32 78%);color:#073118;font-size:27px;box-shadow:0 0 32px #52e98b77;animation:loadingPulse 1.5s ease-in-out infinite}
+@keyframes loadingPulse{50%{transform:scale(1.08);box-shadow:0 0 44px #52e98baa}}
+.loading-card p{font-size:.8rem;color:#c3dfca;line-height:1.4}
+.loading-track{height:5px;border-radius:9px;background:#ffffff1a;overflow:hidden;margin:18px 0}
+.loading-track span{display:block;width:35%;height:100%;border-radius:9px;background:#79f29c;animation:loadingSweep 1.25s ease-in-out infinite}
+@keyframes loadingSweep{from{transform:translateX(-110%)}to{transform:translateX(330%)}}
+.loading-card button{border:1px solid #ffffff25;background:#ffffff12;padding:8px 18px;font-size:.77rem}
+#ex{z-index:8;background:#102619e8;border-color:#8ce5a1;color:white}
+#fim{z-index:40}
+#u{z-index:12}
+@media(max-width:620px){
+ .lobby-top{top:9px;left:9px;right:9px;gap:7px}
+ .brand-panel{width:auto;max-width:63vw;padding:8px 9px}
+ .brand-emblem{width:31px;height:31px;font-size:20px}
+ .brand-title{font-size:.83rem;letter-spacing:.015em}
+ .brand-subtitle{font-size:.65rem}
+ .player-chips{margin:6px 0 0 0;gap:4px}
+ .player-chips span{font-size:.59rem;padding:4px 6px}
+ .account-top{max-width:40vw;min-width:0;padding:5px}
+ .account-guest button{font-size:.67rem;padding:8px 7px}
+ .account-user{font-size:.7rem;padding:8px 7px}
+ .lobby-tagline{top:94px;font-size:.56rem}
+ #tab-panels{left:10px;bottom:82px;width:min(345px,calc(100vw - 20px));max-height:43vh}
+ .tab-panel{max-height:43vh;padding:12px}
+ #tj{gap:7px}#tj h2{font-size:1rem}
+ .public-play{padding:11px 12px;font-size:.86rem}
+ #nav-tabs{bottom:8px;width:calc(100vw - 18px);padding:5px}
+ #nav-tabs button{font-size:.61rem;padding:6px 1px}
+ #nav-tabs .tab-icon{font-size:1rem}
+}
+@media(max-height:520px) and (min-width:621px){
+ .lobby-top{top:8px}.brand-panel{padding:7px 10px}.player-chips{margin-top:5px}
+ .lobby-tagline{top:78px}
+ #tab-panels{bottom:72px;max-height:56vh;width:320px}
+ .tab-panel{max-height:56vh;padding:10px}
+ #tj{gap:6px}
+ #nav-tabs{bottom:7px;padding:5px}
+ #nav-tabs button{padding:5px 2px}
+}
+@media(max-width:380px){
+ .brand-panel{max-width:58vw}.brand-title{font-size:.72rem}
+ .account-guest{gap:4px}.account-guest button{font-size:.6rem;padding:7px 5px}
+ .player-chips span{font-size:.54rem}
+ #tab-panels{bottom:78px}
+}
+
 </style></head><body>
 <canvas id="c"></canvas><button id="ex">☰ Lobby</button>
-<div id="m"><div class="w"><h1>Slime Ascendant</h1><small>v3.9</small><div id="bal"></div><div id="rec"></div>
-<div class="tabs"><button data-t="j" class="s"><span class="tab-icon">🎮</span>Jogar</button><button data-t="c"><span class="tab-icon">🧬</span>Classes</button><button data-t="u"><span class="tab-icon">⚡</span>Melhorias</button><button data-t="m"><span class="tab-icon">🌍</span>Mapas</button><button data-t="i"><span class="tab-icon">🎒</span>Itens</button></div>
-<div id="tj"><canvas id="pv" width="64" height="64"></canvas><input id="n" placeholder="Seu nome" maxlength="10"><div id="sel"></div><section id="account" class="account-panel"><div class="account-title">Conta do jogador</div><div id="account-status">Você não está conectado.</div><div id="account-form"><input id="account-email" type="email" placeholder="Seu email" maxlength="254" autocomplete="email"><input id="account-password" type="password" placeholder="Senha (10 caracteres ou mais)" maxlength="128" autocomplete="current-password"><div class="account-buttons"><button id="account-login">Entrar</button><button id="account-register" class="s">Criar conta</button></div></div><div id="account-active" class="h"><input id="account-delete-password" type="password" placeholder="Senha para confirmar exclusão" maxlength="128" autocomplete="current-password"><div class="account-buttons"><button id="account-logout">Sair da conta</button><button id="account-delete" class="danger">Excluir conta</button></div></div><small id="account-message">O email será usado como identificação de login. Não reutilize uma senha importante.</small></section><button id="go">🌐 Entrar na sala pública</button><button id="off">📴 Jogar offline</button><input id="r" placeholder="Código da sala privada" maxlength="12"><button id="priv">🔑 Entrar em sala privada</button><button id="dl"></button><button id="mu"></button><small class="mode-note">Sala pública: jogue com pessoas na mesma sala. Sala privada: use um código com amigos. Offline: partida individual, com progresso salvo neste aparelho.</small></div>
-<div id="tc" class="cs h"></div><div id="tu" class="h"></div><div id="tm" class="cs h" style="grid-template-columns:repeat(2,1fr)"></div><div id="ti" class="cs h" style="grid-template-columns:1fr"></div>
-</div></div>
+<div id="m" class="lobby-screen">
+ <header class="lobby-top">
+  <div class="brand-panel glass">
+   <div class="brand-line"><div class="brand-emblem">✦</div><div class="brand-copy"><div class="brand-title">SLIME ASCENDANT <span class="version-pill">v3.9</span></div><div id="sel" class="brand-subtitle">Slime • Aventureiro</div></div></div>
+   <div class="player-chips"><span id="rec">🏆 Recorde: onda 0</span><span id="bal">🪙 0　💎 0</span></div>
+  </div>
+  <div class="account-top glass">
+   <div id="account-guest" class="account-guest"><button id="account-open-login" class="account-quiet">Entrar</button><button id="account-open-register" class="account-create">Criar conta</button></div>
+   <div id="account-logged" class="account-logged h"><button id="account-user" class="account-user">Minha conta　⌄</button><div id="account-dropdown" class="account-dropdown h"><div id="account-status">Não conectado</div><button id="account-logout">Sair da conta</button><button id="account-delete-open" class="account-delete-open">Excluir conta</button></div></div>
+  </div>
+ </header>
+ <div class="lobby-tagline"><span class="live-dot"></span> SUA AVENTURA COMEÇA AQUI <span class="tagline-map" id="lobby-map-name">🌲 Floresta Antiga</span></div>
+ <section id="tab-panels">
+  <div id="tj" class="tab-panel glass">
+   <div class="panel-eyebrow">CENTRAL DE PARTIDA</div><h2>Preparado para a aventura?</h2>
+   <input id="n" class="player-name-input" placeholder="Nome do jogador" maxlength="10" autocomplete="nickname">
+   <div class="server-line"><span id="server-dot" class="server-dot pending"></span><span id="server-label">Verificando servidor...</span><b id="online-count">— jogadores</b></div>
+   <button id="go" class="public-play">🌐 Entrar na sala pública <span>›</span></button>
+   <div class="private-entry"><input id="r" placeholder="Código da sala" maxlength="12" autocomplete="off"><button id="priv">🔑 Entrar</button></div>
+   <button id="off" class="offline-play">📴 Jogar offline</button>
+   <div class="panel-footer"><button id="dl"></button><button id="mu"></button></div>
+   <small class="panel-note">Na sala pública, jogue com outras pessoas. Use um código para criar uma sala privada ou jogue offline neste aparelho.</small>
+  </div>
+  <div id="tc" class="cs tab-panel glass h"></div>
+  <div id="tu" class="tab-panel glass h"></div>
+  <div id="tm" class="cs tab-panel glass h" style="grid-template-columns:repeat(2,1fr)"></div>
+  <div id="ti" class="cs tab-panel glass h" style="grid-template-columns:1fr"></div>
+ </section>
+ <nav id="nav-tabs" class="tabs glass">
+  <button data-t="j" class="s"><span class="tab-icon">🎮</span>Jogar</button><button data-t="c"><span class="tab-icon">🧬</span>Classes</button><button data-t="u"><span class="tab-icon">⚡</span>Melhorias</button><button data-t="m"><span class="tab-icon">🌍</span>Mapas</button><button data-t="i"><span class="tab-icon">🎒</span>Itens</button>
+ </nav>
+ <canvas id="pv" width="64" height="64" aria-hidden="true"></canvas>
+</div>
+<div id="account-modal" class="modal-backdrop h">
+ <section class="modal-card glass" role="dialog" aria-modal="true" aria-labelledby="account-modal-title">
+  <button id="account-close" class="modal-close" aria-label="Fechar">×</button>
+  <div class="modal-kicker">SLIME ASCENDANT</div><h2 id="account-modal-title">Entrar na conta</h2>
+  <p id="account-safety" class="account-safety h">Use um email seu e uma senha exclusiva para o jogo. Não use a senha de outros aplicativos e não compartilhe sua senha com ninguém.</p>
+  <div id="account-form">
+   <label for="account-email">Email</label><input id="account-email" type="email" placeholder="voce@email.com" maxlength="254" autocomplete="email">
+   <label for="account-password">Senha</label><input id="account-password" type="password" placeholder="Mínimo de 6 caracteres" minlength="6" maxlength="128" autocomplete="current-password">
+   <div class="modal-actions"><button id="account-login" class="account-quiet">Entrar</button><button id="account-register" class="account-create">Criar conta</button></div>
+  </div>
+  <div id="account-active" class="h">
+   <p>Para excluir a conta, confirme sua senha e digite <b>EXCLUIR</b> no campo abaixo. Isso não apaga o progresso salvo neste aparelho.</p>
+   <label for="account-delete-password">Senha da conta</label><input id="account-delete-password" type="password" maxlength="128" autocomplete="current-password" placeholder="Digite sua senha">
+   <label for="account-delete-confirm">Confirmação</label><input id="account-delete-confirm" type="text" maxlength="8" autocomplete="off" placeholder="Digite EXCLUIR">
+   <button id="account-delete" class="account-delete-open">Excluir conta definitivamente</button>
+  </div>
+  <small id="account-message" class="account-message">Suas credenciais são usadas apenas para acessar esta conta.</small>
+ </section>
+</div>
+<div id="loading-overlay" class="modal-backdrop h">
+ <section class="loading-card glass"><div class="loading-orb">✦</div><h2 id="loading-title">Acordando servidor...</h2><p id="loading-message">Preparando a conexão com o mundo.</p><div class="loading-track"><span></span></div><button id="cancel-loading">Cancelar</button></section>
+</div>
 <div id="tt"></div><div id="fim"><h1>Fim de jogo</h1><div id="fr"></div><button id="vl">Voltar ao lobby</button></div>
 <div id="u"></div><div id="powhud"></div>
 <script>

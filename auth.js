@@ -192,8 +192,8 @@ async function handleAuthRequest(req, res, pathname) {
         send(res, 400, { error: 'Digite um endereço de email válido.' });
         return true;
       }
-      if (password.length < 10 || password.length > 128) {
-        send(res, 400, { error: 'A senha precisa ter entre 10 e 128 caracteres.' });
+      if (password.length < 6 || password.length > 128) {
+        send(res, 400, { error: 'A senha precisa ter entre 6 e 128 caracteres.' });
         return true;
       }
       const id = crypto.randomUUID();

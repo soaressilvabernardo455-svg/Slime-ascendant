@@ -803,7 +803,7 @@ async function toggleDeveloperMode(){
 }
 
 function lobby(){
- $('bal').textContent='🪙 '+SV.co+'　💎 '+SV.cr;$('sel').textContent=LB[SV.sel]+' · Nível 1';$('rec').textContent='🏆 Onda '+SV.best;$('lobby-map-name').textContent=(MAPS[SV.map]||MAPS[0])[0];$('n').value=SV.name||$('n').value;
+ $('bal').textContent=developerModeEnabled?'🪙 ∞　💎 ∞':'🪙 '+SV.co+'　💎 '+SV.cr;$('sel').textContent=LB[SV.sel]+' · Nível 1'+(developerModeEnabled?' · TESTE DEV':'');$('rec').textContent='🏆 Onda '+SV.best;$('lobby-map-name').textContent=(MAPS[SV.map]||MAPS[0])[0];$('n').value=SV.name||$('n').value;
  const mapIcons=['forest','desert','snow','volcano'],mapColors=['#73d64d','#f3bc52','#a5e4ff','#ff8650'];
  const tm=$('tm');tm.innerHTML='<div class="section-intro"><span>EXPLORAÇÃO</span><h2>Escolha seu mundo</h2><p>Quatro biomas procedurais, gerados sem bordas.</p></div>';
  MAPS.forEach(([nm,pc,pk],i)=>{const own=developerModeEnabled||SV.maps.includes(i),b=document.createElement('button'),art=document.createElement('span'),copy=document.createElement('span'),title=document.createElement('b'),desc=document.createElement('small'),state=document.createElement('em');
@@ -841,9 +841,9 @@ function lobby(){
   art.append(c);title.textContent=LB[k];desc.textContent=CLASS_INFO[k];sub.textContent=own?(developerModeEnabled?'DISPONÍVEL · TESTE DEV':SV.sel===k?'SELECIONADO':'DESBLOQUEADO'):(pc?pc+' moedas':pk+' cristais');copy.append(title,desc,sub);b.append(art,copy);
   b.onclick=()=>{if(developerModeEnabled){SV.sel=k;lobby();return}if(own)SV.sel=k;else if(pc?SV.co>=pc:SV.cr>=pk){if(pc)SV.co-=pc;else SV.cr-=pk;SV.cls.push(k);SV.sel=k}else{toast('Saldo insuficiente para desbloquear essa classe.');return}save();lobby()};cs.append(b)});
  $('tu').innerHTML='<div class="section-intro"><span>PROGRESSÃO</span><h2>Melhorias permanentes</h2><p>Fortaleça seu slime em combate. Cada atributo pode chegar ao nível 10.</p></div>'+Object.keys(UPG).map(k=>{const l=SV.up[k],cost=ucost(l),max=l>=10;
-  return '<div class="upgrade-card"><span class="upgrade-icon">'+svgIcon(k,'item-svg')+'</span><div class="upgrade-copy"><b>'+UPG[k][0]+'</b><small>'+UPG[k][1]+'</small><em>NÍVEL '+l+'/10</em><span class="upgrade-track"><i style="width:'+(l*10)+'%"></i></span></div><button '+(max||SV.co<cost?'disabled':'')+' onclick="buy(\''+k+'\')">'+(max?'MAX':cost+' moedas')+'</button></div>'}).join('');
+  return '<div class="upgrade-card"><span class="upgrade-icon">'+svgIcon(k,'item-svg')+'</span><div class="upgrade-copy"><b>'+UPG[k][0]+'</b><small>'+UPG[k][1]+'</small><em>NÍVEL '+l+'/10</em><span class="upgrade-track"><i style="width:'+(l*10)+'%"></i></span></div><button '+(max||SV.co<cost?'disabled':'')+' onclick="buy(\''+k+'\')">'+(max?'MAX':developerModeEnabled?'GRÁTIS · TESTE':cost+' moedas')+'</button></div>'}).join('');
 }
-function buy(k){if(!Object.prototype.hasOwnProperty.call(UPG,k))return;const l=SV.up[k],cost=ucost(l);if(l>=10)return;if(SV.co<cost){toast('Moedas insuficientes.');return}SV.co-=cost;SV.up[k]++;save();lobby();}
+function buy(k){if(!Object.prototype.hasOwnProperty.call(UPG,k))return;const l=SV.up[k],cost=ucost(l);if(l>=10)return;if(!developerModeEnabled&&SV.co<cost){toast('Moedas insuficientes.');return}if(!developerModeEnabled)SV.co-=cost;SV.up[k]++;save();lobby();}
 document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{startMusic();document.querySelectorAll('[data-t]').forEach(e=>e.className='');b.className='s';
  ['j','c','u','m','i','s'].forEach(t=>{const panel=$('t'+t);panel.classList.toggle('h',t!=b.dataset.t);if(t===b.dataset.t)panel.scrollTop=0})});
 

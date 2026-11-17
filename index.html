@@ -580,7 +580,7 @@ function setGameState(next,title,message){
  $('loading-overlay').classList.toggle('h',!loading);
  if(loading){$('loading-title').textContent=title||'Acordando servidor...';$('loading-message').textContent=message||'Preparando a conexão com o mundo.'}
  $('fim').style.display=next==='GAMEOVER'?'flex':'none';
- $('ex').style.display=playing?'block':'none';$('powhud').style.display=playing?'flex':'none';$('item-hud').style.display=playing&&SV.items.length?'flex':'none';$('item-hud').innerHTML=playing?SV.items.map(k=>{const meta={espada:['⚔️','Espada'],escudo:['🛡️','Escudo'],botas:['👢','Botas'],amuleto:['🔮','Amuleto'],anel:['💍','Anel'],coracao:['💚','Coração']}[k];return meta?'<span class="item-hud-chip">'+meta[0]+' <small>'+meta[1]+'</small></span>':''}).join(''):'';
+ $('ex').style.display=playing?'block':'none';$('powhud').style.display=playing?'flex':'none';$('item-hud').style.display=playing&&(developerModeEnabled||SV.items.length)?'flex':'none';$('item-hud').innerHTML=playing?SV.items.map(k=>{const meta={espada:['⚔️','Espada'],escudo:['🛡️','Escudo'],botas:['👢','Botas'],amuleto:['🔮','Amuleto'],anel:['💍','Anel'],coracao:['💚','Coração']}[k];return meta?'<span class="item-hud-chip">'+meta[0]+' <small>'+meta[1]+'</small></span>':''}).join(''):'';
  $('go').disabled=loading;$('priv').disabled=loading;$('off').disabled=loading;
  if(inLobby){$('u').style.display='none';$('fim').style.display='none';$('powhud').innerHTML='';lastPow=''}
 }
@@ -1142,7 +1142,7 @@ const SKICON={proj:'💧',orb:'🪐',nova:'💥',raio:'⚡',aura:'🌀',vida:'�
 const SKCOLOR={proj:'#38bdf8',orb:'#a78bfa',nova:'#fb7185',raio:'#facc15',aura:'#34d399',meteoro:'#f97316',lanca:'#60a5fa',corrente:'#facc15',espinhos:'#84cc16',furacao:'#c084fc',vida:'#fb7185',dano:'#f97316',vel:'#84cc16',recarga:'#60a5fa',ima:'#c084fc',regen:'#4ade80',xp:'#fbbf24',armadura:'#94a3b8',crit:'#67e8f9',sorte:'#4ade80'};
 let lastPow='';
 let lastItemHudKey='';
-function updateItemHUD(p){const items=Array.isArray(p&&p.it)?p.it:SV.items,key=items.join('|');if(key===lastItemHudKey)return;lastItemHudKey=key;const meta={espada:['⚔️','Espada'],escudo:['🛡️','Escudo'],botas:['👢','Botas'],amuleto:['🔮','Amuleto'],anel:['💍','Anel'],coracao:['💚','Coração']};$('item-hud').innerHTML=items.map(k=>meta[k]?'<span class="item-hud-chip">'+meta[k][0]+' <small>'+meta[k][1]+'</small></span>':'').join('');const display=(GAME_STATE==='PLAYING'||GAME_STATE==='GAMEOVER')&&items.length?'flex':'none';if($('item-hud').style.display!==display)$('item-hud').style.display=display}
+function updateItemHUD(p){const items=Array.isArray(p&&p.it)?p.it:SV.items,key=items.join('|'),display=(GAME_STATE==='PLAYING'||GAME_STATE==='GAMEOVER')&&items.length?'flex':'none';if($('item-hud').style.display!==display)$('item-hud').style.display=display;if(key===lastItemHudKey)return;lastItemHudKey=key;const meta={espada:['⚔️','Espada'],escudo:['🛡️','Escudo'],botas:['👢','Botas'],amuleto:['🔮','Amuleto'],anel:['💍','Anel'],coracao:['💚','Coração']};$('item-hud').innerHTML=items.map(k=>meta[k]?'<span class="item-hud-chip">'+meta[k][0]+' <small>'+meta[k][1]+'</small></span>':'').join('');const display=(GAME_STATE==='PLAYING'||GAME_STATE==='GAMEOVER')&&items.length?'flex':'none';if($('item-hud').style.display!==display)$('item-hud').style.display=display}
 function powerHUD(p){
  const powers=Object.entries(p.pw||{}).filter(([k,v])=>v>0).map(([k,v])=>[k,v,0]);
  const passives=Object.entries(p.ps||{}).filter(([k,v])=>v>0).map(([k,v])=>[k,v,1]);

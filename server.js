@@ -1,7 +1,7 @@
 const http=require('http'),fs=require('fs'),{WebSocketServer}=require('ws');
 const R=Math.random,PW=['proj','orb','nova','raio','aura','meteoro','lanca','corrente','espinhos','furacao'],PS=['vida','dano','vel','recarga','ima','regen','xp','armadura','crit','sorte'];
-const CLS={normal:{hp:100,sp:4.8,dm:.8,pw:'proj'},mago:{hp:70,sp:4.8,dm:1.1,pw:'raio'},cavaleiro:{hp:150,sp:4.2,dm:.9,pw:'orb'},necromante:{hp:85,sp:4.8,dm:1,pw:'nova'},curandeiro:{hp:110,sp:4.8,dm:.7,pw:'aura',heal:1},arqueiro:{hp:80,sp:5.2,dm:.9,pw:'proj',pr:2}};
-const ET=[{h:w=>18+w*9,r:10,v:1.4,d:7,c:1,x:1},{h:w=>10+w*5,r:8,v:2.4,d:5,c:2,x:2},{h:w=>90+w*25,r:16,v:.9,d:14,c:6,x:5},{h:w=>500+w*90,r:26,v:.8,d:20,c:18,x:40},{h:w=>14+w*6,r:11,v:1.9,d:6,c:1,x:3},{h:w=>30+w*8,r:12,v:1.6,d:9,c:2,x:3},{h:w=>70+w*14,r:13,v:.7,d:10,c:2,x:4}];
+const CLS={normal:{hp:100,sp:4.8,dm:.8,pw:'proj'},mago:{hp:70,sp:4.8,dm:.92,pw:'raio'},cavaleiro:{hp:150,sp:4.2,dm:1.05,pw:'orb'},necromante:{hp:85,sp:4.8,dm:1,pw:'nova'},curandeiro:{hp:110,sp:4.8,dm:.7,pw:'aura',heal:1},arqueiro:{hp:80,sp:5.2,dm:.9,pw:'proj',pr:2}};
+const ET=[{h:w=>18+w*9,r:10,v:1.4,d:7,c:1,x:1},{h:w=>10+w*5,r:8,v:2.4,d:5,c:2,x:2},{h:w=>55+w*15,r:16,v:.9,d:14,c:6,x:5},{h:w=>300+w*55,r:26,v:.8,d:20,c:18,x:40},{h:w=>14+w*6,r:11,v:1.9,d:6,c:1,x:3},{h:w=>30+w*8,r:12,v:1.6,d:9,c:2,x:3},{h:w=>70+w*14,r:13,v:.7,d:10,c:2,x:4}];
 const rooms=Object.create(null);let N=1,roomSequence=1;const ITEMS=['espada','escudo','botas','amuleto','anel','coracao'];const presence=new Map(),PRESENCE_TTL_MS=45000;
 const MAX_PLAYERS=4,MAX_CONNECTIONS=40,MAX_MESSAGE_RATE=45,VIEW_RADIUS=640,UPGRADE_KEYS=['vida','dano','vel','moeda'];
 function allowMessage(ws){const now=Date.now();if(!ws.rateWindow||now-ws.rateWindow>=1000){ws.rateWindow=now;ws.rateCount=0}ws.rateCount++;return ws.rateCount<=MAX_MESSAGE_RATE}

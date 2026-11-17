@@ -67,10 +67,12 @@ const offlineLevelStart = app.indexOf('function offlineLevel(p){');
 const offlineLevelEnd = app.indexOf('function offlinePick(i){', offlineLevelStart);
 assert.ok(serverLevelStart >= 0 && serverLevelEnd > serverLevelStart, 'função de nível online deve ser testável');
 assert.ok(offlineLevelStart >= 0 && offlineLevelEnd > offlineLevelStart, 'função de nível offline deve ser testável');
-const serverLevelUp = new Function('PW', 'PS', 'R', server.slice(serverLevelStart, serverLevelEnd) + ';return lv;')(
+const testRandomSubset = (items, count) => { const copy = items.slice(), take = Math.min(copy.length, Math.max(0, count | 0)); for (let i = 0; i < take; i++) { const j = i + Math.floor(0.5 * (copy.length - i)); [copy[i], copy[j]] = [copy[j], copy[i]]; } return copy.slice(0, take); };
+const serverLevelUp = new Function('PW', 'PS', 'R', 'randomSubset', server.slice(serverLevelStart, serverLevelEnd) + ';return lv;')(
   ['proj','orb','nova','raio','aura','meteoro','lanca','corrente','espinhos','furacao'],
   ['vida','dano','vel','recarga','ima','regen','xp','armadura','crit','sorte'],
-  () => 0.5
+  () => 0.5,
+  testRandomSubset
 );
 const offlineLevelUp = new Function(app.slice(offlineLevelStart, offlineLevelEnd) + ';return offlineLevel;')();
 const levelPlayer = (powers) => ({ lv: 4, xp: 0, nx: 5, pw: Object.fromEntries(powers.map((key) => [key, 1])), ps: {}, ch: null });

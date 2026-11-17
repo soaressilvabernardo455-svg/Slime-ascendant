@@ -61,6 +61,8 @@ assert.match(app, /const PRICE=\{normal:\[0,0\],arqueiro:\[900,0\],cavaleiro:\[3
 assert.ok(app.includes("if(p.cls==='necromante')"), 'necromante precisa invocar esqueletos');
 assert.ok(app.includes('(S.k||[])'), 'esqueletos precisam ser desenhados na partida');
 assert.ok(!app.includes('wx(W,H,S.mp|0,t)'), 'efeitos de partículas da tela do lobby não devem aparecer na partida');
+assert.ok(!app.includes('const grain=86'), 'remover granulação de pontos do mapa durante a partida');
+assert.equal((app.match(/if\(p\.cls==='necromante'\)/g)||[]).length,1, 'invocação offline não pode executar duplicada');
 assert.match(app, /const MAPS=\[\['Floresta Antiga',0,0\],\['Deserto Dourado',12000,0\],\['Tundra Gelada',30000,0\]/);
 assert.ok(app.includes("SV.co+=25;SV.cr+=2"), 'recompensa diária deve refletir a economia reajustada');
 assert.ok(app.includes('function claimDailyReward('), 'trava da recompensa diária ausente');

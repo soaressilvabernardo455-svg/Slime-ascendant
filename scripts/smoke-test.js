@@ -151,6 +151,8 @@ assert.match(server, /choiceExpiresAt=p\.ch\.length\?Date\.now\(\)\+10000/, 'tim
 assert.match(server, /function roomMessage/, 'mensagens da sala de espera ausentes');
 assert.match(server, /r\.startAt=Date\.now\(\)\+5000/, 'contagem regressiva de início ausente');
 assert.match(server, /separateX/, 'separação de monstros ausente');
+assert.ok(server.includes('i<n&&r.es.length<45'), 'spawn online precisa respeitar o limite de monstros durante cada lote');
+assert.ok(app.includes('i<n&&r.es.length<45'), 'spawn offline precisa respeitar o limite de monstros durante cada lote');
 
 assert.match(auth, /SameSite=Lax/, 'cookie de sessão precisa usar SameSite=Lax');
 assert.match(auth, /Expires=/, 'cookie precisa ter expiração persistente');

@@ -27,7 +27,7 @@ const srv=http.createServer(async(q,s)=>{
   const key=new URL(q.url,'http://x').searchParams.get('id')||'';if(/^[a-zA-Z0-9_-]{12,64}$/.test(key)){const now=Date.now();for(const [id,lastSeen] of presence)if(now-lastSeen>PRESENCE_TTL_MS)presence.delete(id);presence.set(key,now);if(presence.size>10000)presence.delete(presence.keys().next().value)}
   s.writeHead(204,{'Cache-Control':'no-store'});s.end();return;
  }
- const assets={'/sw.js':['sw.js','application/javascript; charset=utf-8'],'/manifest.webmanifest':['manifest.webmanifest','application/manifest+json; charset=utf-8'],'/icon.svg':['icon.svg','image/svg+xml']};
+ const assets={'/sw.js':['sw.js','application/javascript; charset=utf-8'],'/manifest.webmanifest':['manifest.webmanifest','application/manifest+json; charset=utf-8'],'/icon.svg':['icon.svg','image/svg+xml'],'/cover.svg':['cover.svg','image/svg+xml']};
  if(assets[path]){
   const [file,type]=assets[path];
   try{s.writeHead(200,{'Content-Type':type,'Cache-Control':path==='/sw.js'?'no-cache':'public, max-age=86400','Service-Worker-Allowed':'/'});s.end(fs.readFileSync(__dirname+'/'+file));}

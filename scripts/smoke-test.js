@@ -184,3 +184,7 @@ assert.ok(app.includes('c.bezierCurveTo(7,12,-7,12,-17,7)')&&!app.includes('c.be
 assert.ok(app.includes('e.attackCooldown=75')&&app.includes('const stopGap=e.r+22')&&app.includes('const contact=oDist(p,e)'), 'modo offline precisa espaçar monstros e limitar ataques a 2,5 segundos');
 assert.ok(server.includes('e.attackCooldown=75')&&server.includes('const stopGap=e.r+22')&&server.includes('attackCooldown:0'), 'servidor precisa espaçar monstros e limitar ataques a 2,5 segundos');
 console.log('Smoke tests aprovados. Referências DOM: ' + usedIds.length + '; classes: 6; upgrades permanentes: ' + Object.keys(shopUpgrades).length + '.');
+
+assert.ok(app.includes("if(t===b.dataset.t)panel.scrollTop=0"), 'trocar de aba deve voltar o painel ao topo');
+assert.ok(app.includes("h%53==0")&&!app.includes("h%9==0"), 'floresta deve evitar ruído excessivo de pequenos pixels');
+assert.ok(app.includes('gameSafeTop+88'), 'HUD da partida deve respeitar a área segura superior');

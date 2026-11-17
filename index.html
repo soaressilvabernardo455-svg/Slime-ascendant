@@ -826,7 +826,7 @@ function drawGround(cx,cy,W,H,map){
    const dune=x.createLinearGradient(-130,-48,120,55);dune.addColorStop(0,'#f7d99a66');dune.addColorStop(.55,'#e8b45b44');dune.addColorStop(1,'#8b552c00');
    x.fillStyle=dune;x.beginPath();x.ellipse(0,0,165,76,-.14,0,Math.PI*2);x.fill();
    x.strokeStyle='#ffe5ad55';x.lineWidth=7;x.beginPath();x.ellipse(4,-7,140,52,-.16,.2,2.85);x.stroke();
-   if((h&1)===0)drawBiomeLandmark(X,Y,map,h);
+   if((h&1)===0)drawBiomeLandmark(0,0,map,h);
    else{
     x.fillStyle='#845435';x.strokeStyle='#d6a16a';x.lineWidth=2;x.beginPath();x.moveTo(-35,24);x.lineTo(-25,-13);x.lineTo(-5,-27);x.lineTo(19,-13);x.lineTo(31,22);x.closePath();x.fill();x.stroke();
     x.fillStyle='#397d43';x.strokeStyle='#205632';x.lineWidth=2;x.beginPath();x.moveTo(49,22);x.lineTo(48,-19);x.quadraticCurveTo(50,-29,58,-25);x.quadraticCurveTo(65,-23,62,-14);x.lineTo(62,-5);x.lineTo(72,-10);x.lineTo(76,-3);x.lineTo(63,5);x.lineTo(63,22);x.closePath();x.fill();x.stroke();
@@ -834,7 +834,7 @@ function drawGround(cx,cy,W,H,map){
   }else if(map===2){
    const snow=x.createRadialGradient(0,-8,8,0,0,145);snow.addColorStop(0,'#f6fdffbb');snow.addColorStop(.62,'#e5f6ff66');snow.addColorStop(1,'#c4e9f300');x.fillStyle=snow;x.beginPath();x.ellipse(0,0,155,74,.16,0,Math.PI*2);x.fill();
    x.fillStyle='#70b9d555';x.beginPath();x.ellipse(38,15,68,25,-.22,0,Math.PI*2);x.fill();
-   if((h&1)===0)drawBiomeLandmark(X,Y,map,h);
+   if((h&1)===0)drawBiomeLandmark(0,0,map,h);
    else{
     x.fillStyle='#2e6680';x.strokeStyle='#c8f1ff';x.lineWidth=2;x.beginPath();x.moveTo(-25,25);x.lineTo(-15,-22);x.lineTo(-4,-45);x.lineTo(4,-18);x.lineTo(21,25);x.closePath();x.fill();x.stroke();
     x.fillStyle='#f8fdff';x.beginPath();x.ellipse(0,25,54,11,-.1,0,Math.PI*2);x.fill();
@@ -844,7 +844,7 @@ function drawGround(cx,cy,W,H,map){
    x.fillStyle=basalt;x.beginPath();x.ellipse(0,0,162,78,-.12,0,Math.PI*2);x.fill();
    x.strokeStyle='#ff743344';x.lineWidth=12;x.beginPath();x.moveTo(-120,32);x.quadraticCurveTo(-66,-35,-10,5);x.quadraticCurveTo(55,48,125,-27);x.stroke();
    x.strokeStyle='#ffc36b88';x.lineWidth=3;x.stroke();
-   if((h&1)===0)drawBiomeLandmark(X,Y,map,h);
+   if((h&1)===0)drawBiomeLandmark(0,0,map,h);
    else{
     x.fillStyle='#272033';x.strokeStyle='#9c6b73';x.lineWidth=2;x.beginPath();x.moveTo(-45,23);x.lineTo(-31,-25);x.lineTo(-7,-35);x.lineTo(10,-15);x.lineTo(34,-29);x.lineTo(50,17);x.closePath();x.fill();x.stroke();
     x.fillStyle='#ff8b42';x.shadowColor='#ff5b25';x.shadowBlur=13;x.beginPath();x.ellipse(10,17,20,5,.05,0,Math.PI*2);x.fill();x.shadowBlur=0;

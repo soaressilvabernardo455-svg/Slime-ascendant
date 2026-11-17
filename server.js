@@ -3,7 +3,7 @@ const R=Math.random,PW=['proj','orb','nova','raio','aura','meteoro','lanca','cor
 const CLS={normal:{hp:100,sp:4.8,dm:.8,pw:'proj'},mago:{hp:70,sp:4.8,dm:1.1,pw:'raio'},cavaleiro:{hp:150,sp:4.2,dm:.9,pw:'orb'},necromante:{hp:85,sp:4.8,dm:1,pw:'nova'},curandeiro:{hp:110,sp:4.8,dm:.7,pw:'aura',heal:1},arqueiro:{hp:80,sp:5.2,dm:.9,pw:'proj',pr:2}};
 const ET=[{h:w=>18+w*9,r:10,v:1.4,d:7,c:1,x:1},{h:w=>10+w*5,r:8,v:2.4,d:5,c:2,x:2},{h:w=>90+w*25,r:16,v:.9,d:14,c:6,x:5},{h:w=>500+w*90,r:26,v:.8,d:20,c:40,x:40},{h:w=>14+w*6,r:11,v:1.9,d:6,c:3,x:3},{h:w=>30+w*8,r:12,v:1.6,d:9,c:3,x:3},{h:w=>70+w*14,r:13,v:.7,d:10,c:4,x:4}];
 const rooms=Object.create(null);let N=1,roomSequence=1;const ITEMS=['espada','escudo','botas','amuleto','anel','coracao'];
-const MAX_PLAYERS=4,MAX_MESSAGE_RATE=45,VIEW_RADIUS=640,UPGRADE_KEYS=['vida','dano','vel','moeda'];
+const MAX_PLAYERS=4,MAX_CONNECTIONS=40,MAX_MESSAGE_RATE=45,VIEW_RADIUS=640,UPGRADE_KEYS=['vida','dano','vel','moeda'];
 function allowMessage(ws){const now=Date.now();if(!ws.rateWindow||now-ws.rateWindow>=1000){ws.rateWindow=now;ws.rateCount=0}ws.rateCount++;return ws.rateCount<=MAX_MESSAGE_RATE}
 function newRoom(k){return{k,ps:{},started:false,locked:false,startAt:0,hostId:0,lastRoomBroadcast:0,lastSnapshotAt:0}}
 function cleanPlayerData(data){data=data&&typeof data==='object'?data:{};const cls=Object.prototype.hasOwnProperty.call(CLS,data.cls)?data.cls:'normal',name=String(data.name||'Slime').replace(/[<>]/g,'').trim().slice(0,10)||'Slime',up={};for(const key of UPGRADE_KEYS){const n=Number(data.up&&data.up[key]);up[key]=Number.isFinite(n)?Math.max(0,Math.min(10,Math.floor(n))):0}const it=Array.isArray(data.it)?[...new Set(data.it.filter(key=>ITEMS.includes(key)))].slice(0,ITEMS.length):[];return{cls,name,up,it}}
@@ -130,21 +130,25 @@ setInterval(()=>{for(const k of Object.keys(rooms)){const r=rooms[k];try{tick(r)
 process.on('uncaughtException',e=>console.error(e));
 
 wss.on('connection',(ws,rq)=>{
- let k=(new URL(rq.url,'http://x').searchParams.get('s')||'geral').slice(0,12);
+ if(wss.clients.size>MAX_CONNECTIONS){ws.close(1013,'Servidor temporariamente cheio');return}
+ let k=(new URL(rq.url,'http://x').searchParams.get('s')||'geral').slice(0,12),r=null;
  if(!/^[a-zA-Z0-9_-]{1,12}$/.test(k))k='geral';
- if(k==='geral'&&rooms.geral&&rooms.geral.locked){
-  const previous=rooms.geral,archived='geral-'+roomSequence++;
-  previous.k=archived;rooms[archived]=previous;delete rooms.geral;
- }
- const r=rooms[k]||(rooms[k]=newRoom(k));
- if(!r.es)reset(r);
- ws.r=r;ws.playerId=0;ws.rateWindow=Date.now();ws.rateCount=0;
+ ws.r=null;ws.playerId=0;ws.rateWindow=Date.now();ws.rateCount=0;
  ws.on('message',(raw)=>{
   if(!allowMessage(ws)){try{ws.close(1008,'Limite de mensagens excedido')}catch(e){}return}
   if(raw.length>2048){try{ws.close(1009,'Mensagem muito grande')}catch(e){}return}
   let d;try{d=JSON.parse(raw.toString())}catch{return}
   if(!d||typeof d!=='object'||Array.isArray(d))return;
   if(d.t==='join'&&!ws.playerId){
+   if(!r){
+    if(k==='geral'&&rooms.geral&&rooms.geral.locked){
+     const previous=rooms.geral,archived='@public-'+roomSequence++;
+     previous.k=archived;rooms[archived]=previous;delete rooms.geral;
+    }
+    r=rooms[k]||(rooms[k]=newRoom(k));
+    if(!r.es)reset(r);
+    ws.r=r;
+   }
    if(r.locked||r.started){ws.send(JSON.stringify({t:'error',message:'Esta sala já começou e não aceita novos jogadores.'}));ws.close(4001,'Sala fechada');return}
    if(Object.keys(r.ps).length>=MAX_PLAYERS){ws.send(JSON.stringify({t:'error',message:'Sala cheia. O limite é de 4 jogadores.'}));ws.close(4002,'Sala cheia');return}
    const id=N++,data=cleanPlayerData(d);
@@ -153,7 +157,7 @@ wss.on('connection',(ws,rq)=>{
    ws.send(JSON.stringify({t:'id',id,host:id===r.hostId,roomCode:r.k}));
    r.lastRoomBroadcast=0;roomMessage(r);return;
   }
-  const p=r.ps[ws.playerId];if(!p)return;
+  const p=r&&r.ps[ws.playerId];if(!p)return;
   if(d.t==='start'){
    if(p.id!==r.hostId||r.locked||r.started)return;
    r.locked=true;r.startAt=Date.now()+5000;r.lastRoomBroadcast=0;roomMessage(r);return;
@@ -169,7 +173,7 @@ wss.on('connection',(ws,rq)=>{
   }
  });
  ws.on('close',()=>{
-  if(ws.playerId&&r.ps[ws.playerId]){
+  if(r&&ws.playerId&&r.ps[ws.playerId]){
    delete r.ps[ws.playerId];
    if(r.hostId===ws.playerId&&!r.started)r.hostId=Number(Object.keys(r.ps)[0]||0);
    r.lastRoomBroadcast=0;

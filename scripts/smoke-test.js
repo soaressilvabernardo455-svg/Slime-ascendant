@@ -232,7 +232,7 @@ assert.ok(app.includes("if(fpsNode.style.display!==fpsDisplay)fpsNode.style.disp
 assert.ok(app.includes('moving=m2&&!p.d&&!S.pa&&Math.hypot(lookX,lookY)>.12'), 'vetor do joystick deve ser reutilizado no desenho do player');
 assert.ok(server.includes('if(devAttempts.size>2000)'), 'mapa de limitação DEV deve ter limite de memória');
 
-assert.ok(app.includes("const display=(GAME_STATE==='PLAYING'||GAME_STATE==='GAMEOVER')&&items.length?'flex':'none'"), 'HUD de itens precisa aparecer com os itens do modo DEV também');
+assert.ok(app.includes("key=items.join('|'),display=(GAME_STATE==='PLAYING'||GAME_STATE==='GAMEOVER')&&items.length?'flex':'none'") && app.includes("playing&&(developerModeEnabled||SV.items.length)"), 'HUD de itens precisa aparecer com os itens do modo DEV também');
 assert.ok(app.includes("try{ws.send(JSON.stringify({t:'pick',i}))}catch(e)"), 'envio de melhoria deve lidar com desconexões');
 assert.ok(app.includes("try{ws.send(JSON.stringify({t:'in',dx,dy}))}catch(e)"), 'envio de movimento deve lidar com desconexões');
 assert.ok(server.includes('c.bufferedAmount>262144')&&server.includes('client.bufferedAmount>524288'), 'servidor precisa limitar filas de WebSocket em conexões lentas');

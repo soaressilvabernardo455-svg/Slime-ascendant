@@ -809,6 +809,6 @@ function draw(t){requestAnimationFrame(draw);
  else if(p.d)x.fillText('Você caiu! Espere os amigos.',W/2,128);
  else if(S.pa&&!p.ch)x.fillText('Jogo pausado: alguém escolhe uma melhoria',W/2,128);
  const key=p.ch?p.ch.join():'';if(key!=last){last=key;ui(p)}}
-$('n').value=SV.name;lobby();requestAnimationFrame(draw);
+$('n').value=SV.name;setGameState('LOBBY');lobby();requestAnimationFrame(draw);
 if('serviceWorker' in navigator && location.protocol==='https:'){addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}))}
 </script></body></html>

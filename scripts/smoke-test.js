@@ -92,7 +92,7 @@ assert.ok(!app.includes('const grain=86'), 'remover granulação de pontos do ma
 const onlineHandler=app.match(/socket\.onmessage=e=>\{([\s\S]*?)\n  \};/);
 assert.ok(onlineHandler, 'handler de snapshots online ausente');
 assert.ok(!/lw=0;gc=0;gk=0/.test(onlineHandler[1]), 'contadores de saldo não podem ser zerados em cada snapshot');
-assert.ok(app.includes('const ECONOMY_VERSION=1;'), 'versão de reparo da economia ausente');
+assert.ok(app.includes('const ECONOMY_VERSION=1,MAP_ACCESS_VERSION=1;'), 'versão de reparo da economia ausente');
 assert.ok(app.includes('SV.co=0;SV.cr=0;SV.economyVersion=ECONOMY_VERSION'), 'saldos antigos inflados precisam ser corrigidos uma única vez');
 assert.ok(app.includes('localEconomyIsNewer')&&app.includes('remoteEconomyIsNewer'), 'merge da nuvem precisa respeitar a versão da economia');
 assert.ok(auth.includes('economyVersion: Math.max(0, Math.min(1,'), 'servidor precisa preservar a versão da economia');

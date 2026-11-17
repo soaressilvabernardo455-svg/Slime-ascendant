@@ -57,9 +57,11 @@ function cookieValue(req) {
   return null;
 }
 
-function cookieHeader(token, maxAge = SESSION_DAYS * 24 * 60 * 60) {
-  const secure = process.env.RENDER ? '; Secure' : '';
-  return COOKIE + '=' + encodeURIComponent(token) + '; HttpOnly; Path=/; SameSite=Strict; Max-Age=' + maxAge + secure;
+function cookieHeader(token, maxAge = SESSION_DAYS * 24 * 60 * 60, req = null) {
+  const forwardedProto = String(req && req.headers && req.headers['x-forwarded-proto'] || '').split(',')[0].trim().toLowerCase();
+  const secure = forwardedProto === 'https' || !!process.env.RENDER || process.env.NODE_ENV === 'production' ? '; Secure' : '';
+  const expires = maxAge > 0 ? '; Expires=' + new Date(Date.now() + maxAge * 1000).toUTCString() : '; Expires=Thu, 01 Jan 1970 00:00:00 GMT';
+  return COOKIE + '=' + encodeURIComponent(token) + '; HttpOnly; Path=/; SameSite=Lax; Max-Age=' + maxAge + expires + secure;
 }
 
 function hashToken(token) {
@@ -138,7 +140,7 @@ function passwordsMatch(savedHex, candidateHex) {
   }
 }
 
-async function createSession(accountId, res) {
+async function createSession(accountId, res, req) {
   const token = crypto.randomBytes(32).toString('hex');
   const tokenHash = hashToken(token);
   const expiresAt = new Date(Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000);
@@ -147,7 +149,7 @@ async function createSession(accountId, res) {
     'INSERT INTO slime_account_sessions(token_hash, account_id, expires_at) VALUES($1, $2, $3)',
     [tokenHash, accountId, expiresAt]
   );
-  return cookieHeader(token);
+  return cookieHeader(token, SESSION_DAYS * 24 * 60 * 60, req);
 }
 
 async function currentAccount(req) {
@@ -208,7 +210,7 @@ async function handleAuthRequest(req, res, pathname) {
         }
         throw error;
       }
-      const cookie = await createSession(id, res);
+      const cookie = await createSession(id, res, req);
       send(res, 201, { authenticated: true, email }, { 'Set-Cookie': cookie });
       return true;
     }
@@ -240,7 +242,7 @@ async function handleAuthRequest(req, res, pathname) {
         send(res, 401, { error: 'Email ou senha incorretos.' });
         return true;
       }
-      const cookie = await createSession(account.id, res);
+      const cookie = await createSession(account.id, res, req);
       send(res, 200, { authenticated: true, email: account.email }, { 'Set-Cookie': cookie });
       return true;
     }
@@ -250,7 +252,7 @@ async function handleAuthRequest(req, res, pathname) {
       if (token && token.length === 64) {
         await pool.query('DELETE FROM slime_account_sessions WHERE token_hash = $1', [hashToken(token)]);
       }
-      send(res, 200, { ok: true }, { 'Set-Cookie': cookieHeader('', 0) });
+      send(res, 200, { ok: true }, { 'Set-Cookie': cookieHeader('', 0, req) });
       return true;
     }
 
@@ -278,7 +280,7 @@ async function handleAuthRequest(req, res, pathname) {
         return true;
       }
       await pool.query('DELETE FROM slime_accounts WHERE id = $1', [account.id]);
-      send(res, 200, { ok: true }, { 'Set-Cookie': cookieHeader('', 0) });
+      send(res, 200, { ok: true }, { 'Set-Cookie': cookieHeader('', 0, req) });
       return true;
     }
 

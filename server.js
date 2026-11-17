@@ -4,7 +4,9 @@ const CLS={normal:{hp:100,sp:4.8,dm:.8,pw:'proj'},mago:{hp:70,sp:4.8,dm:.92,pw:'
 const ET=[{h:w=>18+w*9,r:10,v:1.4,d:7,c:1,x:1},{h:w=>10+w*5,r:8,v:2.4,d:5,c:2,x:2},{h:w=>55+w*15,r:16,v:.9,d:14,c:6,x:5},{h:w=>300+w*55,r:26,v:.8,d:20,c:18,x:40},{h:w=>14+w*6,r:11,v:1.9,d:6,c:1,x:3},{h:w=>30+w*8,r:12,v:1.6,d:9,c:2,x:3},{h:w=>70+w*14,r:13,v:.7,d:10,c:2,x:4}];
 const rooms=Object.create(null);let N=1,roomSequence=1;const ITEMS=['espada','escudo','botas','amuleto','anel','coracao'];const presence=new Map(),PRESENCE_TTL_MS=45000;
 const DEV_ACCESS_CODE=String(process.env.SLIME_DEV_ACCESS_CODE||'');const devTokens=new Map(),devAttempts=new Map();
+function pruneDevState(now=Date.now()){for(const [token,expiry] of devTokens)if(expiry<=now)devTokens.delete(token);for(const [ip,item] of devAttempts)if(now-item.startedAt>10*60*1000)devAttempts.delete(ip);if(devTokens.size>500){for(const token of devTokens.keys()){devTokens.delete(token);if(devTokens.size<=400)break}}}
 function validDevToken(token){if(typeof token!=='string'||token.length!==64)return false;const expiry=devTokens.get(token);if(!expiry)return false;if(expiry<=Date.now()){devTokens.delete(token);return false}return true}
+function randomSubset(items,count){const copy=items.slice(),take=Math.min(copy.length,Math.max(0,count|0));for(let i=0;i<take;i++){const j=i+Math.floor(R()*(copy.length-i));[copy[i],copy[j]]=[copy[j],copy[i]]}return copy.slice(0,take)}
 function sendJson(res,status,payload){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(payload))}
 async function readSmallJson(req){const chunks=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>2048)throw new Error('REQUEST_TOO_LARGE');chunks.push(chunk)}try{return JSON.parse(Buffer.concat(chunks).toString('utf8'))}catch{throw new Error('INVALID_JSON')}}
 const MAX_PLAYERS=4,MAX_CONNECTIONS=40,MAX_MESSAGE_RATE=45,VIEW_RADIUS=640,UPGRADE_KEYS=['vida','dano','vel','moeda'];
@@ -23,8 +25,8 @@ const srv=http.createServer(async(q,s)=>{
  if(path==='/api/dev/unlock'||path==='/api/dev/lock'){
   if(q.method!=='POST'){sendJson(s,405,{error:'Método não permitido.'});return}
   const origin=q.headers.origin;if(origin){try{if(new URL(origin).host.toLowerCase()!==String(q.headers.host||'').toLowerCase()){sendJson(s,403,{error:'Origem não permitida.'});return}}catch{sendJson(s,403,{error:'Origem não permitida.'});return}}
-  const ip=String(q.headers['x-forwarded-for']||q.socket.remoteAddress||'unknown').split(',')[0].trim(),now=Date.now();let attempt=devAttempts.get(ip);if(!attempt||now-attempt.startedAt>10*60*1000){attempt={startedAt:now,count:0};devAttempts.set(ip,attempt)}if(attempt.count>=8){sendJson(s,429,{error:'Muitas tentativas. Aguarde alguns minutos.'});return}
-  try{const body=await readSmallJson(q),token=typeof body.token==='string'?body.token:'';if(path==='/api/dev/lock'){devTokens.delete(token);sendJson(s,200,{ok:true});return}attempt.count++;const supplied=Buffer.from(typeof body.code==='string'?body.code:'','utf8'),expected=Buffer.from(DEV_ACCESS_CODE,'utf8');if(!DEV_ACCESS_CODE||supplied.length!==expected.length||!crypto.timingSafeEqual(supplied,expected)){sendJson(s,401,{error:'Código de desenvolvedor incorreto.'});return}const session=crypto.randomBytes(32).toString('hex'),expiresAt=now+12*60*60*1000;devTokens.set(session,expiresAt);sendJson(s,200,{token:session,expiresAt});return}catch(error){sendJson(s,error.message==='REQUEST_TOO_LARGE'?413:400,{error:'Não foi possível processar o pedido.'});return}
+  const ip=String(q.headers['x-forwarded-for']||q.socket.remoteAddress||'unknown').split(',')[0].trim(),now=Date.now();pruneDevState(now);let attempt=devAttempts.get(ip);if(!attempt||now-attempt.startedAt>10*60*1000){attempt={startedAt:now,count:0};devAttempts.set(ip,attempt)}if(attempt.count>=8){sendJson(s,429,{error:'Muitas tentativas. Aguarde alguns minutos.'});return}
+  try{const body=await readSmallJson(q),token=typeof body.token==='string'?body.token:'';if(path==='/api/dev/lock'){devTokens.delete(token);sendJson(s,200,{ok:true});return}attempt.count++;const supplied=Buffer.from(typeof body.code==='string'?body.code:'','utf8'),expected=Buffer.from(DEV_ACCESS_CODE,'utf8');if(!DEV_ACCESS_CODE||supplied.length!==expected.length||!crypto.timingSafeEqual(supplied,expected)){sendJson(s,401,{error:'Código de desenvolvedor incorreto.'});return}if(devTokens.size>=500){sendJson(s,503,{error:'Muitas sessões de teste ativas. Tente novamente mais tarde.'});return}const session=crypto.randomBytes(32).toString('hex'),expiresAt=now+12*60*60*1000;devTokens.set(session,expiresAt);sendJson(s,200,{token:session,expiresAt});return}catch(error){sendJson(s,error.message==='REQUEST_TOO_LARGE'?413:400,{error:'Não foi possível processar o pedido.'});return}
  }
  if(await handleAuthRequest(q,s,path))return;
  if(path==='/health'&&q.method==='GET'){
@@ -58,7 +60,7 @@ function reset(r){r.es=[];r.sh=[];r.gm=[];r.hr=[];r.ch=[];r.fx=[];r.ob=[];r.wave
 function lv(p){p.lv++;p.xp-=p.nx;p.nx=Math.ceil(p.nx*1.35+2);
  const op=Object.keys(p.pw).filter(k=>p.pw[k]>0),os=Object.keys(p.ps).filter(k=>p.ps[k]>0);
  const pool=[...PW.filter(k=>(p.pw[k]||0)>0?p.pw[k]<5:op.length<5).map(k=>'p:'+k),...PS.filter(k=>(p.ps[k]||0)>0?p.ps[k]<5:os.length<5).map(k=>'s:'+k)];
- const shuffled=pool.sort(()=>R()-.5);p.ch=p.lv===5&&(p.pw.meteoro||0)<5&&((p.pw.meteoro||0)>0||op.length<5)?['p:meteoro',...shuffled.filter(k=>k!=='p:meteoro')].slice(0,3):shuffled.slice(0,3);p.choiceExpiresAt=p.ch.length?Date.now()+10000:0;if(!p.ch.length)p.ch=null}
+ const shuffled=randomSubset(pool,pool.length);p.ch=p.lv===5&&(p.pw.meteoro||0)<5&&((p.pw.meteoro||0)>0||op.length<5)?['p:meteoro',...shuffled.filter(k=>k!=='p:meteoro')].slice(0,3):shuffled.slice(0,3);p.choiceExpiresAt=p.ch.length?Date.now()+10000:0;if(!p.ch.length)p.ch=null}
 function pick(p,i){const o=p.ch&&p.ch[+i];if(!o)return;const k=o.slice(2),owned=Object.keys(o[0]=='p'?p.pw:p.ps).filter(a=>(o[0]=='p'?p.pw:p.ps)[a]>0);
  if(o[0]=='p'){if(!(p.pw[k]>0)&&owned.length>=5)return;if((p.pw[k]||0)>=5)return;p.pw[k]=(p.pw[k]||0)+1}
  else{if(!(p.ps[k]>0)&&owned.length>=5)return;if((p.ps[k]||0)>=5)return;p.ps[k]=(p.ps[k]||0)+1;if(k=='vida'){const b=CLS[p.cls].hp*.2;p.mh+=b;p.hp+=b}}
@@ -91,7 +93,7 @@ function step(r,L){
    for(const e of r.es)if(dist(e,o)<e.r+8)e.hp-=hit(.3*(1+l.orb*.3)*dm)}}
   if(l.nova&&rdy('nova',90)){const rr=90+12*l.nova;r.fx.push(['n',p.x|0,p.y|0,rr,0,6]);
    for(const e of r.es)if(dist(e,p)<rr+e.r)e.hp-=hit((10+5*l.nova)*dm)}
-  if(l.raio&&rdy('raio',45))r.es.filter(e=>dist(e,p)<380).sort(()=>R()-.5).slice(0,1+l.raio).forEach(e=>{e.hp-=hit((14+4*l.raio)*dm);r.fx.push(['r',p.x|0,p.y|0,e.x|0,e.y|0,5])});
+  if(l.raio&&rdy('raio',45))randomSubset(r.es.filter(e=>dist(e,p)<380),1+l.raio).forEach(e=>{e.hp-=hit((14+4*l.raio)*dm);r.fx.push(['r',p.x|0,p.y|0,e.x|0,e.y|0,5])});
   if(l.meteoro&&rdy('meteoro',120)){const e=near(450);if(e){const rr=60+6*l.meteoro;r.fx.push(['n',e.x|0,e.y|0,rr,0,8]);for(const q of r.es)if(dist(q,e)<rr+q.r)q.hp-=hit((25+8*l.meteoro)*dm)}else p.cd.meteoro=0}
   if(l.aura){const rr=50+8*l.aura;for(const e of r.es)if(dist(e,p)<rr+e.r)e.hp-=hit((.3+.12*l.aura)*dm)}
   if(l.lanca&&rdy('lanca',58)){const e=near(520);if(e){const a=Math.atan2(e.y-p.y,e.x-p.x);r.sh.push({x:p.x,y:p.y,vx:Math.cos(a)*12,vy:Math.sin(a)*12,d:hit((20+7*l.lanca)*dm),life:48,pr:5})}else p.cd.lanca=0}
@@ -130,7 +132,7 @@ function snapshot(r,own){
  const visible=(x,y)=>Math.hypot(x-own.x,y-own.y)<=VIEW_RADIUS;
  const effects=r.fx.filter(f=>f[0]==='n'?visible(f[1],f[2]):visible(f[1],f[2])||visible(f[3],f[4]));
  return JSON.stringify({w:r.wave,mp:r.map|0,pa:!!own.ch,o:P.length>0&&!L.length?1:0,
-  k:P.flatMap(p=>(p.sk||[]).map(q=>[q.x|0,q.y|0])),p:P.map(p=>({id:p.id,n:p.name,c:p.cls,x:p.x|0,y:p.y|0,h:p.hp|0,m:p.mh|0,l:p.lv,xp:p.xp,nx:p.nx,d:p.d,pw:p.pw,ps:p.ps,ch:p.ch,co:p.devMode?999999999:p.co,cr:p.devMode?999999999:p.cr,dev:!!p.devMode,sp:+(CLS[p.cls].sp*(1+.1*(p.ps.vel||0))*(1+.04*p.u.vel)*(p.it.includes('botas')?1.08:1)).toFixed(2)})),
+  k:P.flatMap(p=>(p.sk||[]).map(q=>[q.x|0,q.y|0])),p:P.map(p=>({id:p.id,n:p.name,c:p.cls,x:p.x|0,y:p.y|0,h:p.hp|0,m:p.mh|0,l:p.lv,xp:p.xp,nx:p.nx,d:p.d,pw:p.pw,ps:p.ps,ch:p.ch,it:p.it,shield:p.shieldUntil>r.t?p.shieldUntil-r.t:0,co:p.devMode?999999999:p.co,cr:p.devMode?999999999:p.cr,dev:!!p.devMode,sp:+(CLS[p.cls].sp*(1+.1*(p.ps.vel||0))*(1+.04*p.u.vel)*(p.it.includes('botas')?1.08:1)).toFixed(2)})),
   e:r.es.filter(e=>visible(e.x,e.y)).map(e=>[e.x|0,e.y|0,e.ty,Math.max(0,e.hp/e.mh)]),
   s:r.sh.filter(q=>visible(q.x,q.y)).map(q=>[q.x|0,q.y|0]),
   b:r.ob.filter(q=>visible(q[0],q[1])),

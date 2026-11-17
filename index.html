@@ -68,7 +68,10 @@ small{opacity:.7}
 #tc button.s{box-shadow:0 0 0 2px #86efac55,0 6px 18px #16a34a33}
 .skill-icon{background:radial-gradient(circle at 30% 24%,#fff 0 5%,#ffffff55 10%,transparent 36%),radial-gradient(circle at 38% 32%,var(--skill-color,#38bdf8),#101827 83%);box-shadow:inset 0 2px 6px #fff8,0 0 14px color-mix(in srgb,var(--skill-color,#38bdf8) 48%,transparent),0 3px 8px #0008}
 .power-badge{background:radial-gradient(circle at 30% 24%,#fff 0 5%,#ffffff44 10%,transparent 36%),radial-gradient(circle at 38% 32%,var(--skill-color,#38bdf8),#101827 83%)}
-#powhud{flex-direction:row;flex-wrap:wrap;justify-content:flex-end;width:min(125px,30vw);max-height:44vh;gap:6px}
+#powhud{position:fixed;left:50%;right:auto;top:calc(env(safe-area-inset-top,0px) + 54px);transform:translateX(-50%);flex-direction:row;flex-wrap:wrap;justify-content:center;width:min(220px,58vw);max-height:22vh;gap:6px;z-index:13}
+#item-hud{position:fixed;left:10px;top:50%;transform:translateY(-50%);display:none;flex-direction:column;gap:7px;z-index:14;pointer-events:none}
+.item-hud-chip{display:flex;align-items:center;gap:6px;padding:6px 9px;border:1px solid #ffffff44;border-radius:12px;background:#07140de8;box-shadow:0 3px 12px #0008;font-size:18px}
+.item-hud-chip small{font-size:10px;font-weight:800;color:#e5f6e8}
 .power-badge{width:34px;height:34px;font-size:18px}
 @media(min-width:700px){.cs{grid-template-columns:repeat(3,minmax(0,1fr))}}
 
@@ -350,7 +353,7 @@ input,textarea,select{touch-action:auto;user-select:text}
 @media(orientation:landscape){#tab-panels{max-height:min(64dvh,500px)}.tab-panel{max-height:min(64dvh,500px)}}
 
 </style></head><body>
-<canvas id="c"></canvas><div id="fps-indicator" aria-live="off">FPS …</div><button id="ex" aria-label="Voltar ao lobby"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Lobby</span></button>
+<canvas id="c"></canvas><div id="item-hud" aria-label="Itens equipados"></div><div id="fps-indicator" aria-live="off">FPS …</div><button id="ex" aria-label="Voltar ao lobby"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Lobby</span></button>
 <div id="m" class="lobby-screen">
  <header class="lobby-top">
   <div class="brand-panel glass">
@@ -574,7 +577,7 @@ function setGameState(next,title,message){
  $('loading-overlay').classList.toggle('h',!loading);
  if(loading){$('loading-title').textContent=title||'Acordando servidor...';$('loading-message').textContent=message||'Preparando a conexão com o mundo.'}
  $('fim').style.display=next==='GAMEOVER'?'flex':'none';
- $('ex').style.display=playing?'block':'none';$('powhud').style.display=playing?'flex':'none';
+ $('ex').style.display=playing?'block':'none';$('powhud').style.display=playing?'flex':'none';$('item-hud').style.display=playing&&SV.items.length?'flex':'none';$('item-hud').innerHTML=playing?SV.items.map(k=>{const meta={espada:['⚔️','Espada'],escudo:['🛡️','Escudo'],botas:['👢','Botas'],amuleto:['🔮','Amuleto'],anel:['💍','Anel'],coracao:['💚','Coração']}[k];return meta?'<span class="item-hud-chip">'+meta[0]+' <small>'+meta[1]+'</small></span>':''}).join(''):'';
  $('go').disabled=loading;$('priv').disabled=loading;$('off').disabled=loading;
  if(inLobby){$('u').style.display='none';$('fim').style.display='none';$('powhud').innerHTML='';lastPow=''}
 }
@@ -796,11 +799,11 @@ function lobby(){
  const settings=$('ts');
  settings.innerHTML='<div class="section-intro"><span>JOGO</span><h2>Configurações</h2><p>Controles básicos e dados locais.</p></div>'+
  '<div class="settings-row"><span><b>Áudio</b><small>Ativar ou desligar a música.</small></span><button id="setting-audio">'+(SV.mute?'Desligado':'Ligado')+'</button></div>'+
- '<div class="settings-row"><span><b>Qualidade gráfica</b><small>Reduz efeitos para melhorar o desempenho.</small></span><button id="setting-quality">'+(SV.quality===0?'Desempenho':'Padrão')+'</button></div>'+
+ '<div class="settings-row"><span><b>Qualidade gráfica</b><small>Escolha desempenho, padrão ou alto.</small></span><button id="setting-quality">'+(['Desempenho','Padrão','Alto'][Math.max(0,Math.min(2,SV.quality))])+'</button></div>'+
  '<div class="settings-row"><span><b>Mostrar FPS</b><small>Exibe a taxa de quadros durante a partida.</small></span><button id="setting-fps">'+(SV.showFps?'Ligado':'Desligado')+'</button></div>'+
  '<div class="settings-row"><span><b>Resetar jogo</b><small>Apaga moedas, classes, itens e progresso deste perfil.</small></span><button id="reset-game">Resetar</button></div>';
  settings.querySelector('#setting-audio').onclick=()=>{$('mu').click()};
- settings.querySelector('#setting-quality').onclick=()=>{SV.quality=SV.quality===0?1:0;DPR=Math.min(devicePixelRatio||1,SV.quality===0?1:DEVICE_DPR_CAP);resizeGame();save();lobby()};
+ settings.querySelector('#setting-quality').onclick=()=>{SV.quality=(SV.quality+1)%3;DPR=Math.min(devicePixelRatio||1,SV.quality===0?1:SV.quality===1?DEVICE_DPR_CAP:Math.min(2,DEVICE_DPR_CAP+0.5));resizeGame();save();lobby()};
  settings.querySelector('#setting-fps').onclick=()=>{SV.showFps=SV.showFps?0:1;save();lobby()};
  settings.querySelector('#reset-game').onclick=()=>{if(!confirm('Tem certeza? Todo o progresso deste perfil será apagado.'))return;SV={co:0,cr:0,economyVersion:ECONOMY_VERSION,cls:['normal'],sel:'normal',name:SV.name||'',up:{vida:0,dano:0,vel:0,moeda:0},maps:[0],map:0,best:0,items:[],ach:[],day:'',mute:SV.mute?1:0,quality:SV.quality===0?0:1,showFps:0};try{localStorage.setItem('slimeSave',JSON.stringify(SV))}catch(e){}scheduleCloudSave();toast('Progresso reiniciado.');lobby()};
  const cs=$('tc');cs.innerHTML='<div class="section-intro"><span>PERSONAGENS</span><h2>Escolha sua classe</h2><p>Cada slime tem atributos e um estilo de combate diferente.</p></div>';

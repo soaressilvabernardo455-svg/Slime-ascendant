@@ -188,6 +188,7 @@ console.log('Smoke tests aprovados. Referências DOM: ' + usedIds.length + '; cl
 assert.ok(app.includes("if(t===b.dataset.t)panel.scrollTop=0"), 'trocar de aba deve voltar o painel ao topo');
 assert.ok(app.includes("h%53==0")&&!app.includes("h%9==0"), 'floresta deve evitar ruído excessivo de pequenos pixels');
 assert.ok(app.includes('gameSafeTop+88'), 'HUD da partida deve respeitar a área segura superior');
+assert.ok(app.includes("slime(pg,0,0,SV.sel,t,false,0,0)")&&!app.includes("slime(x,0,0,SV.sel,t,false,0,0)"), 'o lobby deve desenhar apenas uma prévia do slime');
 assert.ok(html.includes('.player-chips{display:flex!important'), 'saldo de moedas e cristais precisa estar visível no lobby');
 assert.ok(app.includes('MAP_ACCESS_VERSION=1') && app.includes('filter(i=>Number(i)!==3)'), 'Vulcão Carmesim antigo liberado sem pagamento deve voltar a exigir cristais');
 assert.ok(auth.includes('MAP_ACCESS_VERSION = 1') && auth.includes('maps.splice(volcanoIndex, 1)'), 'migração de mapa antigo precisa ocorrer também na nuvem');

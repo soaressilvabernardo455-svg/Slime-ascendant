@@ -1,22 +1,31 @@
 const http=require('http'),fs=require('fs'),{WebSocketServer}=require('ws');
 const R=Math.random,PW=['proj','orb','nova','raio','aura','meteoro','lanca','corrente','espinhos','furacao'],PS=['vida','dano','vel','recarga','ima','regen','xp','armadura','crit','sorte'];
 const CLS={normal:{hp:100,sp:4.8,dm:.8,pw:'proj'},mago:{hp:70,sp:4.8,dm:1.1,pw:'raio'},cavaleiro:{hp:150,sp:4.2,dm:.9,pw:'orb'},necromante:{hp:85,sp:4.8,dm:1,pw:'nova'},curandeiro:{hp:110,sp:4.8,dm:.7,pw:'aura',heal:1},arqueiro:{hp:80,sp:5.2,dm:.9,pw:'proj',pr:2}};
-const ET=[{h:w=>18+w*9,r:10,v:1.4,d:7,c:1,x:1},{h:w=>10+w*5,r:8,v:2.4,d:5,c:2,x:2},{h:w=>90+w*25,r:16,v:.9,d:14,c:6,x:5},{h:w=>500+w*90,r:26,v:.8,d:20,c:40,x:40},{h:w=>14+w*6,r:11,v:1.9,d:6,c:3,x:3},{h:w=>30+w*8,r:12,v:1.6,d:9,c:3,x:3},{h:w=>70+w*14,r:13,v:.7,d:10,c:4,x:4}];
-const rooms=Object.create(null);let N=1,roomSequence=1;const ITEMS=['espada','escudo','botas','amuleto','anel','coracao'];
+const ET=[{h:w=>18+w*9,r:10,v:1.4,d:7,c:1,x:1},{h:w=>10+w*5,r:8,v:2.4,d:5,c:2,x:2},{h:w=>90+w*25,r:16,v:.9,d:14,c:6,x:5},{h:w=>500+w*90,r:26,v:.8,d:20,c:18,x:40},{h:w=>14+w*6,r:11,v:1.9,d:6,c:1,x:3},{h:w=>30+w*8,r:12,v:1.6,d:9,c:2,x:3},{h:w=>70+w*14,r:13,v:.7,d:10,c:2,x:4}];
+const rooms=Object.create(null);let N=1,roomSequence=1;const ITEMS=['espada','escudo','botas','amuleto','anel','coracao'];const presence=new Map(),PRESENCE_TTL_MS=45000;
 const MAX_PLAYERS=4,MAX_CONNECTIONS=40,MAX_MESSAGE_RATE=45,VIEW_RADIUS=640,UPGRADE_KEYS=['vida','dano','vel','moeda'];
 function allowMessage(ws){const now=Date.now();if(!ws.rateWindow||now-ws.rateWindow>=1000){ws.rateWindow=now;ws.rateCount=0}ws.rateCount++;return ws.rateCount<=MAX_MESSAGE_RATE}
-function newRoom(k){return{k,ps:{},started:false,locked:false,startAt:0,hostId:0,lastRoomBroadcast:0,lastSnapshotAt:0}}
+function newRoom(k){return{k,ps:{},started:false,locked:false,startAt:0,hostId:0,lastRoomBroadcast:0,lastSnapshotAt:0,publicRoom:k==='geral',autoStartAt:0}}
+function roomForJoin(key){if(key==='geral'){let room=rooms.geral;if(room&&(room.locked||room.started||Object.keys(room.ps||{}).length>=MAX_PLAYERS)){const archived='@public-'+roomSequence++;room.k=archived;rooms[archived]=room;delete rooms.geral;room=null}if(!room)room=rooms.geral=newRoom('geral');return room}return rooms[key]||(rooms[key]=newRoom(key))}
+const BLOCKED_NAME_WORDS=['admin','administrator','moderador','moderator','staff','owner','suporte','support','system','developer','porra','caralho','merda','bosta','puta','puto','foda','foder','viado','piranha','cacete','buceta','nazi','hitler'];
+function normalizePlayerName(value){return String(value||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().replace(/0/g,'o').replace(/1/g,'i').replace(/3/g,'e').replace(/4/g,'a').replace(/5/g,'s').replace(/7/g,'t').replace(/@/g,'a').replace(/\\$/g,'s')}
+function isAllowedPlayerName(value){const name=String(value||'Slime').trim();if(!name||[...name].length>10||!/^([\\p{L}\\p{N}_ -]+)$/u.test(name))return false;const normalized=normalizePlayerName(name).replace(/[^a-z0-9]/g,'');return !BLOCKED_NAME_WORDS.some(word=>normalized.includes(word))}
 function cleanPlayerData(data){data=data&&typeof data==='object'?data:{};const cls=Object.prototype.hasOwnProperty.call(CLS,data.cls)?data.cls:'normal',name=String(data.name||'Slime').replace(/[<>]/g,'').trim().slice(0,10)||'Slime',up={};for(const key of UPGRADE_KEYS){const n=Number(data.up&&data.up[key]);up[key]=Number.isFinite(n)?Math.max(0,Math.min(10,Math.floor(n))):0}const it=Array.isArray(data.it)?[...new Set(data.it.filter(key=>ITEMS.includes(key)))].slice(0,ITEMS.length):[];return{cls,name,up,it}}
-const cl=v=>Math.max(10,Math.min(1590,v)),dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+const cl=v=>Math.max(-1000000000,Math.min(1000000000,v)),dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const html=fs.readFileSync(__dirname+'/index.html');
 const {handleAuthRequest}=require('./auth');
 const srv=http.createServer(async(q,s)=>{
  const path=new URL(q.url,'http://x').pathname;
  if(await handleAuthRequest(q,s,path))return;
  if(path==='/health'&&q.method==='GET'){
-  const players=Object.values(rooms).reduce((total,room)=>total+Object.keys(room.ps||{}).length,0);
+  const now=Date.now();for(const [id,lastSeen] of presence)if(now-lastSeen>PRESENCE_TTL_MS)presence.delete(id);
+  let connected=0,playing=0;for(const room of Object.values(rooms)){const count=Object.keys(room.ps||{}).length;connected+=count;if(room.started)playing+=count}
   s.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','Access-Control-Allow-Origin':'same-origin'});
-  s.end(JSON.stringify({status:'ok',players,rooms:Object.keys(rooms).length,uptime:Math.floor(process.uptime())}));return;
+  s.end(JSON.stringify({status:'ok',online:presence.size,players:connected,playing,rooms:Object.keys(rooms).length,uptime:Math.floor(process.uptime())}));return;
+ }
+ if(path==='/presence'&&q.method==='GET'){
+  const key=new URL(q.url,'http://x').searchParams.get('id')||'';if(/^[a-zA-Z0-9_-]{12,64}$/.test(key)){const now=Date.now();for(const [id,lastSeen] of presence)if(now-lastSeen>PRESENCE_TTL_MS)presence.delete(id);presence.set(key,now);if(presence.size>10000)presence.delete(presence.keys().next().value)}
+  s.writeHead(204,{'Cache-Control':'no-store'});s.end();return;
  }
  const assets={'/sw.js':['sw.js','application/javascript; charset=utf-8'],'/manifest.webmanifest':['manifest.webmanifest','application/manifest+json; charset=utf-8'],'/icon.svg':['icon.svg','image/svg+xml']};
  if(assets[path]){
@@ -93,7 +102,8 @@ function step(r,L){
 function roomMessage(r){
  const players=Object.values(r.ps).map(p=>({id:p.id,name:p.name,cls:p.cls}));
  const now=Date.now(),countdown=r.startAt?Math.max(0,Math.ceil((r.startAt-now)/1000)):0;
- const payload=JSON.stringify({t:'room',phase:r.started?'playing':r.locked?'countdown':'waiting',countdown,hostId:r.hostId,roomCode:r.k,players});
+ const autoStartIn=!r.started&&!r.locked&&r.publicRoom&&r.autoStartAt?Math.max(0,Math.ceil((r.autoStartAt-now)/1000)):0;
+ const payload=JSON.stringify({t:'room',phase:r.started?'playing':r.locked?'countdown':'waiting',countdown,autoStartIn,hostId:r.hostId,roomCode:r.k,players});
  wss.clients.forEach(c=>{if(c.r===r&&c.readyState===1)c.send(payload)});
 }
 function snapshot(r,own){
@@ -111,6 +121,7 @@ function snapshot(r,own){
 function tick(r){
  const now=Date.now(),P=Object.values(r.ps),L=P.filter(p=>!p.d);
  if(!P.length)return;
+ if(!r.started&&!r.locked&&r.publicRoom&&r.autoStartAt&&now>=r.autoStartAt){r.locked=true;r.startAt=now+3500;r.lastRoomBroadcast=0}
  if(!r.started){
   if(r.locked&&r.startAt&&now>=r.startAt){r.started=true;r.startAt=0;r.wave=1;r.t=0;r.sp=30;roomMessage(r)}
   else{if(now-r.lastRoomBroadcast>=350){r.lastRoomBroadcast=now;roomMessage(r)}return}
@@ -134,33 +145,28 @@ wss.on('connection',(ws,rq)=>{
  let k=(new URL(rq.url,'http://x').searchParams.get('s')||'geral').slice(0,12),r=null;
  if(!/^[a-zA-Z0-9_-]{1,12}$/.test(k))k='geral';
  ws.r=null;ws.playerId=0;ws.rateWindow=Date.now();ws.rateCount=0;
+ ws.on('error',error=>console.warn('WebSocket error:',error&&error.message||'erro de socket'));
  ws.on('message',(raw)=>{
   if(!allowMessage(ws)){try{ws.close(1008,'Limite de mensagens excedido')}catch(e){}return}
   if(raw.length>2048){try{ws.close(1009,'Mensagem muito grande')}catch(e){}return}
   let d;try{d=JSON.parse(raw.toString())}catch{return}
   if(!d||typeof d!=='object'||Array.isArray(d))return;
   if(d.t==='join'&&!ws.playerId){
-   if(!r){
-    if(k==='geral'&&rooms.geral&&rooms.geral.locked){
-     const previous=rooms.geral,archived='@public-'+roomSequence++;
-     previous.k=archived;rooms[archived]=previous;delete rooms.geral;
-    }
-    r=rooms[k]||(rooms[k]=newRoom(k));
-    if(!r.es)reset(r);
-    ws.r=r;
-   }
+   if(!isAllowedPlayerName(d.name)){ws.send(JSON.stringify({t:'error',message:'Esse nome não é permitido. Escolha outro.'}));return}
+   if(!r){r=roomForJoin(k);if(!r.es)reset(r);ws.r=r}
    if(r.locked||r.started){ws.send(JSON.stringify({t:'error',message:'Esta sala já começou e não aceita novos jogadores.'}));ws.close(4001,'Sala fechada');return}
    if(Object.keys(r.ps).length>=MAX_PLAYERS){ws.send(JSON.stringify({t:'error',message:'Sala cheia. O limite é de 4 jogadores.'}));ws.close(4002,'Sala cheia');return}
    const id=N++,data=cleanPlayerData(d);
-   if(!Object.keys(r.ps).length){r.map=Math.max(0,Math.min(3,Math.floor(Number(d.map)||0)));r.hostId=id}
+   if(!Object.keys(r.ps).length){r.map=Math.max(0,Math.min(3,Math.floor(Number(d.map)||0)));r.hostId=id;if(r.publicRoom&&!r.autoStartAt)r.autoStartAt=Date.now()+12000}
    const player=mk(id,data.cls,data.name,data.up,data.it);r.ps[id]=player;ws.playerId=id;
+   if(r.publicRoom&&Object.keys(r.ps).length>=MAX_PLAYERS)r.autoStartAt=Date.now()+1200;
    ws.send(JSON.stringify({t:'id',id,host:id===r.hostId,roomCode:r.k}));
    r.lastRoomBroadcast=0;roomMessage(r);return;
   }
   const p=r&&r.ps[ws.playerId];if(!p)return;
   if(d.t==='start'){
    if(p.id!==r.hostId||r.locked||r.started)return;
-   r.locked=true;r.startAt=Date.now()+5000;r.lastRoomBroadcast=0;roomMessage(r);return;
+   r.autoStartAt=0;r.locked=true;r.startAt=Date.now()+5000;r.lastRoomBroadcast=0;roomMessage(r);return;
   }
   if(d.t==='in'){
    const dx=Number(d.dx),dy=Number(d.dy);

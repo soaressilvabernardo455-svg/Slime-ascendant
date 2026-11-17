@@ -57,7 +57,10 @@ assert.ok(app.includes('function pingPresence('), 'presença de jogadores online
 assert.ok(app.includes('function isAllowedPlayerName('), 'validação do nome no cliente ausente');
 assert.ok(app.includes('const cx=pp.x-W/2,cy=pp.y-H/2'), 'a câmera deve seguir sem bordas do mapa');
 assert.match(app, /const oClamp=v=>Math\.max\(-1000000000/);
-assert.match(app, /const PRICE=\{normal:\[0,0\],arqueiro:\[5000,0\],cavaleiro:\[12000,0\],mago:\[25000,0\]/);
+assert.match(app, /const PRICE=\{normal:\[0,0\],arqueiro:\[900,0\],cavaleiro:\[3000,0\],mago:\[5000,0\],curandeiro:\[0,600\],necromante:\[0,900\]\}/);
+assert.ok(app.includes("if(p.cls==='necromante')"), 'necromante precisa invocar esqueletos');
+assert.ok(app.includes('(S.k||[])'), 'esqueletos precisam ser desenhados na partida');
+assert.ok(!app.includes('wx(W,H,S.mp|0,t)'), 'efeitos de partículas da tela do lobby não devem aparecer na partida');
 assert.match(app, /const MAPS=\[\['Floresta Antiga',0,0\],\['Deserto Dourado',12000,0\],\['Tundra Gelada',30000,0\]/);
 assert.ok(app.includes("SV.co+=25;SV.cr+=2"), 'recompensa diária deve refletir a economia reajustada');
 assert.ok(app.includes('function claimDailyReward('), 'trava da recompensa diária ausente');

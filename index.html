@@ -57,7 +57,7 @@ const TH=[
 {a:'#c9a45c',b:'#d1ac66',bg:'#5a431c',vg:'#3b2a0faa',d:(X,Y,h)=>{if(h%23==0){x.fillStyle='#3f7d3a';x.fillRect(X+8,Y+6,4,14);x.fillRect(X+4,Y+10,4,3);x.fillRect(X+12,Y+8,4,3);x.fillStyle='#2c5a2a';x.fillRect(X+10,Y+6,2,14)}if(h%11==0){x.fillStyle='#a8854a';x.fillRect(X+(h>>3)%24,Y+(h>>6)%24,4,3)}}},
 {a:'#d3e2ee',b:'#dbe8f2',bg:'#8aa5bb',vg:'#0b2a4aaa',d:(X,Y,h)=>{if(h%13==0){x.fillStyle='#fff';x.fillRect(X+(h>>3)%26,Y+(h>>6)%26,3,3)}if(h%37==0){x.fillStyle='#7dd3fc';x.fillRect(X+10,Y+8,4,10);x.fillStyle='#bae6fd';x.fillRect(X+11,Y+8,2,10)}}},
 {a:'#2a1f2d',b:'#30243a',bg:'#120a14',vg:'#2a0a05cc',d:(X,Y,h)=>{if(h%10==0){x.fillStyle='#f97316';const a=(h>>3)%22,b=(h>>6)%22;x.fillRect(X+a,Y+b,8,2);x.fillRect(X+a+6,Y+b+2,2,6);x.fillStyle='#fde047';x.fillRect(X+a+1,Y+b,3,1)}if(h%41==0){x.fillStyle='#a855f7';x.fillRect(X+12,Y+10,6,4);x.fillStyle='#e9d5ff';x.fillRect(X+13,Y+10,2,2);x.fillStyle='#6b21a8';x.fillRect(X+14,Y+14,2,6)}}}];
-const PA=Array.from({length:50},()=>({x:Math.random(),y:Math.random(),v:.3+Math.random(),s:1+Math.random()*2}));
+const PA=Array.from({length:16},()=>({x:Math.random(),y:Math.random(),v:.3+Math.random(),s:1+Math.random()*2}));
 function wx(W,H,m,t){x.fillStyle=['#fde047','#e7c98aaa','#fff','#fb923c'][m];PA.forEach(q=>{
  if(m==0){q.x+=Math.sin(t/900+q.v*9)*.0006;q.y+=Math.cos(t/1100+q.v*7)*.0006;x.globalAlpha=.4+.6*Math.abs(Math.sin(t/500+q.v*9))}
  else if(m==1){q.x+=q.v*.004;q.y+=q.v*.0008}
@@ -160,13 +160,13 @@ const DPR=Math.min(devicePixelRatio||1,1.5);onresize=()=>{cv.width=innerWidth*DP
 
 function draw(t){requestAnimationFrame(draw);if(!S){const g=$('pv').getContext('2d');g.clearRect(0,0,64,64);slime(g,32,52,SV.sel,t);return}
  x.setTransform(DPR,0,0,DPR,0,0);const W=innerWidth,H=innerHeight,p=S.p.find(q=>q.id==me);if(!p)return;if(!S.o)$('fim').style.display='none';
- if(p.h<lh){sh=10;sfx(110,.12,'sawtooth',.05)}if(p.xp>lx&&t-lsx>90){lsx=t;sfx(1000,.04,'sine',.02)}lx=p.xp;if(S.w!=lw){lw=S.w;if(lw>1)toast(lw%5==0?'⚠ O CHEFE CHEGOU!':'Onda '+lw);if(lw%5==0)sfx(90,.5,'sawtooth',.06)}lh=p.h;sh=Math.max(0,sh-1);
+ if(p.h<lh){sfx(110,.12,'sawtooth',.05)}if(p.xp>lx&&t-lsx>90){lsx=t;sfx(1000,.04,'sine',.02)}lx=p.xp;if(S.w!=lw){lw=S.w;if(lw>1)toast(lw%5==0?'⚠ O CHEFE CHEGOU!':'Onda '+lw);if(lw%5==0)sfx(90,.5,'sawtooth',.06)}lh=p.h;sh=0;
  const dt=Math.min((t-lt)/33.3,3),sp=p.sp||3.5;lt=t;if(!pp||S.o||Math.hypot(p.x-pp.x,p.y-pp.y)>80)pp={x:p.x,y:p.y};
  if(!p.d&&!S.pa){const[dx,dy]=getDir(),m=Math.hypot(dx,dy),k=m>1?1/m:1;pp.x=Math.max(10,Math.min(1590,pp.x+dx*k*sp*dt));pp.y=Math.max(10,Math.min(1590,pp.y+dy*k*sp*dt))}
- pp.x+=(p.x-pp.x)*.12;pp.y+=(p.y-pp.y)*.12;
- const cx=Math.round(Math.max(0,Math.min(1600-W,pp.x-W/2))),cy=Math.round(Math.max(0,Math.min(1600-H,pp.y-H/2)));
+ const ex=p.x-pp.x,ey=p.y-pp.y,err=Math.hypot(ex,ey);if(err>1.5){const corr=err>36 ? .16 : .055;pp.x+=ex*corr;pp.y+=ey*corr}
+ const cx=Math.max(0,Math.min(1600-W,pp.x-W/2)),cy=Math.max(0,Math.min(1600-H,pp.y-H/2));
  const T=TH[S.mp|0];x.fillStyle=T.bg;x.fillRect(0,0,W,H);
- x.save();x.translate((Math.random()-.5)*sh,(Math.random()-.5)*sh);
+ x.save();
  for(let i=Math.floor(cx/32);i<50&&i*32<cx+W;i++)for(let j=Math.floor(cy/32);j<50&&j*32<cy+H;j++){
   const h=hs(i,j),X=i*32-cx,Y=j*32-cy;x.fillStyle=(i+j)%2?T.a:T.b;x.fillRect(X,Y,32,32);T.d(X,Y,h)}
  S.g.forEach(([a,b])=>{const o=Math.sin(t/200+a)*2,X=a-cx,Y=b-cy+o;x.fillStyle='#22d3ee';x.fillRect(X-1,Y-4,3,9);x.fillRect(X-3,Y-2,7,5);x.fillStyle='#cffafe';x.fillRect(X-1,Y-2,2,2)});
@@ -181,18 +181,18 @@ function draw(t){requestAnimationFrame(draw);if(!S){const g=$('pv').getContext('
  x.textAlign='center';x.font='11px sans-serif';
  S.p.forEach(q=>{const m2=q.id==me,X=(m2?pp.x:q.x)-cx,Y=(m2?pp.y:q.y)-cy;x.globalAlpha=q.d?.4:1;
   if(q.pw.aura){x.fillStyle='#4ade8018';x.strokeStyle='#4ade8088';x.lineWidth=2;x.beginPath();x.arc(X,Y,50+8*q.pw.aura,0,7);x.fill();x.stroke()}
-  slime(x,X,Y+12,q.c,t);x.fillStyle='#fff';x.fillText(q.n,X,Y-34);
+  slime(x,X,Y+12,q.c,t);x.fillStyle='#fff';if(!m2)x.fillText(q.n,X,Y-34);
   x.fillStyle='#000';x.fillRect(X-15,Y+17,30,4);x.fillStyle='#ef4444';x.fillRect(X-15,Y+17,30*Math.max(0,q.h/q.m),4);x.globalAlpha=1});
  x.restore();
  wx(W,H,S.mp|0,t);
  const g=x.createRadialGradient(W/2,H/2,Math.min(W,H)*.35,W/2,H/2,Math.max(W,H)*.75);g.addColorStop(0,'#0000');g.addColorStop(1,p.h/p.m<.3?'#7f1d1daa':T.vg);x.fillStyle=g;x.fillRect(0,0,W,H);
- x.fillStyle='#0b1a0fcc';x.fillRect(8,8,184,62);x.strokeStyle='#2f5d3a';x.lineWidth=2;x.strokeRect(8,8,184,62);
- x.fillStyle='#3b0d0d';x.fillRect(14,14,172,10);x.fillStyle='#ef4444';x.fillRect(14,14,172*Math.max(0,p.h/p.m),10);
- x.fillStyle='#0c2a3a';x.fillRect(14,28,172,8);x.fillStyle='#38bdf8';x.fillRect(14,28,172*p.xp/p.nx,8);
- x.fillStyle='#fff';x.font='13px sans-serif';x.textAlign='left';x.fillText('Nv '+p.l+'   HP '+p.h+'/'+p.m,14,56);
- x.textAlign='right';x.font='15px sans-serif';x.fillText('🪙 '+p.co+'   💎 '+p.cr,W-10,64);
- x.textAlign='center';x.font='bold 18px sans-serif';x.fillStyle=S.w%5==0?'#fbbf24':'#fff';x.fillText('ONDA '+S.w+(S.w%5==0?'  ⚠ CHEFE':''),W/2,96);
- x.font='20px sans-serif';x.fillStyle='#fff';
+ x.fillStyle='#07140dcc';x.fillRect(8,8,156,48);
+ x.fillStyle='#3b0d0d';x.fillRect(14,14,144,8);x.fillStyle='#ef4444';x.fillRect(14,14,144*Math.max(0,p.h/p.m),8);
+ x.fillStyle='#0c2a3a';x.fillRect(14,26,144,6);x.fillStyle='#38bdf8';x.fillRect(14,26,144*p.xp/p.nx,6);
+ x.fillStyle='#fff';x.font='13px sans-serif';x.textAlign='left';x.font='11px sans-serif';x.fillText('NV '+p.l+' · '+Math.ceil(p.h)+'/'+p.m+' HP',14,46);
+ x.textAlign='right';x.font='12px sans-serif';x.fillStyle='#e6f4e6cc';x.fillText('🪙 '+p.co+'  💎 '+p.cr,W-10,24);
+ x.textAlign='center';x.font='bold 15px sans-serif';x.fillStyle=S.w%5==0?'#fbbf24':'#fff';x.fillText('ONDA '+S.w+(S.w%5==0?'  ⚠ CHEFE':''),W/2,96);
+ x.font='16px sans-serif';x.fillStyle='#fff';
  if(joy){x.strokeStyle='#fff6';x.lineWidth=2;x.beginPath();x.arc(joy.x,joy.y,50,0,7);x.stroke();x.fillStyle='#fff4';x.beginPath();x.arc(joy.px,joy.py,18,0,7);x.fill();x.fillStyle='#fff'}
  if(S.o){$('fim').style.display='flex';$('fr').textContent='Você chegou à onda '+S.w+'! Recorde: onda '+SV.best}
  else if(p.d)x.fillText('Você caiu! Espere os amigos.',W/2,128);

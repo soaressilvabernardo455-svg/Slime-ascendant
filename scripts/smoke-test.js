@@ -59,6 +59,8 @@ assert.ok(app.includes('const cx=pp.x-W/2,cy=pp.y-H/2'), 'a câmera deve seguir 
 assert.match(app, /const oClamp=v=>Math\.max\(-1000000000/);
 assert.match(app, /const PRICE=\{normal:\[0,0\],arqueiro:\[900,0\],cavaleiro:\[3000,0\],mago:\[5000,0\],curandeiro:\[0,600\],necromante:\[0,900\]\}/);
 assert.ok(app.includes("if(p.cls==='necromante')"), 'necromante precisa invocar esqueletos');
+assert.ok(server.includes('p.lv===5&&(p.pw.meteoro||0)<5'), 'servidor não deve oferecer Meteoro já maximizado no nível 5');
+assert.ok(app.includes('p.lv===5&&(p.pw.meteoro||0)<5'), 'modo offline não deve oferecer Meteoro já maximizado no nível 5');
 assert.ok(app.includes('(S.k||[])'), 'esqueletos precisam ser desenhados na partida');
 assert.ok(!app.includes('wx(W,H,S.mp|0,t)'), 'efeitos de partículas da tela do lobby não devem aparecer na partida');
 assert.ok(!app.includes('const grain=86'), 'remover granulação de pontos do mapa durante a partida');

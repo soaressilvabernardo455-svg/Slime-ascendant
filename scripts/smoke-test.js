@@ -216,6 +216,7 @@ assert.ok(!server.includes(".sort(()=>R()-.5)") && !app.includes(".sort(()=>Math
 assert.ok(app.includes("function offlineTick(){if(!OFF||!OR||document.hidden)return"), 'modo offline precisa pausar ao enviar o aplicativo para segundo plano');
 assert.ok(server.includes("it:p.it,shield:p.shieldUntil>r.t") && app.includes("it:p.it,shield:p.shieldUntil>r.t"), 'snapshots online e offline precisam enviar itens e duração do escudo');
 assert.ok(app.includes('function updateItemHUD(p)') && app.includes('updateItemHUD(p);'), 'HUD deve refletir os itens realmente equipados inclusive no modo DEV');
+assert.ok(app.includes('playing&&(developerModeEnabled||SV.items.length)') && app.includes("if($('item-hud').style.display!==display)$('item-hud').style.display=display;if(key===lastItemHudKey)return"), 'HUD de itens precisa reaparecer depois de voltar ao lobby mesmo sem mudar os itens do modo DEV');
 assert.ok(app.includes("if(q.shield>0){x.save()"), 'escudo ativo do Cavaleiro precisa de indicador visual contínuo');
 assert.ok(app.includes("p.dev?'🪙 ∞  💎 ∞'"), 'HUD do modo DEV precisa mostrar recursos ilimitados');
 assert.ok(!app.includes('x.fillRect(X-5,Y,Y+0,0)'), 'remover desenho inválido do esqueleto');

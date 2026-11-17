@@ -31,7 +31,7 @@ function step(r,L){
   if(r.es.length<30+15*L.length)for(let i=0,n=1+(w>>2)+L.length-1;i<n;i++){const q=R();spawn(r,L,w>5&&q<.1?5:w>4&&q<.2?6:w>3&&q<.3?4:w>2&&q<.4?2:q<.65?1:0)}}
  for(const p of L){
   const c=CLS[p.cls],m=Math.hypot(p.dx,p.dy);if(m>1){p.dx/=m;p.dy/=m}
-  const sp=c.sp*(1+.1*(p.ps.vel||0))*(1+.04*p.u.vel)*(p.it.includes('botas')?1.08:1);p.x=cl(p.x+p.dx*sp);p.y=cl(p.y+p.dy*sp);
+  const sp=c.sp*(1+.1*(p.ps.vel||0))*(1+.04*p.u.vel)*(p.it.includes('botas')?1.08:1);p.x=cl(p.x+p.dx*sp);p.y=cl(p.y+p.dy*sp);if(p.stopAfterStep){p.dx=0;p.dy=0;p.stopAfterStep=0}
   const dm=c.dm*(1+.15*(p.ps.dano||0))*(1+.08*p.u.dano)*(p.it.includes('espada')?1.12:1),cd=1-.1*(p.ps.recarga||0),l=p.pw;
   const near=g=>{let b=null;for(const e of r.es){const d=dist(e,p);if(d<g){g=d;b=e}}return b};
   const rdy=(k,t)=>{p.cd[k]=(p.cd[k]||0)-1;if(p.cd[k]<=0){p.cd[k]=t*cd;return 1}};
@@ -78,7 +78,7 @@ wss.on('connection',(ws,rq)=>{
  ws.on('message',raw=>{let d;try{d=JSON.parse(raw)}catch{return}
   if(d.t=='join'&&!r.ps[id]){if(!Object.keys(r.ps).length)r.map=Math.min(3,Math.max(0,+d.map||0));r.ps[id]=mk(id,d.cls,d.name,d.up,d.it);ws.send(JSON.stringify({t:'id',id}));return}
   const p=r.ps[id];if(!p)return;
-  if(d.t=='in'){p.dx=+d.dx||0;p.dy=+d.dy||0}
+  if(d.t=='in'){const dx=+d.dx||0,dy=+d.dy||0;if(dx||dy){p.dx=dx;p.dy=dy;p.stopAfterStep=0}else p.stopAfterStep=1}
   else if(d.t=='pick')pick(p,d.i)});
  ws.on('close',()=>{delete r.ps[id];if(!Object.keys(r.ps).length)delete rooms[k]})});
 srv.listen(process.env.PORT||3000);

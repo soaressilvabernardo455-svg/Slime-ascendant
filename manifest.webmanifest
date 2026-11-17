@@ -3,7 +3,7 @@
   "short_name": "Slime Ascendant",
   "start_url": "/",
   "scope": "/",
-  "display": "standalone",
+  "display": "fullscreen",
   "background_color": "#0d1a10",
   "theme_color": "#0d1a10",
   "orientation": "landscape",

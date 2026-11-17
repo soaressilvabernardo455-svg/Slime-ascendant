@@ -5,7 +5,17 @@ const ET=[{h:w=>18+w*9,r:10,v:1.4,d:7,c:1,x:1},{h:w=>10+w*5,r:8,v:2.4,d:5,c:2,x:
 const rooms={};let N=1;const ITEMS=['espada','escudo','botas','amuleto','anel','coracao'];
 const cl=v=>Math.max(10,Math.min(1590,v)),dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 const html=fs.readFileSync(__dirname+'/index.html');
-const srv=http.createServer((q,s)=>{s.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});s.end(html)});
+const srv=http.createServer((q,s)=>{
+ const path=new URL(q.url,'http://x').pathname;
+ const assets={'/sw.js':['sw.js','application/javascript; charset=utf-8'],'/manifest.webmanifest':['manifest.webmanifest','application/manifest+json; charset=utf-8'],'/icon.svg':['icon.svg','image/svg+xml']};
+ if(assets[path]){
+  const [file,type]=assets[path];
+  try{s.writeHead(200,{'Content-Type':type,'Cache-Control':path==='/sw.js'?'no-cache':'public, max-age=86400','Service-Worker-Allowed':'/'});s.end(fs.readFileSync(__dirname+'/'+file));}
+  catch(e){s.writeHead(404);s.end('Not found')}
+  return;
+ }
+ s.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});s.end(html);
+});
 const wss=new WebSocketServer({server:srv});
 
 function mk(id,cls,name,up,it){cls=CLS[cls]?cls:'normal';const c=CLS[cls],u={};

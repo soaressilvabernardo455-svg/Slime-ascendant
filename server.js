@@ -69,22 +69,23 @@ function step(r,L){
   if(l.espinhos&&rdy('espinhos',24)){const rr=82+9*l.espinhos;r.fx.push(['n',p.x|0,p.y|0,rr,0,5]);for(const e of r.es)if(dist(e,p)<rr+e.r)e.hp-=hit((8+3*l.espinhos)*dm)}
   if(l.furacao&&rdy('furacao',150)){const rr=135+12*l.furacao;r.fx.push(['n',p.x|0,p.y|0,rr,0,9]);for(const e of r.es)if(dist(e,p)<rr+e.r){e.hp-=hit((28+9*l.furacao)*dm);const a=Math.atan2(e.y-p.y,e.x-p.x);e.x=cl(e.x+Math.cos(a)*18);e.y=cl(e.y+Math.sin(a)*18)}}
   if(p.ps.regen&&r.t%30==0)p.hp=Math.min(p.mh,p.hp+p.ps.regen);
-  if(c.heal&&r.t%60==0)for(const q of L)if(dist(q,p)<220)q.hp=Math.min(q.mh,q.hp+8)}
- for(const e of r.es){let b=L[0],bd=1e9;for(const p of L){const d=dist(p,e);if(d<bd){bd=d;b=p}}
+  if(c.heal&&r.t%60==0)for(const q of L)if(!q.d&&dist(q,p)<220)q.hp=Math.min(q.mh,q.hp+8)}
+ for(const e of r.es){let b=null,bd=1e9;for(const p of L){if(p.d)continue;const d=dist(p,e);if(d<bd){bd=d;b=p}}
+  if(!b)break;
   e.x+=(b.x-e.x)/(bd||1)*e.v;e.y+=(b.y-e.y)/(bd||1)*e.v;
-  if(bd<e.r+12){b.hp-=e.d/20*(1-.08*(b.ps.armadura||0))*(b.it.includes('escudo')?.85:1);if(b.hp<=0)b.d=1}}
+  if(bd<e.r+12){const damage=e.d/20*(1-.08*(b.ps.armadura||0))*(b.it.includes('escudo')?.85:1);b.hp=Math.max(0,b.hp-damage);if(b.hp===0){b.d=1;b.ch=null}}}
  r.sh=r.sh.filter(s=>{s.x+=s.vx;s.y+=s.vy;if(--s.life<1)return 0;const h=s.h||(s.h=new Set());
   for(const e of r.es)if(e.hp>0&&!h.has(e)&&dist(e,s)<e.r+4){h.add(e);e.hp-=s.d;if(s.pr-->0)continue;return 0}return 1});
  r.es=r.es.filter(e=>{if(e.hp>0)return 1;const E=ET[e.ty];r.gm.push({x:e.x,y:e.y,v:E.x});if(R()<.05)r.hr.push({x:e.x,y:e.y});
-  for(const p of L){p.co+=Math.ceil(E.c*(1+.1*p.u.moeda)*(1+.1*(p.ps.sorte||0))*(p.it.includes('anel')?1.15:1));if(e.ty==2&&R()<.12)p.cr++;if(e.ty==3)p.cr+=3}return 0});
- r.gm=r.gm.filter(g=>{for(const p of L){const d=dist(p,g)||1;
+  for(const p of L){if(p.d)continue;p.co+=Math.ceil(E.c*(1+.1*p.u.moeda)*(1+.1*(p.ps.sorte||0))*(p.it.includes('anel')?1.15:1));if(e.ty==2&&R()<.12)p.cr++;if(e.ty==3)p.cr+=3}return 0});
+ r.gm=r.gm.filter(g=>{for(const p of L){if(p.d)continue;const d=dist(p,g)||1;
   if(d<14){p.xp+=g.v*(1+.15*(p.ps.xp||0))*(p.it.includes('amuleto')?1.15:1);if(p.xp>=p.nx&&!p.ch)lv(p);return 0}
   if(d<60*(1+.4*(p.ps.ima||0))){g.x+=(p.x-g.x)/d*5;g.y+=(p.y-g.y)/d*5;break}}return 1});
- r.hr=r.hr.filter(h=>{for(const p of L)if(dist(p,h)<18){p.hp=Math.min(p.mh,p.hp+25);return 0}return 1});
+ r.hr=r.hr.filter(h=>{for(const p of L)if(!p.d&&dist(p,h)<18){p.hp=Math.min(p.mh,p.hp+25);return 0}return 1});
  r.fx=r.fx.filter(f=>--f[5]>0)}
 
 function tick(r){
- const P=Object.values(r.ps),L=P.filter(p=>!p.d),pa=P.some(p=>p.ch);
+ const P=Object.values(r.ps),L=P.filter(p=>!p.d),pa=L.some(p=>p.ch);
  if(P.length&&!pa){if(L.length)step(r,L);}
  const m=JSON.stringify({w:r.wave,mp:r.map|0,pa:pa?1:0,o:P.length&&!L.length?1:0,
   p:P.map(p=>({id:p.id,n:p.name,c:p.cls,x:p.x|0,y:p.y|0,h:p.hp|0,m:p.mh|0,l:p.lv,xp:p.xp,nx:p.nx,d:p.d,pw:p.pw,ps:p.ps,ch:p.ch,co:p.co,cr:p.cr,sp:+(CLS[p.cls].sp*(1+.1*(p.ps.vel||0))*(1+.04*p.u.vel)*(p.it.includes('botas')?1.08:1)).toFixed(2)})),

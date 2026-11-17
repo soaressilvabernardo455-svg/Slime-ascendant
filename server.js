@@ -21,7 +21,7 @@ const wss=new WebSocketServer({server:srv});
 function mk(id,cls,name,up,it){cls=CLS[cls]?cls:'normal';const c=CLS[cls],u={};
  for(const k of['vida','dano','vel','moeda'])u[k]=Math.min(10,Math.max(0,Math.floor(+(up&&up[k])||0)));
  it=(Array.isArray(it)?it:[]).filter(k=>ITEMS.includes(k));const mh=Math.round(c.hp*(1+.1*u.vida)*(it.includes('coracao')?1.25:1));
- return{id,name:String(name||'Slime').slice(0,10),cls,u,up,it,x:800+R()*100,y:800+R()*100,hp:mh,mh,lv:1,xp:0,nx:5,pw:{[c.pw]:1},ps:{},cd:{},dx:0,dy:0,ch:null,d:0,co:0,cr:0}}
+ return{id,name:String(name||'Slime').slice(0,10),cls,u,up,it,x:800+R()*100,y:800+R()*100,hp:mh,mh,lv:1,xp:0,nx:5,pw:{[c.pw]:1},ps:{},cd:{},dx:0,dy:0,stopAfterStep:0,stopRequested:0,ch:null,d:0,co:0,cr:0}}
 function reset(r){r.es=[];r.sh=[];r.gm=[];r.hr=[];r.fx=[];r.ob=[];r.wave=1;r.t=0;r.sp=30;r.ov=0;
  for(const i in r.ps){const p=r.ps[i];r.ps[i]=mk(+i,p.cls,p.name,p.up,p.it)}}
 function lv(p){p.lv++;p.xp-=p.nx;p.nx=Math.ceil(p.nx*1.35+2);
@@ -42,7 +42,7 @@ function step(r,L){
   if(r.es.length<30+15*L.length)for(let i=0,n=1+(w>>2)+L.length-1;i<n;i++){const q=R();spawn(r,L,w>5&&q<.1?5:w>4&&q<.2?6:w>3&&q<.3?4:w>2&&q<.4?2:q<.65?1:0)}}
  for(const p of L){
   const c=CLS[p.cls],m=Math.hypot(p.dx,p.dy);if(m>1){p.dx/=m;p.dy/=m}
-  const sp=c.sp*(1+.1*(p.ps.vel||0))*(1+.04*p.u.vel)*(p.it.includes('botas')?1.08:1);p.x=cl(p.x+p.dx*sp);p.y=cl(p.y+p.dy*sp);if(p.stopAfterStep>0&&--p.stopAfterStep===0){p.dx=0;p.dy=0}
+  const sp=c.sp*(1+.1*(p.ps.vel||0))*(1+.04*p.u.vel)*(p.it.includes('botas')?1.08:1);p.x=cl(p.x+p.dx*sp);p.y=cl(p.y+p.dy*sp);if(p.stopAfterStep>0&&--p.stopAfterStep===0){p.dx=0;p.dy=0;p.stopRequested=0}
   const dm=c.dm*(1+.15*(p.ps.dano||0))*(1+.08*p.u.dano)*(p.it.includes('espada')?1.12:1),cd=1-.1*(p.ps.recarga||0),l=p.pw,hit=d=>d*(R()<.05*(p.ps.crit||0)?2:1);
   const near=g=>{let b=null;for(const e of r.es){const d=dist(e,p);if(d<g){g=d;b=e}}return b};
   const rdy=(k,t)=>{p.cd[k]=(p.cd[k]||0)-1;if(p.cd[k]<=0){p.cd[k]=t*cd;return 1}};
@@ -93,7 +93,7 @@ wss.on('connection',(ws,rq)=>{
  ws.on('message',raw=>{let d;try{d=JSON.parse(raw)}catch{return}
   if(d.t=='join'&&!r.ps[id]){if(!Object.keys(r.ps).length)r.map=Math.min(3,Math.max(0,+d.map||0));r.ps[id]=mk(id,d.cls,d.name,d.up,d.it);ws.send(JSON.stringify({t:'id',id}));return}
   const p=r.ps[id];if(!p)return;
-  if(d.t=='in'){const dx=+d.dx||0,dy=+d.dy||0;if(dx||dy){p.dx=dx;p.dy=dy;p.stopAfterStep=0}else p.stopAfterStep=Math.max(p.stopAfterStep||0,3)}
+  if(d.t=='in'){const dx=+d.dx||0,dy=+d.dy||0;if(dx||dy){p.dx=dx;p.dy=dy;p.stopAfterStep=0;p.stopRequested=0}else if(!p.stopRequested&&(p.dx||p.dy)){p.stopAfterStep=3;p.stopRequested=1}}
   else if(d.t=='pick')pick(p,d.i)});
  ws.on('close',()=>{delete r.ps[id];if(!Object.keys(r.ps).length)delete rooms[k]})});
 srv.listen(process.env.PORT||3000);

@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="Slime Ascendant: um slime aventureiro diante de um portal mágico em uma floresta antiga">
+<defs>
+ <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#122b37"/><stop offset=".52" stop-color="#1b4936"/><stop offset="1" stop-color="#07170f"/></linearGradient>
+ <radialGradient id="moon"><stop stop-color="#e0ffd2" stop-opacity=".9"/><stop offset=".28" stop-color="#a6f4a9" stop-opacity=".3"/><stop offset="1" stop-color="#8ef3ae" stop-opacity="0"/></radialGradient>
+ <linearGradient id="portal" x2="0" y2="1"><stop stop-color="#baffd0"/><stop offset=".45" stop-color="#31d77b"/><stop offset="1" stop-color="#155b3b"/></linearGradient>
+ <linearGradient id="slime" x2="0" y2="1"><stop stop-color="#e4ffd0"/><stop offset=".22" stop-color="#9af36f"/><stop offset=".68" stop-color="#36b85a"/><stop offset="1" stop-color="#176c3a"/></linearGradient>
+ <linearGradient id="armor" x2="0" y2="1"><stop stop-color="#d8ecf4"/><stop offset="1" stop-color="#617c8d"/></linearGradient>
+ <filter id="glow"><feGaussianBlur stdDeviation="22"/></filter>
+ <filter id="soft"><feGaussianBlur stdDeviation="6"/></filter>
+</defs>
+<rect width="1600" height="900" fill="url(#sky)"/>
+<circle cx="1090" cy="350" r="370" fill="url(#moon)"/>
+<path d="M0 480 190 330 360 440 550 260 760 455 970 300 1180 448 1390 300 1600 460V900H0Z" fill="#173c30" opacity=".85"/>
+<path d="M0 560 210 430 420 550 625 390 835 565 1040 405 1280 560 1460 425 1600 525V900H0Z" fill="#102b23"/>
+<g fill="#0a2118">
+ <path d="M0 550 45 420 85 550 110 388 150 550 190 432 225 550V900H0Z"/>
+ <path d="M240 585 285 420 330 585 365 370 410 585 450 455 490 585V900H240Z"/>
+ <path d="M1160 570 1205 390 1250 570 1295 350 1340 570 1385 415 1430 570V900H1160Z"/>
+ <path d="M1400 560 1440 405 1480 560 1520 370 1560 560 1600 430V900H1400Z"/>
+</g>
+<g opacity=".55" fill="#2e6842">
+ <path d="M0 715Q180 580 360 700T720 685T1080 700T1440 670T1800 700V900H0Z"/>
+ <path d="M0 790Q210 680 440 780T880 770T1320 760T1760 785V900H0Z" fill="#1b5133"/>
+</g>
+<!-- ancient arch and portal -->
+<ellipse cx="1110" cy="695" rx="245" ry="48" fill="#010b07" opacity=".65"/>
+<ellipse cx="1110" cy="545" rx="155" ry="218" fill="#60f39a" opacity=".2" filter="url(#glow)"/>
+<path d="M930 694V520Q930 350 1110 350T1290 520V694" fill="none" stroke="#547d62" stroke-width="38" opacity=".9"/>
+<path d="M953 690V522Q953 375 1110 375T1267 522V690" fill="none" stroke="#c2e8bb" stroke-width="8" opacity=".85"/>
+<path d="M978 686V524Q978 401 1110 401T1242 524V686Z" fill="url(#portal)" opacity=".82"/>
+<path d="M1003 680V529Q1003 425 1110 425T1217 529V680Z" fill="#d1ffe1" opacity=".1"/>
+<path d="M1003 680V529Q1003 425 1110 425T1217 529V680" fill="none" stroke="#d7ffe3" stroke-width="5" opacity=".85"/>
+<g fill="#c8f7a9">
+ <path d="m924 462 16-28 16 28-16 28Z"/><path d="m1280 515 14-24 14 24-14 24Z"/>
+ <circle cx="947" cy="619" r="8"/><circle cx="1274" cy="633" r="7"/>
+</g>
+<!-- hero slime: one clean rounded silhouette -->
+<ellipse cx="1095" cy="731" rx="174" ry="28" fill="#020b06" opacity=".65"/>
+<ellipse cx="1095" cy="723" rx="155" ry="19" fill="none" stroke="#8df5ac" stroke-width="3" opacity=".72"/>
+<path d="M944 695C934 635 950 554 1000 517C1032 493 1070 491 1096 499C1136 478 1192 503 1220 545C1250 590 1253 651 1233 695C1202 730 987 735 944 695Z" fill="url(#slime)" stroke="#caffbb" stroke-width="7"/>
+<path d="M974 617C980 559 1017 525 1057 520C1030 541 1019 570 1018 600C1003 614 987 625 974 617Z" fill="#fff" opacity=".34"/>
+<ellipse cx="1040" cy="621" rx="14" ry="22" fill="#f6fff4"/>
+<ellipse cx="1150" cy="621" rx="14" ry="22" fill="#f6fff4"/>
+<ellipse cx="1044" cy="625" rx="7" ry="12" fill="#172c36"/>
+<ellipse cx="1154" cy="625" rx="7" ry="12" fill="#172c36"/>
+<circle cx="1042" cy="618" r="3.5" fill="#fff"/><circle cx="1152" cy="618" r="3.5" fill="#fff"/>
+<path d="M1071 662Q1095 681 1119 662" fill="none" stroke="#173b31" stroke-width="7" stroke-linecap="round"/>
+<path d="M1040 505 1030 458 1064 480 1090 432 1113 480 1150 455 1147 505Z" fill="#f6c94e" stroke="#9b651c" stroke-width="7" stroke-linejoin="round"/>
+<path d="m1050 497 92 0" stroke="#fff1ad" stroke-width="6"/>
+<circle cx="1091" cy="472" r="8" fill="#4cbcff"/><circle cx="1124" cy="474" r="7" fill="#4cbcff"/>
+<!-- distant monsters -->
+<g transform="translate(735 675)">
+ <ellipse cy="21" rx="70" ry="15" fill="#020b07" opacity=".6"/>
+ <path d="M-58 8Q-70-50-32-72Q0-94 35-72Q68-46 58 8Q26 30-35 25Z" fill="#8e6bce" stroke="#d6c4ff" stroke-width="5"/>
+ <path d="M-38-64-55-104-18-80 0-118 19-79 52-105 36-57Z" fill="#5b3e91" stroke="#d6c4ff" stroke-width="4"/>
+ <circle cx="-19" cy="-28" r="9" fill="#fff"/><circle cx="20" cy="-28" r="9" fill="#fff"/>
+ <circle cx="-17" cy="-27" r="4" fill="#25203b"/><circle cx="22" cy="-27" r="4" fill="#25203b"/>
+</g>
+<g transform="translate(1390 704)">
+ <ellipse cy="16" rx="62" ry="13" fill="#020b07" opacity=".6"/>
+ <path d="M-53 8Q-63-43-29-62Q0-81 32-59Q61-38 52 8Q19 29-32 24Z" fill="#c66d4b" stroke="#ffc18b" stroke-width="5"/>
+ <path d="M-30-56-38-91-8-74 8-103 23-70 47-85 35-47Z" fill="#8c493d" stroke="#ffc18b" stroke-width="4"/>
+ <circle cx="-17" cy="-24" r="8" fill="#fff"/><circle cx="18" cy="-24" r="8" fill="#fff"/>
+ <circle cx="-15" cy="-23" r="4" fill="#3d211b"/><circle cx="20" cy="-23" r="4" fill="#3d211b"/>
+</g>
+<!-- distant crystals and soft floating motes -->
+<g fill="#a5f3fc" opacity=".85">
+ <path d="m810 474 12-42 12 42-12 25Z"/><path d="m1330 330 10-31 10 31-10 18Z"/>
+ <circle cx="890" cy="570" r="4"/><circle cx="1324" cy="560" r="5"/><circle cx="1010" cy="310" r="4"/>
+</g>
+<g fill="none" stroke="#8cefb0" stroke-width="3" opacity=".26">
+ <path d="M640 790Q990 745 1300 790"/><path d="M720 820Q1070 775 1400 825"/>
+</g>
+</svg>

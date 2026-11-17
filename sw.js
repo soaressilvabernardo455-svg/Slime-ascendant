@@ -37,7 +37,7 @@ self.addEventListener('fetch',event=>{
   const cached=await cache.match(request);
   if(cached)return cached;
   const response=await fetch(request);
-  if(response.ok&&!/\\bno-store\\b/i.test(response.headers.get('Cache-Control')||'')){
+  if(response.ok&&!/\bno-store\b/i.test(response.headers.get('Cache-Control')||'')){
    await cache.put(request,response.clone());
   }
   return response;

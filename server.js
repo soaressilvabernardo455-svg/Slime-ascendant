@@ -1,8 +1,12 @@
-const http=require('http'),fs=require('fs'),{WebSocketServer}=require('ws');
+const http=require('http'),fs=require('fs'),crypto=require('crypto'),{WebSocketServer}=require('ws');
 const R=Math.random,PW=['proj','orb','nova','raio','aura','meteoro','lanca','corrente','espinhos','furacao'],PS=['vida','dano','vel','recarga','ima','regen','xp','armadura','crit','sorte'];
 const CLS={normal:{hp:100,sp:4.8,dm:.8,pw:'proj'},mago:{hp:70,sp:4.8,dm:.92,pw:'raio'},cavaleiro:{hp:150,sp:4.2,dm:1.05,pw:'orb'},necromante:{hp:85,sp:4.8,dm:1,pw:'nova'},curandeiro:{hp:110,sp:4.8,dm:.7,pw:'aura',heal:1},arqueiro:{hp:80,sp:5.2,dm:.9,pw:'proj',pr:2}};
 const ET=[{h:w=>18+w*9,r:10,v:1.4,d:7,c:1,x:1},{h:w=>10+w*5,r:8,v:2.4,d:5,c:2,x:2},{h:w=>55+w*15,r:16,v:.9,d:14,c:6,x:5},{h:w=>300+w*55,r:26,v:.8,d:20,c:18,x:40},{h:w=>14+w*6,r:11,v:1.9,d:6,c:1,x:3},{h:w=>30+w*8,r:12,v:1.6,d:9,c:2,x:3},{h:w=>70+w*14,r:13,v:.7,d:10,c:2,x:4}];
 const rooms=Object.create(null);let N=1,roomSequence=1;const ITEMS=['espada','escudo','botas','amuleto','anel','coracao'];const presence=new Map(),PRESENCE_TTL_MS=45000;
+const DEV_ACCESS_CODE=String(process.env.SLIME_DEV_ACCESS_CODE||'');const devTokens=new Map(),devAttempts=new Map();
+function validDevToken(token){if(typeof token!=='string'||token.length!==64)return false;const expiry=devTokens.get(token);if(!expiry)return false;if(expiry<=Date.now()){devTokens.delete(token);return false}return true}
+function sendJson(res,status,payload){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(payload))}
+async function readSmallJson(req){const chunks=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>2048)throw new Error('REQUEST_TOO_LARGE');chunks.push(chunk)}try{return JSON.parse(Buffer.concat(chunks).toString('utf8'))}catch{throw new Error('INVALID_JSON')}}
 const MAX_PLAYERS=4,MAX_CONNECTIONS=40,MAX_MESSAGE_RATE=45,VIEW_RADIUS=640,UPGRADE_KEYS=['vida','dano','vel','moeda'];
 function allowMessage(ws){const now=Date.now();if(!ws.rateWindow||now-ws.rateWindow>=1000){ws.rateWindow=now;ws.rateCount=0}ws.rateCount++;return ws.rateCount<=MAX_MESSAGE_RATE}
 function newRoom(k){return{k,ps:{},started:false,locked:false,startAt:0,hostId:0,lastRoomBroadcast:0,lastSnapshotAt:0,publicRoom:k==='geral',autoStartAt:0}}
@@ -16,6 +20,12 @@ const html=fs.readFileSync(__dirname+'/index.html');
 const {handleAuthRequest}=require('./auth');
 const srv=http.createServer(async(q,s)=>{
  const path=new URL(q.url,'http://x').pathname;
+ if(path==='/api/dev/unlock'||path==='/api/dev/lock'){
+  if(q.method!=='POST'){sendJson(s,405,{error:'Método não permitido.'});return}
+  const origin=q.headers.origin;if(origin){try{if(new URL(origin).host.toLowerCase()!==String(q.headers.host||'').toLowerCase()){sendJson(s,403,{error:'Origem não permitida.'});return}}catch{sendJson(s,403,{error:'Origem não permitida.'});return}}
+  const ip=String(q.headers['x-forwarded-for']||q.socket.remoteAddress||'unknown').split(',')[0].trim(),now=Date.now();let attempt=devAttempts.get(ip);if(!attempt||now-attempt.startedAt>10*60*1000){attempt={startedAt:now,count:0};devAttempts.set(ip,attempt)}if(attempt.count>=8){sendJson(s,429,{error:'Muitas tentativas. Aguarde alguns minutos.'});return}
+  try{const body=await readSmallJson(q),token=typeof body.token==='string'?body.token:'';if(path==='/api/dev/lock'){devTokens.delete(token);sendJson(s,200,{ok:true});return}attempt.count++;const supplied=Buffer.from(typeof body.code==='string'?body.code:'','utf8'),expected=Buffer.from(DEV_ACCESS_CODE,'utf8');if(!DEV_ACCESS_CODE||supplied.length!==expected.length||!crypto.timingSafeEqual(supplied,expected)){sendJson(s,401,{error:'Código de desenvolvedor incorreto.'});return}const session=crypto.randomBytes(32).toString('hex'),expiresAt=now+12*60*60*1000;devTokens.set(session,expiresAt);sendJson(s,200,{token:session,expiresAt});return}catch(error){sendJson(s,error.message==='REQUEST_TOO_LARGE'?413:400,{error:'Não foi possível processar o pedido.'});return}
+ }
  if(await handleAuthRequest(q,s,path))return;
  if(path==='/health'&&q.method==='GET'){
   const now=Date.now();for(const [id,lastSeen] of presence)if(now-lastSeen>PRESENCE_TTL_MS)presence.delete(id);
@@ -38,11 +48,12 @@ const srv=http.createServer(async(q,s)=>{
 });
 const wss=new WebSocketServer({server:srv,maxPayload:2048,perMessageDeflate:false});
 
-function mk(id,cls,name,up,it){const data=cleanPlayerData({cls,name,up,it});cls=data.cls;name=data.name;up=data.up;it=data.it;const c=CLS[cls],u={};
- for(const k of UPGRADE_KEYS)u[k]=data.up[k];
- const mh=Math.round(c.hp*(1+.1*u.vida)*(it.includes('coracao')?1.25:1));
- return{id,name,cls,u,up,it,x:800+R()*100,y:800+R()*100,hp:mh,mh,lv:1,xp:0,nx:5,pw:{[c.pw]:1},ps:{},cd:{},dx:0,dy:0,stopAfterStep:0,stopRequested:0,ch:null,choiceExpiresAt:0,d:0,co:0,cr:0}}
-function reset(r){r.es=[];r.sh=[];r.gm=[];r.hr=[];r.fx=[];r.ob=[];r.wave=1;r.t=0;r.sp=30;r.ov=0;
+function mk(id,cls,name,up,it,devMode=false){const data=cleanPlayerData({cls,name,up,it});cls=data.cls;name=data.name;up=data.up;it=devMode?ITEMS.slice():data.it;const c=CLS[cls],u={};
+ for(const k of UPGRADE_KEYS)u[k]=devMode?10:data.up[k];
+ const mh=devMode?1000000:Math.round(c.hp*(1+.1*u.vida)*(it.includes('coracao')?1.25:1));
+ const p={id,name,cls,u,up,it,x:800+R()*100,y:800+R()*100,hp:mh,mh,lv:1,xp:0,nx:5,pw:{[c.pw]:1},ps:{},cd:{},dx:0,dy:0,stopAfterStep:0,stopRequested:0,ch:null,choiceExpiresAt:0,d:0,co:0,cr:0,devMode:!!devMode};
+ if(devMode){p.co=999999999;p.cr=999999999;p.pw=Object.fromEntries(PW.map(k=>[k,1]));p.ps=Object.fromEntries(PS.map(k=>[k,1]))}return p}
+function reset(r){r.es=[];r.sh=[];r.gm=[];r.hr=[];r.ch=[];r.fx=[];r.ob=[];r.wave=1;r.t=0;r.sp=30;r.ov=0;
  for(const i in r.ps){const p=r.ps[i];r.ps[i]=mk(+i,p.cls,p.name,p.up,p.it)}}
 function lv(p){p.lv++;p.xp-=p.nx;p.nx=Math.ceil(p.nx*1.35+2);
  const op=Object.keys(p.pw).filter(k=>p.pw[k]>0),os=Object.keys(p.ps).filter(k=>p.ps[k]>0);
@@ -54,10 +65,12 @@ function pick(p,i){const o=p.ch&&p.ch[+i];if(!o)return;const k=o.slice(2),owned=
  p.ch=null;p.choiceExpiresAt=0;if(p.xp>=p.nx)lv(p)}
 function spawn(r,L,ty){const w=r.wave,p=L[R()*L.length|0],a=R()*6.28,E=ET[ty],hp=E.h(w)*(1+.4*(L.length-1));
  r.es.push({x:cl(p.x+Math.cos(a)*520),y:cl(p.y+Math.sin(a)*520),ty,hp,mh:hp,r:E.r,v:E.v+(ty!=3?Math.min(w*.03,.8):0),d:E.d,attackCooldown:0})}
+function dropChest(r,x,y,type){if(!Array.isArray(r.ch))r.ch=[];if(r.ch.length>=12)return;const choices=['coin','coin','coin','gem','heal','medkit','bomb'];r.ch.push({x:cl(x),y:cl(y),type:type||choices[Math.floor(R()*choices.length)],life:1800})}
+function dropChestNearPlayer(r,L){if(!L.length)return;const p=L[Math.floor(R()*L.length)],a=R()*Math.PI*2,d=110+R()*110;dropChest(r,p.x+Math.cos(a)*d,p.y+Math.sin(a)*d)}
 
 function step(r,L){
  r.t++;r.ob=[];
- if(r.t%600==0){r.wave++;if(r.wave%2==0)for(const p of L)p.cr++;if(r.wave%5==0)spawn(r,L,3)}
+ if(r.t%600==0){r.wave++;if(r.wave%2==0)for(const p of L)if(!p.devMode)p.cr++;if(r.wave%2===0)dropChestNearPlayer(r,L);if(r.wave%5==0)spawn(r,L,3)}
  if(--r.sp<1){const w=r.wave;r.sp=Math.max(20,60-w*2);
   if(r.es.length<45)for(let i=0,n=1+(w>>2)+L.length-1;i<n&&r.es.length<45;i++){const q=R();spawn(r,L,w>5&&q<.1?5:w>4&&q<.2?6:w>3&&q<.3?4:w>2&&q<.4?2:q<.65?1:0)}}
  for(const p of L){
@@ -91,12 +104,13 @@ function step(r,L){
   const contact=dist(b,e);if(contact<e.r+34){e.attackCooldown=(e.attackCooldown||0)-1;if(e.attackCooldown<=0){const armor=Math.min(.85,.08*(b.ps.armadura||0)),damage=Math.max(1,e.d*(1-armor)*(b.it.includes('escudo')?.85:1));b.hp=Math.max(0,b.hp-damage);e.attackCooldown=75;if(b.hp===0){b.d=1;b.ch=null}}}else if(e.attackCooldown>0)e.attackCooldown--}
  r.sh=r.sh.filter(s=>{s.x+=s.vx;s.y+=s.vy;if(--s.life<1)return 0;const h=s.h||(s.h=new Set());
   for(const e of r.es)if(e.hp>0&&!h.has(e)&&dist(e,s)<e.r+4){h.add(e);e.hp-=s.d;if(s.pr-->0)continue;return 0}return 1});
- r.es=r.es.filter(e=>{if(e.hp>0)return 1;const E=ET[e.ty];r.gm.push({x:e.x,y:e.y,v:E.x,life:1800});if(r.gm.length>120)r.gm.splice(0,r.gm.length-120);if(R()<.05){r.hr.push({x:e.x,y:e.y,life:1800});if(r.hr.length>20)r.hr.shift()}
-  for(const p of L){if(p.d)continue;p.co+=Math.ceil(E.c*(1+.1*p.u.moeda+.1*(p.ps.sorte||0))*(p.it.includes('anel')?1.15:1));if(e.ty==2&&R()<.12)p.cr++;if(e.ty==3)p.cr+=3}return 0});
+ r.es=r.es.filter(e=>{if(e.hp>0)return 1;const E=ET[e.ty];r.gm.push({x:e.x,y:e.y,v:E.x,life:1800});if(r.gm.length>120)r.gm.splice(0,r.gm.length-120);if(R()<.05){r.hr.push({x:e.x,y:e.y,life:1800});if(r.hr.length>20)r.hr.shift()}if(e.ty===3)dropChest(r,e.x,e.y,'gem');else if(R()<.018)dropChest(r,e.x,e.y);
+  for(const p of L){if(p.d||p.devMode)continue;p.co+=Math.ceil(E.c*(1+.1*p.u.moeda+.1*(p.ps.sorte||0))*(p.it.includes('anel')?1.15:1));if(e.ty==2&&R()<.12)p.cr++;if(e.ty==3)p.cr+=3}return 0});
  r.gm=r.gm.filter(g=>{if(--g.life<=0)return 0;for(const p of L){if(p.d)continue;const d=dist(p,g)||1;
   if(d<14){p.xp+=g.v*(1+.15*(p.ps.xp||0))*(p.it.includes('amuleto')?1.15:1);if(p.xp>=p.nx&&!p.ch)lv(p);return 0}
   if(d<60*(1+.4*(p.ps.ima||0))){g.x+=(p.x-g.x)/d*5;g.y+=(p.y-g.y)/d*5;break}}return 1});
  r.hr=r.hr.filter(h=>{if(--h.life<=0)return 0;for(const p of L)if(!p.d&&dist(p,h)<18){p.hp=Math.min(p.mh,p.hp+25);return 0}return 1});
+ r.ch=(r.ch||[]).filter(q=>{if(--q.life<=0)return 0;for(const p of L){if(p.d||dist(p,q)>25)continue;if(q.type==='coin'){if(!p.devMode)p.co+=25+Math.floor(R()*41)}else if(q.type==='gem'){if(!p.devMode)p.cr+=1+Math.floor(R()*3)}else if(q.type==='heal')p.hp=Math.min(p.mh,p.hp+18);else if(q.type==='medkit')p.hp=Math.min(p.mh,p.hp+55);else if(q.type==='bomb'){const radius=170,damage=60+r.wave*6;for(const e of r.es)if(dist(e,q)<radius+e.r)e.hp-=damage;r.fx.push(['n',q.x|0,q.y|0,radius,0,10])}return 0}return 1});
  r.fx=r.fx.filter(f=>--f[5]>0);
  for(const p of L){if(p.cls!=='necromante'){p.sk=[];continue}p.sk=p.sk||[];p.skTimer=(p.skTimer||0)+1;if(p.skTimer>=360){p.skTimer=0;for(let i=0;i<2&&p.sk.length<4;i++){const a=R()*Math.PI*2;p.sk.push({x:p.x+Math.cos(a)*28,y:p.y+Math.sin(a)*28,hp:24,life:900,hit:0})}}p.sk=p.sk.filter(k=>{if(--k.life<=0||k.hp<=0)return false;let e=null,bd=1e9;for(const q of r.es){const d=dist(k,q);if(d<bd){bd=d;e=q}}if(e){const d=Math.max(1,bd);if(d>24){k.x+=(e.x-k.x)/d*2.5;k.y+=(e.y-k.y)/d*2.5}else if(++k.hit>=30){k.hit=0;e.hp-=4}}return true})}
 }
@@ -113,12 +127,12 @@ function snapshot(r,own){
  const visible=(x,y)=>Math.hypot(x-own.x,y-own.y)<=VIEW_RADIUS;
  const effects=r.fx.filter(f=>f[0]==='n'?visible(f[1],f[2]):visible(f[1],f[2])||visible(f[3],f[4]));
  return JSON.stringify({w:r.wave,mp:r.map|0,pa:!!own.ch,o:P.length>0&&!L.length?1:0,
-  k:P.flatMap(p=>(p.sk||[]).map(q=>[q.x|0,q.y|0])),p:P.map(p=>({id:p.id,n:p.name,c:p.cls,x:p.x|0,y:p.y|0,h:p.hp|0,m:p.mh|0,l:p.lv,xp:p.xp,nx:p.nx,d:p.d,pw:p.pw,ps:p.ps,ch:p.ch,co:p.co,cr:p.cr,sp:+(CLS[p.cls].sp*(1+.1*(p.ps.vel||0))*(1+.04*p.u.vel)*(p.it.includes('botas')?1.08:1)).toFixed(2)})),
+  k:P.flatMap(p=>(p.sk||[]).map(q=>[q.x|0,q.y|0])),p:P.map(p=>({id:p.id,n:p.name,c:p.cls,x:p.x|0,y:p.y|0,h:p.hp|0,m:p.mh|0,l:p.lv,xp:p.xp,nx:p.nx,d:p.d,pw:p.pw,ps:p.ps,ch:p.ch,co:p.devMode?999999999:p.co,cr:p.devMode?999999999:p.cr,dev:!!p.devMode,sp:+(CLS[p.cls].sp*(1+.1*(p.ps.vel||0))*(1+.04*p.u.vel)*(p.it.includes('botas')?1.08:1)).toFixed(2)})),
   e:r.es.filter(e=>visible(e.x,e.y)).map(e=>[e.x|0,e.y|0,e.ty,Math.max(0,e.hp/e.mh)]),
   s:r.sh.filter(q=>visible(q.x,q.y)).map(q=>[q.x|0,q.y|0]),
   b:r.ob.filter(q=>visible(q[0],q[1])),
   g:r.gm.filter(q=>visible(q.x,q.y)).map(q=>[q.x|0,q.y|0]),
-  f:effects,hr:r.hr.filter(q=>visible(q.x,q.y)).map(q=>[q.x|0,q.y|0])});
+  f:effects,hr:r.hr.filter(q=>visible(q.x,q.y)).map(q=>[q.x|0,q.y|0]),ch:(r.ch||[]).filter(q=>visible(q.x,q.y)).map(q=>[q.x|0,q.y|0,q.type])});
 }
 function tick(r){
  const now=Date.now(),P=Object.values(r.ps),L=P.filter(p=>!p.d);
@@ -160,7 +174,7 @@ wss.on('connection',(ws,rq)=>{
    if(Object.keys(r.ps).length>=MAX_PLAYERS){ws.send(JSON.stringify({t:'error',message:'Sala cheia. O limite é de 4 jogadores.'}));ws.close(4002,'Sala cheia');return}
    const id=N++,data=cleanPlayerData(d);
    if(!Object.keys(r.ps).length){r.map=Math.max(0,Math.min(3,Math.floor(Number(d.map)||0)));r.hostId=id;if(r.publicRoom&&!r.autoStartAt)r.autoStartAt=Date.now()+12000}
-   const player=mk(id,data.cls,data.name,data.up,data.it);r.ps[id]=player;ws.playerId=id;
+   const devMode=validDevToken(d.devToken);const player=mk(id,data.cls,data.name,data.up,data.it,devMode);r.ps[id]=player;ws.playerId=id;
    if(r.publicRoom&&Object.keys(r.ps).length>=MAX_PLAYERS)r.autoStartAt=Date.now()+1200;
    ws.send(JSON.stringify({t:'id',id,host:id===r.hostId,roomCode:r.k}));
    r.lastRoomBroadcast=0;roomMessage(r);return;

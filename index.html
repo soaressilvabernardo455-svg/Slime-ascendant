@@ -809,7 +809,7 @@ function drawGround(cx,cy,W,H,map){
    x.fillStyle='#160f1c77';x.beginPath();x.ellipse(0,0,110,52,-.12,0,Math.PI*2);x.fill();
    x.strokeStyle='#ff713744';x.lineWidth=7;x.beginPath();x.moveTo(-75,18);x.quadraticCurveTo(-15,-20,12,8);x.quadraticCurveTo(45,32,85,-15);x.stroke();
   }
-  if(h%2===0)drawBiomeLandmark(X,Y,map,h);
+  if(h%2===0&&map!==0)drawBiomeLandmark(X,Y,map,h);
   x.restore();
  }
 }

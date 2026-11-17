@@ -140,8 +140,8 @@ const noStore = new RegExp(cachePattern[1], 'i');
 assert.equal(noStore.test('no-store'), true, 'no-store deve ser excluído do cache');
 assert.equal(noStore.test('public, max-age=86400'), false, 'cache público não deve ser excluído');
 
-assert.ok(app.includes('id="fps-indicator"')&&app.includes('fpsNode.textContent=currentFps>0'), 'FPS precisa aparecer em uma camada DOM visível durante a partida');
-assert.ok(app.includes("url('/cover.svg')")&&app.includes('#m::before'), 'capa ilustrada do lobby ausente');
+assert.ok(html.includes('id="fps-indicator"')&&app.includes('fpsNode.textContent=currentFps>0'), 'FPS precisa aparecer em uma camada DOM visível durante a partida');
+assert.ok(html.includes("url('/cover.svg')")&&html.includes('#m::before'), 'capa ilustrada do lobby ausente');
 assert.ok(app.includes('c.bezierCurveTo(7,12,-7,12,-17,7)')&&!app.includes('c.bezierCurveTo(3,10,-3,10,-7,5)'), 'corpo do slime precisa ter uma base única e suave');
 assert.ok(app.includes('e.attackCooldown=75')&&app.includes('const stopGap=e.r+22')&&app.includes('const contact=oDist(p,e)'), 'modo offline precisa espaçar monstros e limitar ataques a 2,5 segundos');
 assert.ok(server.includes('e.attackCooldown=75')&&server.includes('const stopGap=e.r+22')&&server.includes('attackCooldown:0'), 'servidor precisa espaçar monstros e limitar ataques a 2,5 segundos');

@@ -757,10 +757,10 @@ function lobby(){
  '<div class="settings-row"><span><b>Qualidade gráfica</b><small>Reduz efeitos para melhorar o desempenho.</small></span><button id="setting-quality">'+(SV.quality===0?'Desempenho':'Padrão')+'</button></div>'+
  '<div class="settings-row"><span><b>Mostrar FPS</b><small>Exibe a taxa de quadros durante a partida.</small></span><button id="setting-fps">'+(SV.showFps?'Ligado':'Desligado')+'</button></div>'+
  '<div class="settings-row"><span><b>Resetar jogo</b><small>Apaga moedas, classes, itens e progresso deste perfil.</small></span><button id="reset-game">Resetar</button></div>';
- $('setting-audio').onclick=()=>{$('mu').click()};
- $('setting-quality').onclick=()=>{SV.quality=SV.quality===0?1:0;DPR=Math.min(devicePixelRatio||1,SV.quality===0?1:DEVICE_DPR_CAP);resizeGame();save();lobby()};
- $('setting-fps').onclick=()=>{SV.showFps=SV.showFps?0:1;save();lobby()};
- $('reset-game').onclick=()=>{if(!confirm('Tem certeza? Todo o progresso deste perfil será apagado.'))return;SV={co:0,cr:0,economyVersion:ECONOMY_VERSION,cls:['normal'],sel:'normal',name:SV.name||'',up:{vida:0,dano:0,vel:0,moeda:0},maps:[0],map:0,best:0,items:[],ach:[],day:'',mute:SV.mute?1:0,quality:SV.quality===0?0:1,showFps:0};try{localStorage.setItem('slimeSave',JSON.stringify(SV))}catch(e){}scheduleCloudSave();toast('Progresso reiniciado.');lobby()};
+ settings.querySelector('#setting-audio').onclick=()=>{$('mu').click()};
+ settings.querySelector('#setting-quality').onclick=()=>{SV.quality=SV.quality===0?1:0;DPR=Math.min(devicePixelRatio||1,SV.quality===0?1:DEVICE_DPR_CAP);resizeGame();save();lobby()};
+ settings.querySelector('#setting-fps').onclick=()=>{SV.showFps=SV.showFps?0:1;save();lobby()};
+ settings.querySelector('#reset-game').onclick=()=>{if(!confirm('Tem certeza? Todo o progresso deste perfil será apagado.'))return;SV={co:0,cr:0,economyVersion:ECONOMY_VERSION,cls:['normal'],sel:'normal',name:SV.name||'',up:{vida:0,dano:0,vel:0,moeda:0},maps:[0],map:0,best:0,items:[],ach:[],day:'',mute:SV.mute?1:0,quality:SV.quality===0?0:1,showFps:0};try{localStorage.setItem('slimeSave',JSON.stringify(SV))}catch(e){}scheduleCloudSave();toast('Progresso reiniciado.');lobby()};
  const cs=$('tc');cs.innerHTML='<div class="section-intro"><span>PERSONAGENS</span><h2>Escolha sua classe</h2><p>Cada slime tem atributos e um estilo de combate diferente.</p></div>';
  CL.forEach(k=>{const own=SV.cls.includes(k),[pc,pk]=PRICE[k],b=document.createElement('button'),art=document.createElement('span'),copy=document.createElement('span'),title=document.createElement('b'),desc=document.createElement('small'),sub=document.createElement('em'),c=document.createElement('canvas');
   b.className='class-card'+(own&&SV.sel===k?' s':'');art.className='class-art';copy.className='class-copy';c.width=80;c.height=80;

@@ -24,6 +24,8 @@ async function ensureSchema() {
   if (!schemaPromise) {
     schemaPromise = (async () => {
       await pool.query('CREATE TABLE IF NOT EXISTS slime_accounts (id UUID PRIMARY KEY, email VARCHAR(254) NOT NULL UNIQUE, password_salt CHAR(32) NOT NULL, password_hash CHAR(128) NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())');
+      await pool.query("ALTER TABLE slime_accounts ADD COLUMN IF NOT EXISTS progress_json JSONB NOT NULL DEFAULT '{}'::jsonb");
+      await pool.query('ALTER TABLE slime_accounts ADD COLUMN IF NOT EXISTS progress_updated_at TIMESTAMPTZ');
       await pool.query('CREATE TABLE IF NOT EXISTS slime_account_sessions (token_hash CHAR(64) PRIMARY KEY, account_id UUID NOT NULL REFERENCES slime_accounts(id) ON DELETE CASCADE, expires_at TIMESTAMPTZ NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())');
       await pool.query('CREATE INDEX IF NOT EXISTS slime_account_sessions_account_idx ON slime_account_sessions(account_id)');
     })().catch((error) => {
@@ -162,8 +164,22 @@ async function currentAccount(req) {
   return result.rows[0] || null;
 }
 
+const PROGRESS_CLASSES = new Set(['normal', 'mago', 'cavaleiro', 'necromante', 'curandeiro', 'arqueiro']);
+const PROGRESS_MAPS = new Set([0, 1, 2, 3]);
+const PROGRESS_ITEMS = new Set(['espada', 'escudo', 'botas', 'amuleto', 'anel', 'coracao']);
+function cleanProgress(raw) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('INVALID_PROGRESS');
+  const list = (value, allowed) => Array.isArray(value) ? [...new Set(value.filter(item => allowed.has(item)))].slice(0, allowed.size) : [];
+  const cls = list(raw.cls, PROGRESS_CLASSES); if (!cls.includes('normal')) cls.unshift('normal');
+  const maps = list(raw.maps, PROGRESS_MAPS); if (!maps.includes(0)) maps.unshift(0);
+  const number = value => { const n = Number(value); return Number.isFinite(n) ? Math.max(0, Math.min(1000000000, Math.floor(n))) : 0; };
+  const up = {}; for (const key of ['vida', 'dano', 'vel', 'moeda']) { const n = Number(raw.up && raw.up[key]); up[key] = Number.isFinite(n) ? Math.max(0, Math.min(10, Math.floor(n))) : 0; }
+  const map = Number(raw.map);
+  return { co: number(raw.co), cr: number(raw.cr), cls, sel: cls.includes(raw.sel) ? raw.sel : 'normal', name: String(raw.name || '').replace(/[<>]/g, '').trim().slice(0, 10), up, maps, map: Number.isInteger(map) && maps.includes(map) ? map : 0, best: number(raw.best), items: list(raw.items, PROGRESS_ITEMS), ach: Array.isArray(raw.ach) ? [...new Set(raw.ach.map(Number).filter(value => [5, 10, 15, 20].includes(value)))].slice(0, 4) : [], day: typeof raw.day === 'string' ? raw.day.slice(0, 20) : '', mute: raw.mute ? 1 : 0 };
+}
+
 async function handleAuthRequest(req, res, pathname) {
-  if (!pathname.startsWith('/api/auth/')) return false;
+  if (pathname !== '/api/progress' && !pathname.startsWith('/api/auth/')) return false;
   if (!sameOrigin(req)) {
     send(res, 403, { error: 'Origem da solicitação não permitida.' });
     return true;
@@ -171,6 +187,31 @@ async function handleAuthRequest(req, res, pathname) {
 
   try {
     await ensureSchema();
+
+    if (pathname === '/api/progress' && req.method === 'GET') {
+      const account = await currentAccount(req);
+      if (!account) { send(res, 401, { error: 'Entre na sua conta para sincronizar o progresso.' }); return true; }
+      const result = await pool.query('SELECT progress_json, progress_updated_at FROM slime_accounts WHERE id = $1 LIMIT 1', [account.id]);
+      const progress = result.rows[0] && result.rows[0].progress_json || {};
+      send(res, 200, { hasProgress: !!(progress && Object.keys(progress).length), progress, updatedAt: result.rows[0] && result.rows[0].progress_updated_at || null });
+      return true;
+    }
+
+    if (pathname === '/api/progress' && req.method === 'PUT') {
+      if (!String(req.headers['content-type'] || '').includes('application/json')) {
+        send(res, 415, { error: 'Envie os dados em formato JSON.' }); return true;
+      }
+      const account = await currentAccount(req);
+      if (!account) { send(res, 401, { error: 'Entre na sua conta para sincronizar o progresso.' }); return true; }
+      const body = await readJson(req);
+      const progress = cleanProgress(body.progress);
+      if (Buffer.byteLength(JSON.stringify(progress), 'utf8') > 7800) {
+        send(res, 413, { error: 'O progresso enviado é muito grande.' }); return true;
+      }
+      const result = await pool.query('UPDATE slime_accounts SET progress_json = $2::jsonb, progress_updated_at = NOW() WHERE id = $1 RETURNING progress_updated_at', [account.id, JSON.stringify(progress)]);
+      send(res, 200, { ok: true, updatedAt: result.rows[0] && result.rows[0].progress_updated_at || null });
+      return true;
+    }
 
     if (pathname === '/api/auth/me' && req.method === 'GET') {
       const account = await currentAccount(req);

@@ -125,7 +125,7 @@ function roomMessage(r){
  const now=Date.now(),countdown=r.startAt?Math.max(0,Math.ceil((r.startAt-now)/1000)):0;
  const autoStartIn=!r.started&&!r.locked&&r.publicRoom&&r.autoStartAt?Math.max(0,Math.ceil((r.autoStartAt-now)/1000)):0;
  const payload=JSON.stringify({t:'room',phase:r.started?'playing':r.locked?'countdown':'waiting',countdown,autoStartIn,hostId:r.hostId,roomCode:r.k,players});
- wss.clients.forEach(c=>{if(c.r===r&&c.readyState===1)c.send(payload)});
+ wss.clients.forEach(c=>{if(c.r!==r||c.readyState!==1)return;if(c.bufferedAmount>262144){c.close(1013,'Conexão lenta demais');return}c.send(payload)});
 }
 function snapshot(r,own){
  const P=Object.values(r.ps),L=P.filter(p=>!p.d),near=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y)<=VIEW_RADIUS;
@@ -155,6 +155,7 @@ function tick(r){
  wss.clients.forEach(client=>{
   const own=client.r===r&&r.ps[client.playerId];
   if(!own||client.readyState!==1)return;
+  if(client.bufferedAmount>524288){client.close(1013,'Conexão lenta demais');return}
   client.send(snapshot(r,own));
  });
 }

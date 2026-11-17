@@ -153,6 +153,8 @@ assert.match(server, /r\.startAt=Date\.now\(\)\+5000/, 'contagem regressiva de i
 assert.match(server, /separateX/, 'separação de monstros ausente');
 assert.ok(server.includes('i<n&&r.es.length<45'), 'spawn online precisa respeitar o limite de monstros durante cada lote');
 assert.ok(app.includes('i<n&&r.es.length<45'), 'spawn offline precisa respeitar o limite de monstros durante cada lote');
+assert.ok(server.includes('life:1800')&&server.includes('r.gm.length>120')&&server.includes('r.hr.length>20'), 'drops online precisam expirar e ter limites de quantidade');
+assert.ok(app.includes('life:1800')&&app.includes('r.gm.length>120')&&app.includes('r.hr.length>20'), 'drops offline precisam expirar e ter limites de quantidade');
 
 assert.match(auth, /SameSite=Lax/, 'cookie de sessão precisa usar SameSite=Lax');
 assert.match(auth, /Expires=/, 'cookie precisa ter expiração persistente');

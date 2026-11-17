@@ -828,7 +828,7 @@ async function toggleDeveloperMode(){
   const response=await fetch('/api/dev/unlock',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});
   const data=await response.json().catch(()=>({}));
   if(!response.ok||!data.token)throw new Error(data.error||'Não foi possível ativar o modo de teste.');
-  developerBackup=JSON.stringify(SV);developerToken=data.token;
+  if(cloudSyncTimer)clearTimeout(cloudSyncTimer);cloudSyncTimer=0;developerBackup=JSON.stringify(SV);developerToken=data.token;
   const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   if(window.crypto&&crypto.getRandomValues){const bytes=new Uint8Array(8);crypto.getRandomValues(bytes);developerRoomCode='D'+Array.from(bytes,b=>alphabet[b%alphabet.length]).join('')}
   else developerRoomCode='D'+Math.random().toString(36).slice(2,10).toUpperCase();
@@ -1004,12 +1004,12 @@ async function accountRequest(path,method,body){
  return data;
 }
 function scheduleCloudSave(){
- if(!accountAuthenticated||!cloudSyncReady)return;
+ if(developerModeEnabled||!accountAuthenticated||!cloudSyncReady)return;
  if(cloudSyncTimer)clearTimeout(cloudSyncTimer);
  cloudSyncTimer=setTimeout(flushCloudProgress,1100);
 }
 async function flushCloudProgress(){
- if(!accountAuthenticated||!cloudSyncReady)return;
+ if(developerModeEnabled||!accountAuthenticated||!cloudSyncReady)return;
  if(cloudSyncBusy){cloudSyncPending=true;return}
  cloudSyncBusy=true;
  const snapshot=JSON.parse(JSON.stringify(SV));

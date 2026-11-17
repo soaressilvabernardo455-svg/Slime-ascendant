@@ -50,8 +50,16 @@ assert.deepEqual(Object.keys(shopUpgrades).sort(), ['dano', 'moeda', 'vel', 'vid
   'a loja do lobby deve conter apenas atributos permanentes');
 assert.ok(app.includes('p.ps.ima'), 'ímã deve continuar como passiva de partida');
 assert.ok(app.includes('p.ps.regen'), 'regeneração deve continuar como passiva de partida');
-assert.ok(app.includes('function createBackupCode('), 'exportação do progresso ausente');
-assert.ok(app.includes('function importBackupCode('), 'importação do progresso ausente');
+assert.ok(app.includes('function syncCloudProgressOnLogin('), 'sincronização automática na nuvem ausente');
+assert.ok(app.includes("accountRequest('/api/progress','PUT'"), 'envio automático do progresso ausente');
+assert.ok(!app.includes('backup-export') && !app.includes('createBackupCode('), 'a loja não deve exibir backup manual');
+assert.ok(app.includes('function pingPresence('), 'presença de jogadores online ausente');
+assert.ok(app.includes('function isAllowedPlayerName('), 'validação do nome no cliente ausente');
+assert.ok(app.includes('const cx=pp.x-W/2,cy=pp.y-H/2'), 'a câmera deve seguir sem bordas do mapa');
+assert.match(app, /const oClamp=v=>Math\.max\(-1000000000/);
+assert.match(app, /const PRICE=\{normal:\[0,0\],arqueiro:\[5000,0\],cavaleiro:\[12000,0\],mago:\[25000,0\]/);
+assert.match(app, /const MAPS=\[\['Floresta Antiga',0,0\],\['Deserto Dourado',12000,0\],\['Tundra Gelada',30000,0\]/);
+assert.ok(app.includes("SV.co+=25;SV.cr+=2"), 'recompensa diária deve refletir a economia reajustada');
 assert.ok(app.includes('function claimDailyReward('), 'trava da recompensa diária ausente');
 assert.ok(app.includes('function startMusic('), 'música do jogo ausente');
 assert.ok(app.includes('function updateRoomWait('), 'sala de espera online ausente');
@@ -59,7 +67,7 @@ assert.ok(app.includes("screen.orientation.unlock"), 'orientação do aparelho p
 assert.ok(!app.includes("screen.orientation.lock('landscape')"), 'o jogo não pode forçar paisagem');
 assert.ok(app.includes("credentials:'include'"), 'requisições de conta devem enviar cookies');
 assert.ok(app.includes("if(connectTimer)clearTimeout(connectTimer)"), 'watchdog de entrada precisa ser limpo depois de entrar na sala');
-assert.match(html, /version-pill">v4\.0</, 'a versão exibida no lobby precisa aumentar');
+assert.match(html, /version-pill">v4\.1<//, 'a versão exibida no lobby precisa aumentar');
 
 assert.match(server, /MAX_PLAYERS=4/, 'limite de quatro jogadores ausente');
 assert.match(server, /MAX_CONNECTIONS=40/, 'limite de conexões simultâneas ausente');
@@ -67,6 +75,14 @@ assert.match(server, /let k=.*r=null/, 'a sala deve ser criada somente após joi
 assert.match(server, /MAX_MESSAGE_RATE=45/, 'limite de frequência WebSocket ausente');
 assert.match(server, /maxPayload:2048/, 'limite de tamanho de mensagem WebSocket ausente');
 assert.match(server, /function cleanPlayerData/, 'validação dos dados enviados pelo cliente ausente');
+assert.match(server, /function roomForJoin/, 'fila e rotação de salas públicas ausente');
+assert.match(server, /autoStartAt/, 'início automático da sala pública ausente');
+assert.match(server, /function isAllowedPlayerName/, 'bloqueio de nomes no servidor ausente');
+assert.match(server, /PRESENCE_TTL_MS=45000/, 'expiração de presença ausente');
+assert.match(server, /path==='\/presence'/, 'endpoint de presença ausente');
+assert.match(server, /online:presence\.size/ , 'contagem de jogadores online ausente');
+assert.match(server, /playing,rooms/, 'contagem de jogadores em partidas ausente');
+assert.match(server, /Math\.max\(-1000000000,Math\.min\(1000000000,v\)/, 'limite global do mapa infinito ausente');
 assert.match(server, /UPGRADE_KEYS=\['vida','dano','vel','moeda'\]/, 'whitelist de melhorias permanentes ausente');
 assert.match(server, /VIEW_RADIUS=640/, 'raio de visibilidade por jogador ausente');
 assert.match(server, /choiceExpiresAt=p\.ch\.length\?Date\.now\(\)\+10000/, 'timeout de escolha de habilidade de 10s ausente');
@@ -77,6 +93,10 @@ assert.match(server, /separateX/, 'separação de monstros ausente');
 assert.match(auth, /SameSite=Lax/, 'cookie de sessão precisa usar SameSite=Lax');
 assert.match(auth, /Expires=/, 'cookie precisa ter expiração persistente');
 assert.match(auth, /Secure/, 'cookie precisa usar HTTPS em produção');
+assert.match(auth, /progress_json JSONB/, 'coluna de salvamento automático na nuvem ausente');
+assert.match(auth, /function cleanProgress/, 'validação do progresso na nuvem ausente');
+assert.match(auth, /pathname === '\/api\/progress' && req.method === 'GET'/, 'leitura do progresso na nuvem ausente');
+assert.match(auth, /pathname === '\/api\/progress' && req.method === 'PUT'/, 'gravação do progresso na nuvem ausente');
 
 assert.equal(manifest.orientation, 'any', 'manifest deve aceitar retrato e paisagem');
 assert.equal(capacitor.server.errorPath, 'offline.html', 'APK precisa apontar para a página local de reconexão');

@@ -803,7 +803,7 @@ function lobby(){
  '<div class="settings-row"><span><b>Mostrar FPS</b><small>Exibe a taxa de quadros durante a partida.</small></span><button id="setting-fps">'+(SV.showFps?'Ligado':'Desligado')+'</button></div>'+
  '<div class="settings-row"><span><b>Resetar jogo</b><small>Apaga moedas, classes, itens e progresso deste perfil.</small></span><button id="reset-game">Resetar</button></div>';
  settings.querySelector('#setting-audio').onclick=()=>{$('mu').click()};
- settings.querySelector('#setting-quality').onclick=()=>{SV.quality=(SV.quality+1)%3;DPR=Math.min(devicePixelRatio||1,SV.quality===0?1:SV.quality===1?DEVICE_DPR_CAP:Math.min(2,DEVICE_DPR_CAP+0.5));resizeGame();save();lobby()};
+ settings.querySelector('#setting-quality').onclick=()=>{SV.quality=(SV.quality+1)%3;DPR=Math.min(devicePixelRatio||1,qualityDprCap());resizeGame();save();lobby()};
  settings.querySelector('#setting-fps').onclick=()=>{SV.showFps=SV.showFps?0:1;save();lobby()};
  settings.querySelector('#reset-game').onclick=()=>{if(!confirm('Tem certeza? Todo o progresso deste perfil será apagado.'))return;SV={co:0,cr:0,economyVersion:ECONOMY_VERSION,cls:['normal'],sel:'normal',name:SV.name||'',up:{vida:0,dano:0,vel:0,moeda:0},maps:[0],map:0,best:0,items:[],ach:[],day:'',mute:SV.mute?1:0,quality:SV.quality===0?0:1,showFps:0};try{localStorage.setItem('slimeSave',JSON.stringify(SV))}catch(e){}scheduleCloudSave();toast('Progresso reiniciado.');lobby()};
  const cs=$('tc');cs.innerHTML='<div class="section-intro"><span>PERSONAGENS</span><h2>Escolha sua classe</h2><p>Cada slime tem atributos e um estilo de combate diferente.</p></div>';
@@ -1107,7 +1107,7 @@ function offlineLevel(p){
  const op=Object.keys(p.pw).filter(k=>p.pw[k]>0),os=Object.keys(p.ps).filter(k=>p.ps[k]>0);
  const pool=[...['proj','orb','nova','raio','aura','meteoro','lanca','corrente','espinhos','furacao'].filter(k=>(p.pw[k]||0)>0?p.pw[k]<5:op.length<5).map(k=>'p:'+k),...['vida','dano','vel','recarga','ima','regen','xp','armadura','crit','sorte'].filter(k=>(p.ps[k]||0)>0?p.ps[k]<5:os.length<5).map(k=>'s:'+k)];
  for(let i=pool.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[pool[i],pool[j]]=[pool[j],pool[i]]}
- p.ch=p.lv===5&&(p.pw.meteoro||0)<5?['p:meteoro',...pool.filter(k=>k!=='p:meteoro')].slice(0,3):pool.slice(0,3);
+ p.ch=p.lv===5&&(p.pw.meteoro||0)<5&&((p.pw.meteoro||0)>0||op.length<5)?['p:meteoro',...pool.filter(k=>k!=='p:meteoro')].slice(0,3):pool.slice(0,3);
  if(!p.ch.length)p.ch=null;
 }
 function offlinePick(i){
@@ -1229,7 +1229,8 @@ if('PointerEvent' in window){
  cv.ontouchend=cv.ontouchcancel=e=>{const t=[...e.changedTouches].find(q=>joy&&q.identifier===joy.id);if(t)stopJoystick(t.identifier)};
 }
 const DEVICE_DPR_CAP=(navigator.deviceMemory&&navigator.deviceMemory<=4)?1.1:1.25;
-let DPR=Math.min(devicePixelRatio||1,SV.quality===0?1:DEVICE_DPR_CAP),fpsFrames=0,fpsStart=0,lastQuality=0,idleRenderAt=0,currentFps=0;
+const qualityDprCap=()=>SV.quality===0?1:SV.quality===1?DEVICE_DPR_CAP:Math.min(2,DEVICE_DPR_CAP+.5);
+let DPR=Math.min(devicePixelRatio||1,qualityDprCap()),fpsFrames=0,fpsStart=0,lastQuality=0,idleRenderAt=0,currentFps=0;
 function resizeGame(){cv.width=Math.round(innerWidth*DPR);cv.height=Math.round(innerHeight*DPR)}
 onresize=resizeGame;resizeGame();
 const fpsNode=$('fps-indicator');
@@ -1241,7 +1242,7 @@ function draw(t){requestAnimationFrame(draw);
   if(GAME_STATE==='LOADING'||t-idleRenderAt<33)return;
   idleRenderAt=t;
   const W=innerWidth,H=innerHeight,map=Math.max(0,Math.min(3,SV.map|0));x.setTransform(DPR,0,0,DPR,0,0);x.clearRect(0,0,W,H);drawGround(0,0,W,H,map);const portrait=H>W,cx=portrait?W*.5:W*.69,cy=portrait?H*.29:H*.53,scale=portrait?1.45:Math.min(1.95,Math.max(1.5,Math.min(W/420,H/250)));const halo=x.createRadialGradient(cx,cy,8,cx,cy,Math.min(W,H)*.62);halo.addColorStop(0,'#b7ff8233');halo.addColorStop(.48,'#6df59a18');halo.addColorStop(1,'#06100c55');x.fillStyle=halo;x.fillRect(0,0,W,H);x.save();x.translate(cx,cy+34);x.scale(scale,scale);x.fillStyle='#020b0688';x.beginPath();x.ellipse(0,8,58,14,0,0,Math.PI*2);x.fill();x.strokeStyle='#a5f58b99';x.lineWidth=2;x.beginPath();x.ellipse(0,3,78,18,0,0,Math.PI*2);x.stroke();x.restore();x.save();x.translate(cx,cy+25);x.scale(scale,scale);slime(x,0,0,SV.sel,t,false,0,0);x.restore();return}
- fpsFrames++;if(!fpsStart)fpsStart=t;if(t-fpsStart>=1800){const fps=fpsFrames*1000/(t-fpsStart);let next=DPR;if(fps<42)next=Math.max(1,Math.round((DPR-.15)*100)/100);else if(fps>56)next=Math.min(Math.min(devicePixelRatio||1,SV.quality===0?1:DEVICE_DPR_CAP),Math.round((DPR+.1)*100)/100);currentFps=fps;if(Math.abs(next-DPR)>.04&&t-lastQuality>3500){DPR=next;resizeGame();lastQuality=t}fpsFrames=0;fpsStart=t}
+ fpsFrames++;if(!fpsStart)fpsStart=t;if(t-fpsStart>=1800){const fps=fpsFrames*1000/(t-fpsStart);let next=DPR;if(fps<42)next=Math.max(1,Math.round((DPR-.15)*100)/100);else if(fps>56)next=Math.min(Math.min(devicePixelRatio||1,qualityDprCap()),Math.round((DPR+.1)*100)/100);currentFps=fps;if(Math.abs(next-DPR)>.04&&t-lastQuality>3500){DPR=next;resizeGame();lastQuality=t}fpsFrames=0;fpsStart=t}
  x.setTransform(DPR,0,0,DPR,0,0);const W=innerWidth,H=innerHeight,p=S.p.find(q=>q.id==me);if(!p)return;powerHUD(p);if(fpsNode){fpsNode.style.display=SV.showFps?'block':'none';if(SV.showFps)fpsNode.textContent=currentFps>0?Math.round(currentFps)+' FPS':'FPS …'}if(!S.o)$('fim').style.display='none';
  if(p.h<lh){sfx(110,.12,'sawtooth',.05)}if(p.xp>lx&&t-lsx>90){lsx=t;sfx(1000,.04,'sine',.02)}lx=p.xp;if(S.w!=lw){lw=S.w;if(lw>1)toast(lw%5==0?'⚠ O CHEFE CHEGOU!':'Onda '+lw);if(lw%5==0)sfx(90,.5,'sawtooth',.06)}lh=p.h;sh=0;
  const dt=Math.min((t-lt)/33.3,3),sp=p.sp||3.5;lt=t;if(!pp||S.o||Math.hypot(p.x-pp.x,p.y-pp.y)>80)pp={x:p.x,y:p.y};

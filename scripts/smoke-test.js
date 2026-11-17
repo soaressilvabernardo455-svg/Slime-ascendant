@@ -10,6 +10,8 @@ const server = read('server.js');
 const auth = read('auth.js');
 const serviceWorker = read('sw.js');
 const manifest = JSON.parse(read('manifest.webmanifest'));
+const capacitor = JSON.parse(read('android-app/capacitor.config.json'));
+const offlinePage = read('android-app/www/offline.html');
 
 const scriptMatch = html.match(/<script>([\s\S]*?)<\/script>/i);
 assert.ok(scriptMatch, 'index.html precisa conter o script principal');
@@ -75,6 +77,12 @@ assert.match(auth, /Expires=/, 'cookie precisa ter expiração persistente');
 assert.match(auth, /Secure/, 'cookie precisa usar HTTPS em produção');
 
 assert.equal(manifest.orientation, 'any', 'manifest deve aceitar retrato e paisagem');
+assert.equal(capacitor.server.errorPath, 'offline.html', 'APK precisa apontar para a página local de reconexão');
+const offlineScript = offlinePage.match(/<script>([\\s\\S]*?)<\\/script>/i);
+assert.ok(offlineScript, 'página offline do APK precisa ter lógica de nova tentativa');
+new vm.Script(offlineScript[1], { filename: 'android-app/www/offline.html' });
+assert.ok(offlinePage.includes('window.location.replace(target)'), 'página offline precisa tentar abrir o jogo automaticamente');
+
 
 const cachePattern = serviceWorker.match(/if\(response\.ok&&!\/(.*?)\/i\.test/);
 assert.ok(cachePattern, 'filtro de Cache-Control ausente');

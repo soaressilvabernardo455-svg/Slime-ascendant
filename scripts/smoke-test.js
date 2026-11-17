@@ -67,7 +67,7 @@ assert.ok(app.includes("screen.orientation.unlock"), 'orientação do aparelho p
 assert.ok(!app.includes("screen.orientation.lock('landscape')"), 'o jogo não pode forçar paisagem');
 assert.ok(app.includes("credentials:'include'"), 'requisições de conta devem enviar cookies');
 assert.ok(app.includes("if(connectTimer)clearTimeout(connectTimer)"), 'watchdog de entrada precisa ser limpo depois de entrar na sala');
-assert.match(html, /version-pill">v4\.1<//, 'a versão exibida no lobby precisa aumentar');
+assert.match(html, /version-pill">v4\.1</, 'a versão exibida no lobby precisa aumentar');
 
 assert.match(server, /MAX_PLAYERS=4/, 'limite de quatro jogadores ausente');
 assert.match(server, /MAX_CONNECTIONS=40/, 'limite de conexões simultâneas ausente');

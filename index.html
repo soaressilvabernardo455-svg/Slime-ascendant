@@ -70,11 +70,27 @@ small{opacity:.7}
 #powhud{flex-direction:row;flex-wrap:wrap;justify-content:flex-end;width:min(125px,30vw);max-height:44vh;gap:6px}
 .power-badge{width:34px;height:34px;font-size:18px}
 @media(min-width:700px){.cs{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+.account-panel{width:100%;display:flex;flex-direction:column;gap:8px;padding:12px;text-align:left;background:linear-gradient(145deg,#172d20,#102017);border:1px solid #557d5c;border-radius:16px;box-shadow:0 5px 16px #0005}
+.account-title{font-weight:800;color:#a7f3b8;font-size:.98rem}
+#account-status{font-size:.85rem;color:#e7f5e9}
+#account-form,#account-active{display:flex;flex-direction:column;gap:7px}
+#account input{width:100%;min-width:0;background:#0c1b12;border:1px solid #52705a;border-radius:10px;padding:10px 11px;font-size:.9rem}
+.account-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.account-buttons button{font-size:.86rem;padding:9px 5px;border-width:1px}
+#account-login{background:#203a29;border-color:#527d5b}
+#account-register{background:linear-gradient(135deg,#43b96b,#176b39);color:#07190e;border-color:#98e6aa}
+#account-delete{background:#512326;border-color:#b45b62;color:#ffe5e5}
+#account-message{display:block;font-size:.72rem;line-height:1.35;color:#bed0c0}
+#pv{image-rendering:auto}
+#tc canvas{image-rendering:auto;width:70px;height:70px}
+#tc button{min-height:142px;padding:9px 6px}
+@media(max-height:620px){.account-panel{padding:8px;gap:5px}.account-buttons button{padding:7px 4px}#tc button{min-height:118px}}
 </style></head><body>
 <canvas id="c"></canvas><button id="ex">☰ Lobby</button>
-<div id="m"><div class="w"><h1>Slime Ascendant</h1><small>v3.6</small><div id="bal"></div><div id="rec"></div>
+<div id="m"><div class="w"><h1>Slime Ascendant</h1><small>v3.7</small><div id="bal"></div><div id="rec"></div>
 <div class="tabs"><button data-t="j" class="s"><span class="tab-icon">🎮</span>Jogar</button><button data-t="c"><span class="tab-icon">🧬</span>Classes</button><button data-t="u"><span class="tab-icon">⚡</span>Melhorias</button><button data-t="m"><span class="tab-icon">🌍</span>Mapas</button><button data-t="i"><span class="tab-icon">🎒</span>Itens</button></div>
-<div id="tj"><canvas id="pv" width="64" height="64"></canvas><input id="n" placeholder="Seu nome" maxlength="10"><div id="sel"></div><button id="go">🌐 Entrar na sala pública</button><button id="off">📴 Jogar offline</button><input id="r" placeholder="Código da sala privada" maxlength="12"><button id="priv">🔑 Entrar em sala privada</button><button id="dl"></button><button id="mu"></button><small class="mode-note">Sala pública: jogue com pessoas na mesma sala. Sala privada: use um código com amigos. Offline: partida individual, com progresso salvo neste aparelho.</small></div>
+<div id="tj"><canvas id="pv" width="64" height="64"></canvas><input id="n" placeholder="Seu nome" maxlength="10"><div id="sel"></div><section id="account" class="account-panel"><div class="account-title">Conta do jogador</div><div id="account-status">Você não está conectado.</div><div id="account-form"><input id="account-email" type="email" placeholder="Seu email" maxlength="254" autocomplete="email"><input id="account-password" type="password" placeholder="Senha (10 caracteres ou mais)" maxlength="128" autocomplete="current-password"><div class="account-buttons"><button id="account-login">Entrar</button><button id="account-register" class="s">Criar conta</button></div></div><div id="account-active" class="h"><input id="account-delete-password" type="password" placeholder="Senha para confirmar exclusão" maxlength="128" autocomplete="current-password"><div class="account-buttons"><button id="account-logout">Sair da conta</button><button id="account-delete" class="danger">Excluir conta</button></div></div><small id="account-message">O email será usado como identificação de login. Não reutilize uma senha importante.</small></section><button id="go">🌐 Entrar na sala pública</button><button id="off">📴 Jogar offline</button><input id="r" placeholder="Código da sala privada" maxlength="12"><button id="priv">🔑 Entrar em sala privada</button><button id="dl"></button><button id="mu"></button><small class="mode-note">Sala pública: jogue com pessoas na mesma sala. Sala privada: use um código com amigos. Offline: partida individual, com progresso salvo neste aparelho.</small></div>
 <div id="tc" class="cs h"></div><div id="tu" class="h"></div><div id="tm" class="cs h" style="grid-template-columns:repeat(2,1fr)"></div><div id="ti" class="cs h" style="grid-template-columns:1fr"></div>
 </div></div>
 <div id="tt"></div><div id="fim"><h1>Fim de jogo</h1><div id="fr"></div><button id="vl">Voltar ao lobby</button></div>

@@ -175,7 +175,8 @@ function cleanProgress(raw) {
   const number = value => { const n = Number(value); return Number.isFinite(n) ? Math.max(0, Math.min(1000000000, Math.floor(n))) : 0; };
   const up = {}; for (const key of ['vida', 'dano', 'vel', 'moeda']) { const n = Number(raw.up && raw.up[key]); up[key] = Number.isFinite(n) ? Math.max(0, Math.min(10, Math.floor(n))) : 0; }
   const map = Number(raw.map);
-  return { co: number(raw.co), cr: number(raw.cr), economyVersion: Math.max(0, Math.min(1, Math.floor(Number(raw.economyVersion) || 0))), cls, sel: cls.includes(raw.sel) ? raw.sel : 'normal', name: String(raw.name || '').replace(/[<>]/g, '').trim().slice(0, 10), up, maps, map: Number.isInteger(map) && maps.includes(map) ? map : 0, best: number(raw.best), items: list(raw.items, PROGRESS_ITEMS), ach: Array.isArray(raw.ach) ? [...new Set(raw.ach.map(Number).filter(value => [5, 10, 15, 20].includes(value)))].slice(0, 4) : [], day: typeof raw.day === 'string' ? raw.day.slice(0, 20) : '', mute: raw.mute ? 1 : 0 };
+  const quality = Number(raw.quality);
+  return { co: number(raw.co), cr: number(raw.cr), economyVersion: Math.max(0, Math.min(1, Math.floor(Number(raw.economyVersion) || 0))), cls, sel: cls.includes(raw.sel) ? raw.sel : 'normal', name: String(raw.name || '').replace(/[<>]/g, '').trim().slice(0, 10), up, maps, map: Number.isInteger(map) && maps.includes(map) ? map : 0, best: number(raw.best), items: list(raw.items, PROGRESS_ITEMS), ach: Array.isArray(raw.ach) ? [...new Set(raw.ach.map(Number).filter(value => [5, 10, 15, 20].includes(value)))].slice(0, 4) : [], day: typeof raw.day === 'string' ? raw.day.slice(0, 20) : '', quality: Number.isInteger(quality) ? Math.max(0, Math.min(2, quality)) : 1, showFps: raw.showFps ? 1 : 0, mute: raw.mute ? 1 : 0 };
 }
 
 async function handleAuthRequest(req, res, pathname) {

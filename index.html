@@ -756,13 +756,17 @@ async function refreshServerStatus(){
   const data=await response.json();
   $('server-dot').className='server-dot';
   $('server-label').textContent='Servidor online';
-  $('online-count').textContent=(Number(data.players)||0)+' jogadores online';
+  $('online-count').textContent=(Number(data.online)||0)+' online · '+(Number(data.playing)||0)+' jogando';
  }catch(e){
   $('server-dot').className='server-dot offline';
   $('server-label').textContent='Servidor acordando';
   $('online-count').textContent='Conexão pendente';
  }
 }
+let presenceId='';
+function getPresenceId(){try{presenceId=localStorage.getItem('slimePresenceId')||'';if(!/^[a-zA-Z0-9_-]{12,64}$/.test(presenceId)){presenceId=(window.crypto&&crypto.randomUUID?crypto.randomUUID():'p'+Date.now().toString(36)+Math.random().toString(36).slice(2));localStorage.setItem('slimePresenceId',presenceId)}}catch(e){presenceId='p'+Date.now().toString(36)+Math.random().toString(36).slice(2)}return presenceId}
+async function pingPresence(){try{await fetch('/presence?id='+encodeURIComponent(getPresenceId()),{cache:'no-store',credentials:'same-origin'});await refreshServerStatus()}catch(e){}}
+
 function abortJoin(attempt,message){
  if(attempt!==joinAttempt)return;
  clearConnectTimers();
@@ -778,13 +782,18 @@ function updateRoomWait(data){
  const host=me===data.hostId&&data.phase==='waiting',button=$('room-start');button.disabled=!host;
  if(data.phase==='countdown'){button.textContent='Começando em '+data.countdown+'s';$('room-wait-status').textContent='Sala fechada para novas entradas.'}
  else if(data.phase==='playing'){modal.classList.add('h')}
- else{button.textContent=host?'Começar partida':'Aguardando o anfitrião';$('room-wait-status').textContent='A partida começa quando o anfitrião confirmar.'}
+ else{button.textContent=host?'Começar partida':'Aguardando o anfitrião';$('room-wait-status').textContent=data.autoStartIn?'A sala pública inicia automaticamente em '+data.autoStartIn+'s.':''}
 }
+const BLOCKED_PLAYER_NAMES=['admin','administrator','moderador','moderator','staff','owner','suporte','support','system','developer','porra','caralho','merda','bosta','puta','puto','foda','foder','viado','piranha','cacete','buceta','nazi','hitler'];
+function normalizePlayerName(value){return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/0/g,'o').replace(/1/g,'i').replace(/3/g,'e').replace(/4/g,'a').replace(/5/g,'s').replace(/7/g,'t').replace(/@/g,'a').replace(/\$/g,'s')}
+function isAllowedPlayerName(value){const name=String(value||'Slime').trim();if(!name||[...name].length>10)return false;const normalized=normalizePlayerName(name);if(!/^[a-z0-9_ -]+$/.test(normalized))return false;const compact=normalized.replace(/[^a-z0-9]/g,'');return !BLOCKED_PLAYER_NAMES.some(word=>compact.includes(word))}
 function joinOnline(roomCode,button){
  if(GAME_STATE!=='LOBBY'||(ws&&(ws.readyState===0||ws.readyState===1)))return;
+ const requestedName=String($('n').value||'Slime').trim();
+ if(!isAllowedPlayerName(requestedName)){toast('Esse nome não é permitido. Escolha outro.');$('n').focus();return}
  enterImmersiveMode();
  const attempt=++joinAttempt;currentRoomCode=roomCode;$('room-wait').classList.add('h');
- SV.name=$('n').value.trim().slice(0,10);save();
+ SV.name=requestedName.slice(0,10);$('n').value=SV.name;save();
  startMusic();
  setGameState('LOADING','Acordando servidor...','O Render pode precisar iniciar o servidor antes de abrir a sala.');
  clearConnectTimers();
@@ -845,7 +854,7 @@ $('priv').onclick=()=>{
 $('off').onclick=offlineStart;
 $('cancel-loading').onclick=()=>abortJoin(joinAttempt,'Conexão cancelada.');
 if(serverPollTimer)clearInterval(serverPollTimer);
-refreshServerStatus();serverPollTimer=setInterval(()=>{if(!document.hidden&&GAME_STATE==='LOBBY')refreshServerStatus()},20000);
+pingPresence();serverPollTimer=setInterval(()=>{if(!document.hidden)pingPresence()},20000);
 
 async function accountRequest(path,method,body){
  const options={method,credentials:'include',cache:'no-store',headers:{}};
@@ -854,6 +863,52 @@ async function accountRequest(path,method,body){
  const data=await response.json().catch(()=>({error:'Resposta inválida do servidor.'}));
  if(!response.ok)throw new Error(data.error||'Não foi possível concluir a solicitação.');
  return data;
+}
+function scheduleCloudSave(){
+ if(!accountAuthenticated||!cloudSyncReady)return;
+ if(cloudSyncTimer)clearTimeout(cloudSyncTimer);
+ cloudSyncTimer=setTimeout(flushCloudProgress,1100);
+}
+async function flushCloudProgress(){
+ if(!accountAuthenticated||!cloudSyncReady)return;
+ if(cloudSyncBusy){cloudSyncPending=true;return}
+ cloudSyncBusy=true;
+ const snapshot=JSON.parse(JSON.stringify(SV));
+ try{await accountRequest('/api/progress','PUT',{progress:snapshot})}
+ catch(e){cloudSyncPending=true}
+ finally{
+  cloudSyncBusy=false;
+  if(cloudSyncPending){cloudSyncPending=false;if(cloudSyncTimer)clearTimeout(cloudSyncTimer);cloudSyncTimer=setTimeout(flushCloudProgress,12000)}
+ }
+}
+async function syncCloudProgressOnLogin(showToast=false){
+ cloudSyncReady=false;
+ try{
+  const data=await accountRequest('/api/progress','GET');
+  if(data.hasProgress&&data.progress&&typeof data.progress==='object'){
+   const local=sanitizeSaveBackup(SV),remote=sanitizeSaveBackup(data.progress);
+   const union=(a,b)=>[...new Set([...(Array.isArray(a)?a:[]),...(Array.isArray(b)?b:[])])];
+   const up={};for(const key of Object.keys(UPG))up[key]=Math.max(local.up[key]||0,remote.up[key]||0);
+   const classes=union(remote.cls,local.cls),maps=union(remote.maps,local.maps),items=union(remote.items,local.items);
+   SV=sanitizeSaveBackup({
+    ...remote,co:Math.max(local.co,remote.co),cr:Math.max(local.cr,remote.cr),
+    cls:classes,sel:classes.includes(local.sel)?local.sel:remote.sel,
+    maps,map:maps.includes(local.map)?local.map:remote.map,items,up,
+    ach:union(remote.ach,local.ach),best:Math.max(local.best,remote.best),
+    name:local.name||remote.name,day:local.day||remote.day,mute:local.mute
+   });
+   try{localStorage.slimeSave=JSON.stringify(SV)}catch(e){}
+  }
+  cloudSyncReady=true;
+  $('account-status').textContent=$('account-status').textContent.split(' · ')[0]+' · Salvamento automático ativo';
+  save();
+  if(showToast)toast('Salvamento automático na nuvem ativado.');
+  return true;
+ }catch(e){
+  cloudSyncReady=false;
+  if(showToast)toast('Conta conectada; o salvamento local continua ativo. A nuvem será sincronizada quando voltar.');
+  return false;
+ }
 }
 let accountMode='login';
 function accountMessage(message,error){
@@ -873,6 +928,8 @@ function openAccount(mode){
 function closeAccountModal(){$('account-modal').classList.add('h')}
 function showAccount(data){
  const active=!!(data&&data.authenticated);
+ accountAuthenticated=active&&!data.offline;
+ if(!accountAuthenticated){cloudSyncReady=false;if(cloudSyncTimer)clearTimeout(cloudSyncTimer);cloudSyncTimer=0}
  if(active&&data.email&&!data.offline){try{localStorage.setItem('slimeAccountHint',data.email)}catch(e){}}
  if(!active&&!data.offline){try{localStorage.removeItem('slimeAccountHint')}catch(e){}}
  $('account-guest').classList.toggle('h',active);
@@ -882,7 +939,7 @@ function showAccount(data){
  if(!active){$('account-dropdown').classList.add('h');$('account-delete-password').value='';$('account-delete-confirm').value=''}
 }
 async function refreshAccount(){
- try{showAccount(await accountRequest('/api/auth/me','GET'))}
+ try{const data=await accountRequest('/api/auth/me','GET');showAccount(data);if(data.authenticated)await syncCloudProgressOnLogin(false)}
  catch(e){let hint='';try{hint=localStorage.getItem('slimeAccountHint')||''}catch(error){}showAccount(hint?{authenticated:true,email:hint,offline:true}:{authenticated:false});}
 }
 $('account-open-login').onclick=()=>openAccount('login');
@@ -895,7 +952,7 @@ $('account-register').onclick=async()=>{
  if(password.length<6){accountMessage('A senha precisa ter pelo menos 6 caracteres.',true);return}
  if(!email){accountMessage('Digite seu email.',true);return}
  const button=$('account-register');button.disabled=true;accountMessage('Criando sua conta...',false);
- try{const result=await accountRequest('/api/auth/register','POST',{email,password});showAccount(result);$('account-password').value='';closeAccountModal();toast('Conta criada e conectada neste aparelho.')}
+ try{const result=await accountRequest('/api/auth/register','POST',{email,password});showAccount(result);await syncCloudProgressOnLogin(true);$('account-password').value='';closeAccountModal();toast('Conta criada e conectada neste aparelho.')}
  catch(e){accountMessage(e.message,true)}
  finally{button.disabled=false}
 };
@@ -903,7 +960,7 @@ $('account-login').onclick=async()=>{
  const email=$('account-email').value.trim(),password=$('account-password').value;
  if(!email||password.length<6){accountMessage('Digite seu email e uma senha com pelo menos 6 caracteres.',true);return}
  const button=$('account-login');button.disabled=true;accountMessage('Entrando...',false);
- try{const result=await accountRequest('/api/auth/login','POST',{email,password});showAccount(result);$('account-password').value='';closeAccountModal();toast('Login realizado.')}
+ try{const result=await accountRequest('/api/auth/login','POST',{email,password});showAccount(result);await syncCloudProgressOnLogin(true);$('account-password').value='';closeAccountModal();toast('Login realizado.')}
  catch(e){accountMessage(e.message,true)}
  finally{button.disabled=false}
 };
@@ -954,7 +1011,7 @@ function ui(p){
 }
 let OFF=false,OR=null,offlineTimer=0;
 const OCLS={normal:{hp:100,sp:4.8,dm:.8,pw:'proj'},mago:{hp:70,sp:4.8,dm:1.1,pw:'raio'},cavaleiro:{hp:150,sp:4.2,dm:.9,pw:'orb'},necromante:{hp:85,sp:4.8,dm:1,pw:'nova'},curandeiro:{hp:110,sp:4.8,dm:.7,pw:'aura',heal:1},arqueiro:{hp:80,sp:5.2,dm:.9,pw:'proj',pr:2}};
-const OET=[{h:w=>18+w*9,r:10,v:1.4,d:7,c:1,x:1},{h:w=>10+w*5,r:8,v:2.4,d:5,c:2,x:2},{h:w=>90+w*25,r:16,v:.9,d:14,c:6,x:5},{h:w=>500+w*90,r:26,v:.8,d:20,c:40,x:40},{h:w=>14+w*6,r:11,v:1.9,d:6,c:3,x:3},{h:w=>30+w*8,r:12,v:1.6,d:9,c:3,x:3},{h:w=>70+w*14,r:13,v:.7,d:10,c:4,x:4}];
+const OET=[{h:w=>18+w*9,r:10,v:1.4,d:7,c:1,x:1},{h:w=>10+w*5,r:8,v:2.4,d:5,c:2,x:2},{h:w=>90+w*25,r:16,v:.9,d:14,c:6,x:5},{h:w=>500+w*90,r:26,v:.8,d:20,c:18,x:40},{h:w=>14+w*6,r:11,v:1.9,d:6,c:1,x:3},{h:w=>30+w*8,r:12,v:1.6,d:9,c:2,x:3},{h:w=>70+w*14,r:13,v:.7,d:10,c:2,x:4}];
 const oClamp=v=>Math.max(-1000000000,Math.min(1000000000,v)),oDist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 function offlinePlayer(){
  const cls=OCLS[SV.sel]?SV.sel:'normal',c=OCLS[cls],u={};
@@ -1030,8 +1087,9 @@ function offlineSnapshot(){
 function offlineTick(){if(!OFF||!OR)return;const p=OR.ps[1];if(!p.ch&&!p.d)offlineStep(OR,p);offlineSnapshot()}
 function offlineStart(){
  if(GAME_STATE!=='LOBBY')return;
+ const offlineName=String($('n').value||'Slime').trim();if(!isAllowedPlayerName(offlineName)){toast('Esse nome não é permitido. Escolha outro.');$('n').focus();return}
  enterImmersiveMode();
- SV.name=$('n').value.trim().slice(0,10);save();startMusic();
+ SV.name=offlineName.slice(0,10);$('n').value=SV.name;save();startMusic();
  cleanupGameSession();
  OFF=true;OR={ps:{1:offlinePlayer()},es:[],sh:[],gm:[],hr:[],fx:[],ob:[],wave:1,t:0,sp:30,map:SV.map};
  me=1;gc=0;gk=0;lw=0;pp=null;lt=0;last='';lastPow='';

@@ -898,7 +898,7 @@ const OET=[{h:w=>18+w*9,r:10,v:1.4,d:7,c:1,x:1},{h:w=>10+w*5,r:8,v:2.4,d:5,c:2,x
 const oClamp=v=>Math.max(10,Math.min(1590,v)),oDist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 function offlinePlayer(){
  const cls=OCLS[SV.sel]?SV.sel:'normal',c=OCLS[cls],u={};
- for(const k of ['vida','dano','vel','moeda'])u[k]=Math.min(10,Math.max(0,Math.floor(+SV.up[k]||0)));
+ for(const k of Object.keys(UPG))u[k]=Math.min(10,Math.max(0,Math.floor(+SV.up[k]||0)));
  const it=Array.isArray(SV.items)?SV.items.slice():[],mh=Math.round(c.hp*(1+.1*u.vida)*(it.includes('coracao')?1.25:1));
  return{id:1,name:String($('n').value||SV.name||'Slime').slice(0,10),cls,u,up:SV.up,it,x:800,y:800,hp:mh,mh,lv:1,xp:0,nx:5,pw:{[c.pw]:1},ps:{},cd:{},dx:0,dy:0,ch:null,d:0,co:0,cr:0,stopAfterStep:0,stopRequested:0};
 }
@@ -938,7 +938,7 @@ function offlineStep(r,p){
  const sp=c.sp*(1+.1*(p.ps.vel||0))*(1+.04*p.u.vel)*(p.it.includes('botas')?1.08:1);
  p.x=oClamp(p.x+p.dx*sp);p.y=oClamp(p.y+p.dy*sp);
  if(p.stopAfterStep>0&&--p.stopAfterStep===0){p.dx=0;p.dy=0;p.stopRequested=0}
- const dm=c.dm*(1+.15*(p.ps.dano||0))*(1+.08*p.u.dano)*(p.it.includes('espada')?1.12:1),cd=1-.1*(p.ps.recarga||0),hit=d=>d*(Math.random()<.05*(p.ps.crit||0)?2:1);
+ const dm=c.dm*(1+.15*(p.ps.dano||0))*(1+.08*p.u.dano)*(p.it.includes('espada')?1.12:1),cd=Math.max(.35,1-.08*(p.ps.recarga||0)-.035*(p.u.recarga||0)),hit=d=>d*(Math.random()<Math.min(.6,.05*(p.ps.crit||0)+.025*(p.u.crit||0))?2:1);
  const near=g=>{let b=null;for(const e of r.es){const d=oDist(e,p);if(d<g){g=d;b=e}}return b};
  const rdy=(k,t)=>{p.cd[k]=(p.cd[k]||0)-1;if(p.cd[k]<=0){p.cd[k]=t*cd;return 1}},l=p.pw;
  if(l.proj&&rdy('proj',18)){const e=near(420);if(e){const n=1+(l.proj>2)+(l.proj>4),a0=Math.atan2(e.y-p.y,e.x-p.x);for(let i=0;i<n;i++){const a=a0+(i-(n-1)/2)*.2;r.sh.push({x:p.x,y:p.y,vx:Math.cos(a)*9,vy:Math.sin(a)*9,d:hit((7+3*l.proj)*dm),life:45,pr:c.pr||0})}}else p.cd.proj=0}
@@ -951,11 +951,11 @@ function offlineStep(r,p){
  if(l.corrente&&rdy('corrente',72)){let from=p;const chain=r.es.filter(e=>oDist(e,p)<430).sort((a,b)=>oDist(a,p)-oDist(b,p)).slice(0,Math.min(2+l.corrente,6));for(const e of chain){e.hp-=hit((13+5*l.corrente)*dm);r.fx.push(['r',from.x|0,from.y|0,e.x|0,e.y|0,5]);from=e}}
  if(l.espinhos&&rdy('espinhos',24)){const rr=82+9*l.espinhos;r.fx.push(['n',p.x|0,p.y|0,rr,0,5]);for(const e of r.es)if(oDist(e,p)<rr+e.r)e.hp-=hit((8+3*l.espinhos)*dm)}
  if(l.furacao&&rdy('furacao',150)){const rr=135+12*l.furacao;r.fx.push(['n',p.x|0,p.y|0,rr,0,9]);for(const e of r.es)if(oDist(e,p)<rr+e.r){e.hp-=hit((28+9*l.furacao)*dm);const a=Math.atan2(e.y-p.y,e.x-p.x);e.x=oClamp(e.x+Math.cos(a)*18);e.y=oClamp(e.y+Math.sin(a)*18)}}
- if(p.ps.regen&&r.t%30===0)p.hp=Math.min(p.mh,p.hp+p.ps.regen);if(c.heal&&r.t%60===0)p.hp=Math.min(p.mh,p.hp+8);
- for(const e of r.es){const d=oDist(p,e)||1;e.x+=(p.x-e.x)/d*e.v;e.y+=(p.y-e.y)/d*e.v;if(d<e.r+12){p.hp-=e.d/20*(1-.08*(p.ps.armadura||0))*(p.it.includes('escudo')?.85:1);if(p.hp<=0){p.hp=0;p.d=1;p.ch=null;break}}}
+ const regen=(p.ps.regen||0)+(p.u.regen||0);if(regen>0&&r.t%30===0)p.hp=Math.min(p.mh,p.hp+regen);if(c.heal&&r.t%60===0)p.hp=Math.min(p.mh,p.hp+8);
+ for(const e of r.es){const d=oDist(p,e)||1;e.x+=(p.x-e.x)/d*e.v;e.y+=(p.y-e.y)/d*e.v;if(d<e.r+12){p.hp-=e.d/20*(1-Math.min(.85,.08*((p.ps.armadura||0)+(p.u.armadura||0))))*(p.it.includes('escudo')?.85:1);if(p.hp<=0){p.hp=0;p.d=1;p.ch=null;break}}}
  r.sh=r.sh.filter(q=>{q.x+=q.vx;q.y+=q.vy;if(--q.life<1)return 0;if(!q.hit)q.hit=new Set();for(const e of r.es)if(e.hp>0&&!q.hit.has(e)&&oDist(e,q)<e.r+4){q.hit.add(e);e.hp-=q.d;if(q.pr-->0)continue;return 0}return 1});
- r.es=r.es.filter(e=>{if(e.hp>0)return 1;const E=OET[e.ty];r.gm.push({x:e.x,y:e.y,v:E.x});if(Math.random()<.05)r.hr.push({x:e.x,y:e.y});if(!p.d){p.co+=Math.ceil(E.c*(1+.1*p.u.moeda)*(1+.1*(p.ps.sorte||0))*(p.it.includes('anel')?1.15:1));if(e.ty==2&&Math.random()<.12)p.cr++;if(e.ty==3)p.cr+=3}return 0});
- r.gm=r.gm.filter(g=>{if(p.d)return 1;const d=oDist(p,g)||1;if(d<14){p.xp+=g.v*(1+.15*(p.ps.xp||0))*(p.it.includes('amuleto')?1.15:1);if(p.xp>=p.nx&&!p.ch)offlineLevel(p);return 0}if(d<60*(1+.4*(p.ps.ima||0))){g.x+=(p.x-g.x)/d*5;g.y+=(p.y-g.y)/d*5}return 1});
+ r.es=r.es.filter(e=>{if(e.hp>0)return 1;const E=OET[e.ty];r.gm.push({x:e.x,y:e.y,v:E.x});if(Math.random()<.05)r.hr.push({x:e.x,y:e.y});if(!p.d){p.co+=Math.ceil(E.c*(1+.05*p.u.moeda+.1*(p.ps.sorte||0)+.05*(p.u.sorte||0))*(p.it.includes('anel')?1.15:1));if(e.ty==2&&Math.random()<.12)p.cr++;if(e.ty==3)p.cr+=3}return 0});
+ r.gm=r.gm.filter(g=>{if(p.d)return 1;const d=oDist(p,g)||1;if(d<14){p.xp+=g.v*(1+.15*(p.ps.xp||0)+.05*(p.u.xp||0))*(p.it.includes('amuleto')?1.15:1);if(p.xp>=p.nx&&!p.ch)offlineLevel(p);return 0}if(d<60*(1+.4*(p.ps.ima||0)+.08*(p.u.ima||0))){g.x+=(p.x-g.x)/d*5;g.y+=(p.y-g.y)/d*5}return 1});
  r.hr=r.hr.filter(h=>{if(!p.d&&oDist(p,h)<18){p.hp=Math.min(p.mh,p.hp+25);return 0}return 1});r.fx=r.fx.filter(f=>--f[5]>0);
 }
 function offlineSnapshot(){

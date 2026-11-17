@@ -1,0 +1,36 @@
+name: Code smoke tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'server.js'
+      - 'auth.js'
+      - 'sw.js'
+      - 'scripts/**'
+      - 'package.json'
+      - '.github/workflows/smoke-tests.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'server.js'
+      - 'auth.js'
+      - 'sw.js'
+      - 'scripts/**'
+      - 'package.json'
+      - '.github/workflows/smoke-tests.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test

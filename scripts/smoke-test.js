@@ -86,6 +86,9 @@ assert.ok(app.includes("joinOnline(code,$('create-room'))"), 'sala privada preci
 assert.ok(html.includes('id="ts"')&&html.includes('data-t="s"'), 'aba de configurações ausente');
 assert.ok(app.includes('id="reset-game"')&&app.includes('Todo o progresso deste perfil será apagado'), 'reset precisa pedir confirmação');
 assert.ok(app.includes('const qualityDprCap=()=>SV.quality===0?1:SV.quality===1?DEVICE_DPR_CAP:Math.min(2,DEVICE_DPR_CAP+.5)'), 'qualidade alta precisa ter teto de resolução maior');
+assert.ok(app.includes('quality:Number.isInteger(Number(raw.quality))')&&app.includes('showFps:raw.showFps?1:0'), 'salvamento local/nuvem deve preservar qualidade e FPS');
+assert.ok(auth.includes('quality: Number.isInteger(quality)')&&auth.includes('showFps: raw.showFps ? 1 : 0'), 'banco de dados deve preservar qualidade e FPS');
+assert.ok(app.includes('quality:local.quality,showFps:local.showFps'), 'sincronização de conta deve preservar as preferências deste aparelho');
 assert.ok(app.includes('Math.min(Math.min(devicePixelRatio||1,qualityDprCap())'), 'ajuste automático não pode rebaixar o modo Alto para o teto do modo Padrão');
 assert.ok(app.includes("settings.querySelector('#setting-fps')")&&app.includes("' FPS'"), 'opção de FPS precisa exibir contador');
 assert.ok(app.includes('refreshAccountWhenActive'), 'sessão deve ser revalidada ao voltar ao jogo');

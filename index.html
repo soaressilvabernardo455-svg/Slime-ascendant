@@ -88,7 +88,7 @@ small{opacity:.7}
 @media(max-height:620px){.account-panel{padding:8px;gap:5px}.account-buttons button{padding:7px 4px}#tc button{min-height:118px}}
 </style></head><body>
 <canvas id="c"></canvas><button id="ex">☰ Lobby</button>
-<div id="m"><div class="w"><h1>Slime Ascendant</h1><small>v3.7</small><div id="bal"></div><div id="rec"></div>
+<div id="m"><div class="w"><h1>Slime Ascendant</h1><small>v3.8</small><div id="bal"></div><div id="rec"></div>
 <div class="tabs"><button data-t="j" class="s"><span class="tab-icon">🎮</span>Jogar</button><button data-t="c"><span class="tab-icon">🧬</span>Classes</button><button data-t="u"><span class="tab-icon">⚡</span>Melhorias</button><button data-t="m"><span class="tab-icon">🌍</span>Mapas</button><button data-t="i"><span class="tab-icon">🎒</span>Itens</button></div>
 <div id="tj"><canvas id="pv" width="64" height="64"></canvas><input id="n" placeholder="Seu nome" maxlength="10"><div id="sel"></div><section id="account" class="account-panel"><div class="account-title">Conta do jogador</div><div id="account-status">Você não está conectado.</div><div id="account-form"><input id="account-email" type="email" placeholder="Seu email" maxlength="254" autocomplete="email"><input id="account-password" type="password" placeholder="Senha (10 caracteres ou mais)" maxlength="128" autocomplete="current-password"><div class="account-buttons"><button id="account-login">Entrar</button><button id="account-register" class="s">Criar conta</button></div></div><div id="account-active" class="h"><input id="account-delete-password" type="password" placeholder="Senha para confirmar exclusão" maxlength="128" autocomplete="current-password"><div class="account-buttons"><button id="account-logout">Sair da conta</button><button id="account-delete" class="danger">Excluir conta</button></div></div><small id="account-message">O email será usado como identificação de login. Não reutilize uma senha importante.</small></section><button id="go">🌐 Entrar na sala pública</button><button id="off">📴 Jogar offline</button><input id="r" placeholder="Código da sala privada" maxlength="12"><button id="priv">🔑 Entrar em sala privada</button><button id="dl"></button><button id="mu"></button><small class="mode-note">Sala pública: jogue com pessoas na mesma sala. Sala privada: use um código com amigos. Offline: partida individual, com progresso salvo neste aparelho.</small></div>
 <div id="tc" class="cs h"></div><div id="tu" class="h"></div><div id="tm" class="cs h" style="grid-template-columns:repeat(2,1fr)"></div><div id="ti" class="cs h" style="grid-template-columns:1fr"></div>
@@ -311,6 +311,54 @@ $('priv').onclick=()=>{
  joinOnline(code,$('priv'));
 };
 $('off').onclick=offlineStart;
+
+async function accountRequest(path,method,body){
+ const options={method,credentials:'same-origin',headers:{}};
+ if(body!==undefined){options.headers['Content-Type']='application/json';options.body=JSON.stringify(body)}
+ const response=await fetch(path,options);
+ const data=await response.json().catch(()=>({error:'Resposta inválida do servidor.'}));
+ if(!response.ok)throw new Error(data.error||'Não foi possível concluir a solicitação.');
+ return data;
+}
+function accountMessage(message,error){
+ const e=$('account-message');e.textContent=message;e.style.color=error?'#fecaca':'#bed0c0';
+}
+function showAccount(data){
+ const active=!!(data&&data.authenticated);
+ $('account-form').classList.toggle('h',active);
+ $('account-active').classList.toggle('h',!active);
+ $('account-status').textContent=active?'Conectado como '+data.email:'Você não está conectado.';
+ if(!active)$('account-delete-password').value='';
+}
+async function refreshAccount(){
+ try{showAccount(await accountRequest('/api/auth/me','GET'))}
+ catch(e){showAccount({authenticated:false});accountMessage(e.message,true)}
+}
+$('account-register').onclick=async()=>{
+ const email=$('account-email').value,password=$('account-password').value;
+ accountMessage('Criando conta...',false);
+ try{const result=await accountRequest('/api/auth/register','POST',{email,password});$('account-password').value='';showAccount(result);accountMessage('Conta criada e conectada neste aparelho.',false)}
+ catch(e){accountMessage(e.message,true)}
+};
+$('account-login').onclick=async()=>{
+ const email=$('account-email').value,password=$('account-password').value;
+ accountMessage('Entrando...',false);
+ try{const result=await accountRequest('/api/auth/login','POST',{email,password});$('account-password').value='';showAccount(result);accountMessage('Login realizado.',false)}
+ catch(e){accountMessage(e.message,true)}
+};
+$('account-logout').onclick=async()=>{
+ try{await accountRequest('/api/auth/logout','POST',{});showAccount({authenticated:false});$('account-password').value='';$('account-delete-password').value='';accountMessage('Você saiu da conta neste aparelho.',false)}
+ catch(e){accountMessage(e.message,true)}
+};
+$('account-delete').onclick=async()=>{
+ const password=$('account-delete-password').value;
+ if(!password){accountMessage('Digite sua senha para confirmar a exclusão.',true);return}
+ if(!confirm('Excluir esta conta definitivamente? Essa ação não pode ser desfeita.'))return;
+ try{await accountRequest('/api/auth/account','DELETE',{password});showAccount({authenticated:false});$('account-password').value='';$('account-delete-password').value='';accountMessage('Conta excluída. O progresso local deste aparelho não foi apagado.',false)}
+ catch(e){accountMessage(e.message,true)}
+};
+
+refreshAccount();
 $('ex').onclick=$('vl').onclick=()=>{if(OFF){stopOffline();return}lv2=1;if(ws)ws.close();else{$('m').style.display='flex';$('ex').style.display='none';$('powhud').style.display='none';lobby()}};
 
 const SKICON={proj:'💧',orb:'🪐',nova:'💥',raio:'⚡',aura:'🌀',vida:'❤️',dano:'⚔️',vel:'👟',recarga:'⏱️',ima:'🧲',regen:'🌿',xp:'✨',meteoro:'☄️',armadura:'🛡️',lanca:'🔱',corrente:'⛓️',espinhos:'🌵',furacao:'🌪️',crit:'💠',sorte:'🍀'};
@@ -339,7 +387,7 @@ function offlinePlayer(){
  const cls=OCLS[SV.sel]?SV.sel:'normal',c=OCLS[cls],u={};
  for(const k of ['vida','dano','vel','moeda'])u[k]=Math.min(10,Math.max(0,Math.floor(+SV.up[k]||0)));
  const it=Array.isArray(SV.items)?SV.items.slice():[],mh=Math.round(c.hp*(1+.1*u.vida)*(it.includes('coracao')?1.25:1));
- return{id:1,name:String($('n').value||SV.name||'Slime').slice(0,10),cls,u,up:SV.up,it,x:800,y:800,hp:mh,mh,lv:1,xp:0,nx:5,pw:{[c.pw]:1},ps:{},cd:{},dx:0,dy:0,ch:null,d:0,co:0,cr:0,stopAfterStep:0};
+ return{id:1,name:String($('n').value||SV.name||'Slime').slice(0,10),cls,u,up:SV.up,it,x:800,y:800,hp:mh,mh,lv:1,xp:0,nx:5,pw:{[c.pw]:1},ps:{},cd:{},dx:0,dy:0,ch:null,d:0,co:0,cr:0,stopAfterStep:0,stopRequested:0};
 }
 function offlineLevel(p){
  p.lv++;p.xp-=p.nx;p.nx=Math.ceil(p.nx*1.35+2);
@@ -365,7 +413,7 @@ function offlineStep(r,p){
  const c=OCLS[p.cls],m=Math.hypot(p.dx,p.dy);if(m>1){p.dx/=m;p.dy/=m}
  const sp=c.sp*(1+.1*(p.ps.vel||0))*(1+.04*p.u.vel)*(p.it.includes('botas')?1.08:1);
  p.x=oClamp(p.x+p.dx*sp);p.y=oClamp(p.y+p.dy*sp);
- if(p.stopAfterStep>0&&--p.stopAfterStep===0){p.dx=0;p.dy=0}
+ if(p.stopAfterStep>0&&--p.stopAfterStep===0){p.dx=0;p.dy=0;p.stopRequested=0}
  const dm=c.dm*(1+.15*(p.ps.dano||0))*(1+.08*p.u.dano)*(p.it.includes('espada')?1.12:1),cd=1-.1*(p.ps.recarga||0),hit=d=>d*(Math.random()<.05*(p.ps.crit||0)?2:1);
  const near=g=>{let b=null;for(const e of r.es){const d=oDist(e,p);if(d<g){g=d;b=e}}return b};
  const rdy=(k,t)=>{p.cd[k]=(p.cd[k]||0)-1;if(p.cd[k]<=0){p.cd[k]=t*cd;return 1}},l=p.pw;
@@ -410,12 +458,15 @@ function stopOffline(){
 }
 
 let ld=[9,9];
-let recentDir=[0,0],recentUntil=0;
-function getDir(){let dx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),dy=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);if(joy){dx=joy.dx;dy=joy.dy}else if(!dx&&!dy&&performance.now()<recentUntil){dx=recentDir[0];dy=recentDir[1]}return[dx,dy]}
+function getDir(){let dx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),dy=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);if(joy){dx=joy.dx;dy=joy.dy}return[dx,dy]}
 function sendIn(f){
- const[dx,dy]=getDir(),active=!!joy||Object.values(keys).some(Boolean);
- if(active&&(dx||dy)){recentDir=[dx,dy];recentUntil=performance.now()+80}else if(!active&&performance.now()>=recentUntil)recentUntil=0;
- if(OFF&&OR){const p=OR.ps[1];if(dx||dy){p.dx=dx;p.dy=dy;p.stopAfterStep=0}else p.stopAfterStep=3;ld=[dx,dy];return}
+ const[dx,dy]=getDir();
+ if(OFF&&OR){
+  const p=OR.ps[1];
+  if(dx||dy){p.dx=dx;p.dy=dy;p.stopAfterStep=0;p.stopRequested=0}
+  else if(!p.stopRequested&&(p.dx||p.dy)){p.stopAfterStep=3;p.stopRequested=1}
+  ld=[dx,dy];return
+ }
  if(!ws||ws.readyState!=1)return;
  if(f||Math.abs(dx-ld[0])>.02||Math.abs(dy-ld[1])>.02){ld=[dx,dy];ws.send(JSON.stringify({t:'in',dx,dy}))}
 }

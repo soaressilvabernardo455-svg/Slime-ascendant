@@ -62,10 +62,10 @@ assert.ok(app.includes("if(p.cls==='necromante')"), 'necromante precisa invocar 
 assert.ok(app.includes('(S.k||[])'), 'esqueletos precisam ser desenhados na partida');
 assert.ok(!app.includes('wx(W,H,S.mp|0,t)'), 'efeitos de partículas da tela do lobby não devem aparecer na partida');
 assert.ok(!app.includes('const grain=86'), 'remover granulação de pontos do mapa durante a partida');
-const onlineHandler=app.match(/socket\.onmessage=e=>\{([\\s\\S]*?)\\n  \\};/);
+const onlineHandler=app.match(/socket\.onmessage=e=>\{([\s\S]*?)\n  \};/);
 assert.ok(onlineHandler, 'handler de snapshots online ausente');
 assert.ok(!/lw=0;gc=0;gk=0/.test(onlineHandler[1]), 'contadores de saldo não podem ser zerados em cada snapshot');
-const joinSection=app.match(/function joinOnline\\(roomCode,button\\)\\{([\\s\\S]*?)const openSocket/);
+const joinSection=app.match(/function joinOnline\(roomCode,button\)\{([\s\S]*?)const openSocket/);
 assert.ok(joinSection&&/lw=0;gc=0;gk=0/.test(joinSection[1]), 'contadores precisam iniciar uma vez por partida');
 assert.ok(app.includes('function drawBiomeLandmark('), 'decorações grandes dos biomas ausentes');
 assert.ok(app.includes('if(h%2===0)drawBiomeLandmark(X,Y,map,h)'), 'biomas precisam renderizar árvores, dunas, gelo e rochas de lava');

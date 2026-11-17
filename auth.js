@@ -328,7 +328,7 @@ async function handleAuthRequest(req, res, pathname) {
     send(res, 405, { error: 'Método não permitido.' }, { Allow: 'GET, POST, DELETE' });
     return true;
   } catch (error) {
-    const status = error.status || 503;
+    const status = error.status || (error.message === 'INVALID_PROGRESS' ? 400 : 503);
     if (status === 503) console.error('Auth service unavailable:', error.code || error.message);
     send(res, status, {
       error: status === 503

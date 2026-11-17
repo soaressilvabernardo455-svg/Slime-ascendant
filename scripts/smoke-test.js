@@ -208,3 +208,13 @@ assert.ok(app.includes("if(ty===2){")&&app.includes("else if(ty===5){")&&app.inc
 assert.ok(server.includes("w>2&&q<.08?5")&&app.includes("w>2&&q<.08?5")&&server.includes("w>1&&q<.36?4"), 'inimigos variados precisam começar a aparecer nas primeiras ondas');
 assert.ok(app.includes("max||(!developerModeEnabled&&SV.co<cost)"), 'upgrades gratuitos de teste não podem depender do saldo normal');
 assert.ok(app.includes("developerModeEnabled?'🪙 ∞　💎 ∞'"), 'modo de teste deve exibir saldo ilimitado sem alterar o perfil');
+
+assert.ok(server.includes('function randomSubset(items,count)') && app.includes('offlineRandomSubset=(items,count)'), 'seleção aleatória de habilidades deve usar embaralhamento correto');
+assert.ok(!server.includes(".sort(()=>R()-.5)") && !app.includes(".sort(()=>Math.random()-.5)"), 'não usar comparador aleatório inconsistente');
+assert.ok(app.includes("function offlineTick(){if(!OFF||!OR||document.hidden)return"), 'modo offline precisa pausar ao enviar o aplicativo para segundo plano');
+assert.ok(server.includes("it:p.it,shield:p.shieldUntil>r.t") && app.includes("it:p.it,shield:p.shieldUntil>r.t"), 'snapshots online e offline precisam enviar itens e duração do escudo');
+assert.ok(app.includes('function updateItemHUD(p)') && app.includes('updateItemHUD(p);'), 'HUD deve refletir os itens realmente equipados inclusive no modo DEV');
+assert.ok(app.includes("if(q.shield>0){x.save()"), 'escudo ativo do Cavaleiro precisa de indicador visual contínuo');
+assert.ok(app.includes("p.dev?'🪙 ∞  💎 ∞'"), 'HUD do modo DEV precisa mostrar recursos ilimitados');
+assert.ok(!app.includes('x.fillRect(X-5,Y,Y+0,0)'), 'remover desenho inválido do esqueleto');
+assert.ok(serviceWorker.includes('shell-v16'), 'service worker precisa invalidar a versão antiga do shell');

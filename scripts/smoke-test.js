@@ -62,9 +62,9 @@ assert.ok(app.includes("if(p.cls==='necromante')"), 'necromante precisa invocar 
 assert.ok(server.includes('p.lv===5&&(p.pw.meteoro||0)<5&&((p.pw.meteoro||0)>0||op.length<5)'), 'servidor não pode obrigar o Meteoro sem espaço para um novo poder');
 assert.ok(app.includes('p.lv===5&&(p.pw.meteoro||0)<5&&((p.pw.meteoro||0)>0||op.length<5)'), 'modo offline não pode obrigar o Meteoro sem espaço para um novo poder');
 const serverLevelStart = server.indexOf('function lv(p){');
-const serverLevelEnd = server.indexOf('\\nfunction pick(p,i){', serverLevelStart);
+const serverLevelEnd = server.indexOf('function pick(p,i){', serverLevelStart);
 const offlineLevelStart = app.indexOf('function offlineLevel(p){');
-const offlineLevelEnd = app.indexOf('\\nfunction offlinePick(i){', offlineLevelStart);
+const offlineLevelEnd = app.indexOf('function offlinePick(i){', offlineLevelStart);
 assert.ok(serverLevelStart >= 0 && serverLevelEnd > serverLevelStart, 'função de nível online deve ser testável');
 assert.ok(offlineLevelStart >= 0 && offlineLevelEnd > offlineLevelStart, 'função de nível offline deve ser testável');
 const serverLevelUp = new Function('PW', 'PS', 'R', server.slice(serverLevelStart, serverLevelEnd) + ';return lv;')(

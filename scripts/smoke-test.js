@@ -61,6 +61,31 @@ assert.match(app, /const PRICE=\{normal:\[0,0\],arqueiro:\[900,0\],cavaleiro:\[3
 assert.ok(app.includes("if(p.cls==='necromante')"), 'necromante precisa invocar esqueletos');
 assert.ok(server.includes('p.lv===5&&(p.pw.meteoro||0)<5&&((p.pw.meteoro||0)>0||op.length<5)'), 'servidor não pode obrigar o Meteoro sem espaço para um novo poder');
 assert.ok(app.includes('p.lv===5&&(p.pw.meteoro||0)<5&&((p.pw.meteoro||0)>0||op.length<5)'), 'modo offline não pode obrigar o Meteoro sem espaço para um novo poder');
+const serverLevelStart = server.indexOf('function lv(p){');
+const serverLevelEnd = server.indexOf('\\nfunction pick(p,i){', serverLevelStart);
+const offlineLevelStart = app.indexOf('function offlineLevel(p){');
+const offlineLevelEnd = app.indexOf('\\nfunction offlinePick(i){', offlineLevelStart);
+assert.ok(serverLevelStart >= 0 && serverLevelEnd > serverLevelStart, 'função de nível online deve ser testável');
+assert.ok(offlineLevelStart >= 0 && offlineLevelEnd > offlineLevelStart, 'função de nível offline deve ser testável');
+const serverLevelUp = new Function('PW', 'PS', 'R', server.slice(serverLevelStart, serverLevelEnd) + ';return lv;')(
+  ['proj','orb','nova','raio','aura','meteoro','lanca','corrente','espinhos','furacao'],
+  ['vida','dano','vel','recarga','ima','regen','xp','armadura','crit','sorte'],
+  () => 0.5
+);
+const offlineLevelUp = new Function(app.slice(offlineLevelStart, offlineLevelEnd) + ';return offlineLevel;')();
+const levelPlayer = (powers) => ({ lv: 4, xp: 0, nx: 5, pw: Object.fromEntries(powers.map((key) => [key, 1])), ps: {}, ch: null });
+for (const [name, levelUp] of [['online', serverLevelUp], ['offline', offlineLevelUp]]) {
+  const fullWithoutMeteor = levelPlayer(['proj','orb','nova','raio','aura']);
+  levelUp(fullWithoutMeteor);
+  assert.ok(!fullWithoutMeteor.ch?.includes('p:meteoro'), name + ': não oferecer poder novo quando os cinco espaços estão ocupados');
+  const fullWithMeteor = levelPlayer(['proj','orb','nova','raio','meteoro']);
+  levelUp(fullWithMeteor);
+  assert.ok(fullWithMeteor.ch?.includes('p:meteoro'), name + ': permitir melhorar Meteoro que já está equipado');
+  const roomForMeteor = levelPlayer(['proj','orb','nova','raio']);
+  levelUp(roomForMeteor);
+  assert.ok(roomForMeteor.ch?.includes('p:meteoro'), name + ': oferecer Meteoro quando existe espaço');
+}
+
 assert.ok(app.includes('(S.k||[])'), 'esqueletos precisam ser desenhados na partida');
 assert.ok(!app.includes('wx(W,H,S.mp|0,t)'), 'efeitos de partículas da tela do lobby não devem aparecer na partida');
 assert.ok(!app.includes('const grain=86'), 'remover granulação de pontos do mapa durante a partida');

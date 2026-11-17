@@ -9,6 +9,11 @@ const {handleAuthRequest}=require('./auth');
 const srv=http.createServer(async(q,s)=>{
  const path=new URL(q.url,'http://x').pathname;
  if(await handleAuthRequest(q,s,path))return;
+ if(path==='/health'&&q.method==='GET'){
+  const players=Object.values(rooms).reduce((total,room)=>total+Object.keys(room.ps||{}).length,0);
+  s.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','Access-Control-Allow-Origin':'same-origin'});
+  s.end(JSON.stringify({status:'ok',players,rooms:Object.keys(rooms).length,uptime:Math.floor(process.uptime())}));return;
+ }
  const assets={'/sw.js':['sw.js','application/javascript; charset=utf-8'],'/manifest.webmanifest':['manifest.webmanifest','application/manifest+json; charset=utf-8'],'/icon.svg':['icon.svg','image/svg+xml']};
  if(assets[path]){
   const [file,type]=assets[path];

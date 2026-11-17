@@ -62,6 +62,14 @@ assert.ok(app.includes("if(p.cls==='necromante')"), 'necromante precisa invocar 
 assert.ok(app.includes('(S.k||[])'), 'esqueletos precisam ser desenhados na partida');
 assert.ok(!app.includes('wx(W,H,S.mp|0,t)'), 'efeitos de partículas da tela do lobby não devem aparecer na partida');
 assert.ok(!app.includes('const grain=86'), 'remover granulação de pontos do mapa durante a partida');
+const onlineHandler=app.match(/socket\.onmessage=e=>\{([\\s\\S]*?)\\n  \\};/);
+assert.ok(onlineHandler, 'handler de snapshots online ausente');
+assert.ok(!/lw=0;gc=0;gk=0/.test(onlineHandler[1]), 'contadores de saldo não podem ser zerados em cada snapshot');
+const joinSection=app.match(/function joinOnline\\(roomCode,button\\)\\{([\\s\\S]*?)const openSocket/);
+assert.ok(joinSection&&/lw=0;gc=0;gk=0/.test(joinSection[1]), 'contadores precisam iniciar uma vez por partida');
+assert.ok(app.includes('function drawBiomeLandmark('), 'decorações grandes dos biomas ausentes');
+assert.ok(app.includes('if(h%2===0)drawBiomeLandmark(X,Y,map,h)'), 'biomas precisam renderizar árvores, dunas, gelo e rochas de lava');
+assert.ok(app.includes('c.scale(1.42*(1+squash),.98*(1-squash))'), 'slime precisa ter silhueta larga de gelatina em vez de esfera');
 assert.equal((app.match(/if\(p\.cls==='necromante'\)/g)||[]).length,1, 'invocação offline não pode executar duplicada');
 assert.match(app, /const MAPS=\[\['Floresta Antiga',0,0\],\['Deserto Dourado',6000,0\],\['Tundra Gelada',15000,0\],\['Vulcão Carmesim',0,300\]\]/);
 assert.match(app, /const ITEMS=\{espada:\['Espada Afiada','\+12% de dano',1800,0\],escudo:\['Escudo','-15% de dano recebido',2200,0\],botas:\['Botas Velozes','\+8% de velocidade',1400,0\],amuleto:\['Amuleto','\+15% de XP',0,120\],anel:\['Anel da Sorte','\+15% de moedas',0,160\],coracao:\['Coração de Cristal','\+25% de vida máxima',0,200\]\}/);

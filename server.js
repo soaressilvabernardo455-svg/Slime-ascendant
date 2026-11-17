@@ -60,14 +60,14 @@ function reset(r){r.es=[];r.sh=[];r.gm=[];r.hr=[];r.ch=[];r.fx=[];r.ob=[];r.wave
 function lv(p){p.lv++;p.xp-=p.nx;p.nx=Math.ceil(p.nx*1.35+2);
  const op=Object.keys(p.pw).filter(k=>p.pw[k]>0),os=Object.keys(p.ps).filter(k=>p.ps[k]>0);
  const pool=[...PW.filter(k=>(p.pw[k]||0)>0?p.pw[k]<5:op.length<5).map(k=>'p:'+k),...PS.filter(k=>(p.ps[k]||0)>0?p.ps[k]<5:os.length<5).map(k=>'s:'+k)];
- const shuffled=randomSubset(pool,pool.length);p.ch=p.lv===5&&(p.pw.meteoro||0)<5&&((p.pw.meteoro||0)>0||op.length<5)?['p:meteoro',...shuffled.filter(k=>k!=='p:meteoro')].slice(0,3):shuffled.slice(0,3);p.choiceExpiresAt=p.ch.length?Date.now()+10000:0;if(!p.ch.length)p.ch=null}
+ const shuffled=randomSubset(pool,pool.length);p.ch=p.lv===5&&(p.pw.meteoro||0)<5&&((p.pw.meteoro||0)>0||op.length<5)?['p:meteoro',...shuffled.filter(k=>k!=='p:meteoro')].slice(0,3):shuffled.slice(0,3);p.chType=p.ch.length?'level':'';p.choiceExpiresAt=p.ch.length?Date.now()+10000:0;if(!p.ch.length)p.ch=null}
 function pick(p,i){const o=p.ch&&p.ch[+i];if(!o)return;const k=o.slice(2),owned=Object.keys(o[0]=='p'?p.pw:p.ps).filter(a=>(o[0]=='p'?p.pw:p.ps)[a]>0);
  if(o[0]=='p'){if(!(p.pw[k]>0)&&owned.length>=5)return;if((p.pw[k]||0)>=5)return;p.pw[k]=(p.pw[k]||0)+1}
  else{if(!(p.ps[k]>0)&&owned.length>=5)return;if((p.ps[k]||0)>=5)return;p.ps[k]=(p.ps[k]||0)+1;if(k=='vida'){const b=CLS[p.cls].hp*.2;p.mh+=b;p.hp+=b}}
- p.ch=null;p.choiceExpiresAt=0;if(p.xp>=p.nx)lv(p)}
+ p.ch=null;p.chType='';p.choiceExpiresAt=0;if(p.xp>=p.nx)lv(p)}
 function spawn(r,L,ty){const w=r.wave,p=L[R()*L.length|0],a=R()*6.28,E=ET[ty],hp=E.h(w)*(1+.4*(L.length-1));
  r.es.push({x:cl(p.x+Math.cos(a)*520),y:cl(p.y+Math.sin(a)*520),ty,hp,mh:hp,r:E.r,v:E.v+(ty!=3?Math.min(w*.03,.8):0),d:E.d,attackCooldown:0})}
-function dropChest(r,x,y,type){if(!Array.isArray(r.ch))r.ch=[];if(r.ch.length>=12)return;const choices=['coin','coin','coin','gem','heal','medkit','bomb'];r.ch.push({x:cl(x),y:cl(y),type:type||choices[Math.floor(R()*choices.length)],life:1800})}
+function dropChest(r,x,y,type){if(!Array.isArray(r.ch))r.ch=[];if(r.ch.length>=12){if(type==='boss')r.ch.shift();else return}const choices=['coin','coin','coin','gem','heal','medkit','bomb'];r.ch.push({x:cl(x),y:cl(y),type:type||choices[Math.floor(R()*choices.length)],life:1800})}
 function dropChestNearPlayer(r,L){if(!L.length)return;const p=L[Math.floor(R()*L.length)],a=R()*Math.PI*2,d=110+R()*110;dropChest(r,p.x+Math.cos(a)*d,p.y+Math.sin(a)*d)}
 
 function step(r,L){
@@ -100,8 +100,10 @@ function step(r,L){
   if(l.corrente&&rdy('corrente',72)){let from=p;const chain=r.es.filter(e=>dist(e,p)<430).sort((a,b)=>dist(a,p)-dist(b,p)).slice(0,Math.min(2+l.corrente,6));for(const e of chain){e.hp-=hit((13+5*l.corrente)*dm);r.fx.push(['r',from.x|0,from.y|0,e.x|0,e.y|0,5]);from=e}}
   if(l.espinhos&&rdy('espinhos',24)){const rr=82+9*l.espinhos;r.fx.push(['n',p.x|0,p.y|0,rr,0,5]);for(const e of r.es)if(dist(e,p)<rr+e.r)e.hp-=hit((8+3*l.espinhos)*dm)}
   if(l.furacao&&rdy('furacao',150)){const rr=135+12*l.furacao;r.fx.push(['n',p.x|0,p.y|0,rr,0,9]);for(const e of r.es)if(dist(e,p)<rr+e.r){e.hp-=hit((28+9*l.furacao)*dm);const a=Math.atan2(e.y-p.y,e.x-p.x);e.x=cl(e.x+Math.cos(a)*18);e.y=cl(e.y+Math.sin(a)*18)}}
+  if(p.lv>=5&&rdy('ascensao',540)){const rr=150;for(const e of r.es)if(dist(e,p)<rr+e.r)e.hp-=hit((24+4*p.lv)*dm);p.hp=Math.min(p.mh,p.hp+Math.ceil(p.mh*.08));r.fx.push(['a',p.x|0,p.y|0,rr,0,18])}
   if(p.ps.regen&&r.t%30==0)p.hp=Math.min(p.mh,p.hp+p.ps.regen);
   if(c.heal&&r.t%60==0)for(const q of L)if(!q.d&&dist(q,p)<220)q.hp=Math.min(q.mh,q.hp+8)}
+ if(r.sh.length>240)r.sh.splice(0,r.sh.length-240);
  for(const e of r.es){let b=null,bd=1e9;for(const p of L){if(p.d)continue;const d=dist(p,e);if(d<bd){bd=d;b=p}}
   if(!b)continue;
   let separateX=0,separateY=0;for(const other of r.es){if(other===e)continue;const dx=e.x-other.x,dy=e.y-other.y,d=Math.hypot(dx,dy),gap=e.r+other.r+10;if(d>0&&d<gap){const force=(gap-d)/gap;separateX+=dx/d*force;separateY+=dy/d*force}}
@@ -109,14 +111,14 @@ function step(r,L){
   const contact=dist(b,e);if(contact<e.r+34){e.attackCooldown=(e.attackCooldown||0)-1;if(e.attackCooldown<=0){if(b.cls==='cavaleiro'&&(b.shieldUntil||0)>=r.t){e.attackCooldown=24;r.fx.push(['n',b.x|0,b.y|0,54,0,4])}else{const armor=Math.min(.85,.08*(b.ps.armadura||0)),damage=Math.max(1,e.d*(1-armor)*(b.it.includes('escudo')?.85:1));b.hp=Math.max(0,b.hp-damage);e.attackCooldown=75;if(b.hp===0){b.d=1;b.ch=null}}}}else if(e.attackCooldown>0)e.attackCooldown--}
  r.sh=r.sh.filter(s=>{s.x+=s.vx;s.y+=s.vy;if(--s.life<1)return 0;const h=s.h||(s.h=new Set());
   for(const e of r.es)if(e.hp>0&&!h.has(e)&&dist(e,s)<e.r+4){h.add(e);e.hp-=s.d;if(s.pr-->0)continue;return 0}return 1});
- r.es=r.es.filter(e=>{if(e.hp>0)return 1;const E=ET[e.ty];r.gm.push({x:e.x,y:e.y,v:E.x,life:1800});if(r.gm.length>120)r.gm.splice(0,r.gm.length-120);if(R()<.05){r.hr.push({x:e.x,y:e.y,life:1800});if(r.hr.length>20)r.hr.shift()}if(e.ty===3)dropChest(r,e.x,e.y,'gem');else if(R()<.018)dropChest(r,e.x,e.y);
+ r.es=r.es.filter(e=>{if(e.hp>0)return 1;const E=ET[e.ty];r.gm.push({x:e.x,y:e.y,v:E.x,life:1800});if(r.gm.length>120)r.gm.splice(0,r.gm.length-120);if(R()<.05){r.hr.push({x:e.x,y:e.y,life:1800});if(r.hr.length>20)r.hr.shift()}if(e.ty===3)dropChest(r,e.x,e.y,'boss');else if(R()<.018)dropChest(r,e.x,e.y);
   for(const p of L){if(p.d||p.devMode)continue;p.co+=Math.ceil(E.c*(1+.1*p.u.moeda+.1*(p.ps.sorte||0))*(p.it.includes('anel')?1.15:1));if(e.ty==2&&R()<.12)p.cr++;if(e.ty==3)p.cr+=3}return 0});
  r.gm=r.gm.filter(g=>{if(--g.life<=0)return 0;for(const p of L){if(p.d)continue;const d=dist(p,g)||1;
   if(d<14){p.xp+=g.v*(1+.15*(p.ps.xp||0))*(p.it.includes('amuleto')?1.15:1);if(p.xp>=p.nx&&!p.ch)lv(p);return 0}
   if(d<60*(1+.4*(p.ps.ima||0))){g.x+=(p.x-g.x)/d*5;g.y+=(p.y-g.y)/d*5;break}}return 1});
  r.hr=r.hr.filter(h=>{if(--h.life<=0)return 0;for(const p of L)if(!p.d&&dist(p,h)<18){p.hp=Math.min(p.mh,p.hp+25);return 0}return 1});
- r.ch=(r.ch||[]).filter(q=>{if(--q.life<=0)return 0;for(const p of L){if(p.d||dist(p,q)>25)continue;if(q.type==='coin'){if(!p.devMode)p.co+=25+Math.floor(R()*41)}else if(q.type==='gem'){if(!p.devMode)p.cr+=1+Math.floor(R()*3)}else if(q.type==='heal')p.hp=Math.min(p.mh,p.hp+18);else if(q.type==='medkit')p.hp=Math.min(p.mh,p.hp+55);else if(q.type==='bomb'){const radius=170,damage=60+r.wave*6;for(const e of r.es)if(dist(e,q)<radius+e.r)e.hp-=damage;r.fx.push(['n',q.x|0,q.y|0,radius,0,10])}return 0}return 1});
- r.fx=r.fx.filter(f=>--f[5]>0);
+ r.ch=(r.ch||[]).filter(q=>{if(--q.life<=0)return 0;for(const p of L){if(p.d||p.ch||dist(p,q)>25)continue;if(q.type==='boss'){const op=Object.keys(p.pw).filter(k=>p.pw[k]>0),os=Object.keys(p.ps).filter(k=>p.ps[k]>0),pool=[...PW.filter(k=>(p.pw[k]||0)>0?p.pw[k]<5:op.length<5).map(k=>'p:'+k),...PS.filter(k=>(p.ps[k]||0)>0?p.ps[k]<5:os.length<5).map(k=>'s:'+k)];p.ch=randomSubset(pool,3);p.chType=p.ch.length?'boss':'';p.choiceExpiresAt=p.ch.length?Date.now()+30000:0;if(!p.ch.length)p.hp=Math.min(p.mh,p.hp+Math.ceil(p.mh*.25))}else if(q.type==='coin'){if(!p.devMode)p.co+=25+Math.floor(R()*41)}else if(q.type==='gem'){if(!p.devMode)p.cr+=1+Math.floor(R()*3)}else if(q.type==='heal')p.hp=Math.min(p.mh,p.hp+18);else if(q.type==='medkit')p.hp=Math.min(p.mh,p.hp+55);else if(q.type==='bomb'){const radius=170,damage=60+r.wave*6;for(const e of r.es)if(dist(e,q)<radius+e.r)e.hp-=damage;r.fx.push(['n',q.x|0,q.y|0,radius,0,10])}return 0}return 1});
+ r.fx=r.fx.filter(f=>--f[5]>0);if(r.fx.length>160)r.fx.splice(0,r.fx.length-160);
  for(const p of L){if(p.cls!=='necromante'){p.sk=[];continue}p.sk=p.sk||[];p.skTimer=(p.skTimer||0)+1;if(p.skTimer>=360){p.skTimer=0;for(let i=0;i<2&&p.sk.length<4;i++){const a=R()*Math.PI*2;p.sk.push({x:p.x+Math.cos(a)*28,y:p.y+Math.sin(a)*28,hp:24,life:900,hit:0})}}p.sk=p.sk.filter(k=>{if(--k.life<=0||k.hp<=0)return false;let e=null,bd=1e9;for(const q of r.es){const d=dist(k,q);if(d<bd){bd=d;e=q}}if(e){const d=Math.max(1,bd);if(d>24){k.x+=(e.x-k.x)/d*2.5;k.y+=(e.y-k.y)/d*2.5}else if(++k.hit>=30){k.hit=0;e.hp-=4}}return true})}
 }
 
@@ -130,11 +132,11 @@ function roomMessage(r){
 function snapshot(r,own){
  const P=Object.values(r.ps),L=P.filter(p=>!p.d),near=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y)<=VIEW_RADIUS;
  const visible=(x,y)=>Math.hypot(x-own.x,y-own.y)<=VIEW_RADIUS;
- const effects=r.fx.filter(f=>f[0]==='n'?visible(f[1],f[2]):visible(f[1],f[2])||visible(f[3],f[4]));
+ const effects=r.fx.filter(f=>(f[0]==='n'||f[0]==='a')?visible(f[1],f[2]):visible(f[1],f[2])||visible(f[3],f[4]));
  return JSON.stringify({w:r.wave,mp:r.map|0,pa:!!own.ch,o:P.length>0&&!L.length?1:0,
-  k:P.flatMap(p=>(p.sk||[]).map(q=>[q.x|0,q.y|0])),p:P.map(p=>({id:p.id,n:p.name,c:p.cls,x:p.x|0,y:p.y|0,h:p.hp|0,m:p.mh|0,l:p.lv,xp:p.xp,nx:p.nx,d:p.d,pw:p.pw,ps:p.ps,ch:p.ch,it:p.it,shield:p.shieldUntil>r.t?p.shieldUntil-r.t:0,co:p.devMode?999999999:p.co,cr:p.devMode?999999999:p.cr,dev:!!p.devMode,sp:+(CLS[p.cls].sp*(1+.1*(p.ps.vel||0))*(1+.04*p.u.vel)*(p.it.includes('botas')?1.08:1)).toFixed(2)})),
+  k:P.flatMap(p=>(p.sk||[]).map(q=>[q.x|0,q.y|0])),p:P.map(p=>({id:p.id,n:p.name,c:p.cls,x:p.x|0,y:p.y|0,h:p.hp|0,m:p.mh|0,l:p.lv,xp:p.xp,nx:p.nx,d:p.d,pw:p.pw,ps:p.ps,ch:p.ch,chType:p.chType,it:p.it,shield:p.shieldUntil>r.t?p.shieldUntil-r.t:0,co:p.devMode?999999999:p.co,cr:p.devMode?999999999:p.cr,dev:!!p.devMode,sp:+(CLS[p.cls].sp*(1+.1*(p.ps.vel||0))*(1+.04*p.u.vel)*(p.it.includes('botas')?1.08:1)).toFixed(2)})),
   e:r.es.filter(e=>visible(e.x,e.y)).map(e=>[e.x|0,e.y|0,e.ty,Math.max(0,e.hp/e.mh)]),
-  s:r.sh.filter(q=>visible(q.x,q.y)).map(q=>[q.x|0,q.y|0]),
+  s:r.sh.filter(q=>visible(q.x,q.y)).slice(-240).map(q=>[q.x|0,q.y|0]),
   b:r.ob.filter(q=>visible(q[0],q[1])),
   g:r.gm.filter(q=>visible(q.x,q.y)).map(q=>[q.x|0,q.y|0]),
   f:effects,hr:r.hr.filter(q=>visible(q.x,q.y)).map(q=>[q.x|0,q.y|0]),ch:(r.ch||[]).filter(q=>visible(q.x,q.y)).map(q=>[q.x|0,q.y|0,q.type])});

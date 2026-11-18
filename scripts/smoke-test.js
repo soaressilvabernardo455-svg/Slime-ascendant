@@ -132,7 +132,7 @@ assert.ok(app.includes("screen.orientation.unlock"), 'orientação do aparelho p
 assert.ok(!app.includes("screen.orientation.lock('landscape')"), 'o jogo não pode forçar paisagem');
 assert.ok(app.includes("credentials:'include'"), 'requisições de conta devem enviar cookies');
 assert.ok(app.includes("if(connectTimer)clearTimeout(connectTimer)"), 'watchdog de entrada precisa ser limpo depois de entrar na sala');
-assert.match(html, /version-pill">v4\.6</, 'a versão exibida no lobby precisa aumentar');
+assert.match(html, /version-pill">v4\.7</, 'a versão exibida no lobby precisa aumentar');
 
 assert.match(server, /MAX_PLAYERS=4/, 'limite de quatro jogadores ausente');
 assert.match(server, /MAX_CONNECTIONS=40/, 'limite de conexões simultâneas ausente');
@@ -155,7 +155,7 @@ assert.match(server, /function roomMessage/, 'mensagens da sala de espera ausent
 assert.match(server, /r\.startAt=Date\.now\(\)\+5000/, 'contagem regressiva de início ausente');
 assert.match(server, /separateX/, 'separação de monstros ausente');
 assert.ok(server.includes('(ei-oi)*2.399963229728653')&&app.includes('(ei-oi)*2.399963229728653'), 'inimigos sobrepostos exatamente precisam ser separados');
-assert.ok(server.includes('separateX*1.35')&&app.includes('sx*1.35'), 'separação de inimigos precisa ter força suficiente');
+assert.ok(server.includes('separateX*3')&&app.includes('sx*3')&&server.includes('Math.min(3,(gap-d)/gap*4)')&&app.includes('Math.min(3,(gap-od)/gap*4)')&&server.includes('gap=e.r+other.r+28')&&app.includes('gap=e.r+other.r+28'), 'separação de inimigos precisa ter força suficiente');
 assert.ok(server.includes("['l',q.x|0,q.y|0,q.type,0,70]")&&app.includes("['l',q.x|0,q.y|0,q.type,0,70]")&&app.includes("labels={coin:"), 'baús precisam mostrar visualmente o tipo de recompensa');
 assert.ok(server.includes('i<n&&r.es.length<36'), 'spawn online precisa respeitar o limite de monstros durante cada lote');
 assert.ok(app.includes('i<n&&r.es.length<36'), 'spawn offline precisa respeitar o limite de monstros durante cada lote');
@@ -238,7 +238,7 @@ assert.ok(app.includes('playing&&(developerModeEnabled||SV.items.length)') && ap
 assert.ok(app.includes("if(q.shield>0){x.save()"), 'escudo ativo do Cavaleiro precisa de indicador visual contínuo');
 assert.ok(app.includes("p.dev?'🪙 ∞  💎 ∞'"), 'HUD do modo DEV precisa mostrar recursos ilimitados');
 assert.ok(!app.includes('x.fillRect(X-5,Y,Y+0,0)'), 'remover desenho inválido do esqueleto');
-assert.ok(serviceWorker.includes('shell-v23'), 'service worker precisa invalidar a versão antiga do shell');
+assert.ok(serviceWorker.includes('shell-v24'), 'service worker precisa invalidar a versão antiga do shell');
 
 assert.ok(app.includes("if(OFF&&offlineTimer){clearInterval(offlineTimer);offlineTimer=0}") && app.includes("if(OFF&&OR&&!offlineTimer){offlineTimer=setInterval(offlineTick,33);offlineTick()}"), 'timer offline precisa parar em segundo plano e retomar ao voltar');
 assert.ok(app.includes('let GAME_SAFE_TOP=28;') && app.includes('const gameSafeTop=GAME_SAFE_TOP;'), 'área segura do HUD deve ser calculada no resize e não em todos os frames');

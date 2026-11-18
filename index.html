@@ -1374,9 +1374,9 @@ if('PointerEvent' in window){
 }
 const DEVICE_DPR_CAP=(navigator.deviceMemory&&navigator.deviceMemory<=4)?1.1:1.25;
 const qualityDprCap=()=>SV.quality===0?1:SV.quality===1?DEVICE_DPR_CAP:Math.min(2,DEVICE_DPR_CAP+.5);
-let DPR=Math.min(devicePixelRatio||1,qualityDprCap()),fpsFrames=0,fpsStart=0,lastQuality=0,idleRenderAt=0,currentFps=0;
+let DPR=Math.min(devicePixelRatio||1,1.25),fpsFrames=0,fpsStart=0,lastQuality=0,idleRenderAt=0,currentFps=0;
 let GAME_SAFE_TOP=28;
-function resizeGame(){cv.width=Math.round(innerWidth*DPR);cv.height=Math.round(innerHeight*DPR);const safe=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--game-safe-top'));GAME_SAFE_TOP=Math.max(28,Number.isFinite(safe)?safe:0)}
+function resizeGame(){cv.width=Math.round(innerWidth*DPR);cv.height=Math.round(innerHeight*DPR);x.imageSmoothingEnabled=true;const safe=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--game-safe-top'));GAME_SAFE_TOP=Math.max(28,Number.isFinite(safe)?safe:0)}
 onresize=resizeGame;resizeGame();
 const fpsNode=$('fps-indicator');
 function draw(t){requestAnimationFrame(draw);
@@ -1387,14 +1387,14 @@ function draw(t){requestAnimationFrame(draw);
   if(GAME_STATE==='LOADING'||t-idleRenderAt<33)return;
   idleRenderAt=t;
   const W=innerWidth,H=innerHeight,map=Math.max(0,Math.min(3,SV.map|0));x.setTransform(DPR,0,0,DPR,0,0);x.clearRect(0,0,W,H);drawGround(0,0,W,H,map);const portrait=H>W,cx=portrait?W*.5:W*.69,cy=portrait?H*.29:H*.53,scale=portrait?1.45:Math.min(1.95,Math.max(1.5,Math.min(W/420,H/250)));const halo=x.createRadialGradient(cx,cy,8,cx,cy,Math.min(W,H)*.62);halo.addColorStop(0,'#b7ff8233');halo.addColorStop(.48,'#6df59a18');halo.addColorStop(1,'#06100c55');x.fillStyle=halo;x.fillRect(0,0,W,H);x.save();x.translate(cx,cy+34);x.scale(scale,scale);x.fillStyle='#020b0688';x.beginPath();x.ellipse(0,8,58,14,0,0,Math.PI*2);x.fill();x.strokeStyle='#a5f58b99';x.lineWidth=2;x.beginPath();x.ellipse(0,3,78,18,0,0,Math.PI*2);x.stroke();x.restore();/* O slime do lobby é desenhado na prévia DOM acima da capa. */const preview=$('pv');if(preview){if(preview.width!==192){preview.width=192;preview.height=192}const pg=preview.getContext('2d');if(pg){pg.setTransform(2,0,0,2,0,0);pg.clearRect(0,0,96,96);pg.save();pg.translate(48,55);pg.scale(1.12,1.12);slime(pg,0,0,SV.sel,t,false,0,0);pg.restore()}}return}
- fpsFrames++;if(!fpsStart)fpsStart=t;if(t-fpsStart>=1800){const fps=fpsFrames*1000/(t-fpsStart);let next=DPR;if(fps<42)next=Math.max(1,Math.round((DPR-.15)*100)/100);else if(fps>56)next=Math.min(Math.min(devicePixelRatio||1,qualityDprCap()),Math.round((DPR+.1)*100)/100);currentFps=fps;if(Math.abs(next-DPR)>.04&&t-lastQuality>3500){DPR=next;resizeGame();lastQuality=t}fpsFrames=0;fpsStart=t}
+ fpsFrames++;if(!fpsStart)fpsStart=t;if(t-fpsStart>=1800){currentFps=fpsFrames*1000/(t-fpsStart);fpsFrames=0;fpsStart=t}
  x.setTransform(DPR,0,0,DPR,0,0);const W=innerWidth,H=innerHeight,p=S.p.find(q=>q.id==me);if(!p)return;powerHUD(p);updateItemHUD(p);if(fpsNode){const fpsDisplay=SV.showFps?'block':'none';if(fpsNode.style.display!==fpsDisplay)fpsNode.style.display=fpsDisplay;if(SV.showFps){const fpsText=currentFps>0?Math.round(currentFps)+' FPS':'FPS …';if(fpsNode.textContent!==fpsText)fpsNode.textContent=fpsText}}if(!S.o&&$('fim').style.display!=='none')$('fim').style.display='none';
  if(p.h<lh){sfx(110,.12,'sawtooth',.05)}if(p.xp>lx&&t-lsx>90){lsx=t;sfx(1000,.04,'sine',.02)}lx=p.xp;if(S.w!=lw){lw=S.w;if(lw>1)toast(lw%5==0?'⚠ O CHEFE CHEGOU!':'Onda '+lw);if(lw%5==0)sfx(90,.5,'sawtooth',.06)}lh=p.h;sh=0;
  const dt=Math.min((t-lt)/33.3,3),sp=p.sp||3.5;lt=t;if(!pp||S.o||Math.hypot(p.x-pp.x,p.y-pp.y)>80)pp={x:p.x,y:p.y};
  if(!p.d&&!S.pa){const[dx,dy]=getDir(),m=Math.hypot(dx,dy),k=m>1?1/m:1;pp.x=Math.max(-1000000000,Math.min(1000000000,pp.x+dx*k*sp*dt));pp.y=Math.max(-1000000000,Math.min(1000000000,pp.y+dy*k*sp*dt))}
  const ex=p.x-pp.x,ey=p.y-pp.y,err=Math.hypot(ex,ey);if(err>1.5){const corr=err>50 ? .35 : .22;pp.x+=ex*corr;pp.y+=ey*corr}
  const cx=pp.x-W/2,cy=pp.y-H/2;
- const T=TH[S.mp|0];x.save();drawGround(cx,cy,W,H,S.mp|0);
+ const T=TH[S.mp|0];x.clearRect(0,0,W,H);x.imageSmoothingEnabled=true;x.save();drawGround(cx,cy,W,H,S.mp|0);
  S.g.forEach(([a,b])=>{const o=Math.sin(t/260+a)*1.5,X=a-cx,Y=b-cy+o;x.save();x.shadowColor='#38e6d5';x.shadowBlur=8;x.fillStyle='#0e7490';x.beginPath();x.ellipse(X,Y+3,5,3,0,0,Math.PI*2);x.fill();const gem=x.createLinearGradient(X-4,Y-7,X+4,Y+6);gem.addColorStop(0,'#f0fdfa');gem.addColorStop(.35,'#67e8f9');gem.addColorStop(1,'#0e7490');x.fillStyle=gem;x.beginPath();x.moveTo(X,Y-8);x.lineTo(X+5,Y-1);x.lineTo(X,Y+6);x.lineTo(X-5,Y-1);x.closePath();x.fill();x.strokeStyle='#d9fffb';x.lineWidth=1;x.stroke();x.shadowBlur=0;x.fillStyle='#fff';x.beginPath();x.arc(X-1.5,Y-3,1.2,0,Math.PI*2);x.fill();x.restore()});
  (S.hr||[]).forEach(([a,b])=>{const X=a-cx,Y=b-cy+Math.sin(t/150+a)*2;x.save();x.shadowColor='#fb7185';x.shadowBlur=7;x.fillStyle='#f43f5e';x.beginPath();x.moveTo(X,Y+6);x.bezierCurveTo(X-3,Y+3,X-9,Y-2,X-7,Y-7);x.bezierCurveTo(X-5,Y-12,X,Y-10,X,Y-6);x.bezierCurveTo(X,Y-10,X+5,Y-12,X+7,Y-7);x.bezierCurveTo(X+9,Y-2,X+3,Y+3,X,Y+6);x.closePath();x.fill();x.shadowBlur=0;x.fillStyle='#fecdd3';x.beginPath();x.arc(X-3,Y-6,1.5,0,Math.PI*2);x.fill();x.restore()});
  S.e.forEach(([a,b,ty,h])=>{if(a<cx-90||a>cx+W+90||b<cy-90||b>cy+H+90)return;const X=a-cx,Y=b-cy,s=ER[ty];mon(x,X,Y,ty,t);

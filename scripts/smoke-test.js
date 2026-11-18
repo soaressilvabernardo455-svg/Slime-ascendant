@@ -150,7 +150,10 @@ assert.match(server, /playing,rooms/, 'contagem de jogadores em partidas ausente
 assert.match(server, /Math\.max\(-1000000000,Math\.min\(1000000000,v\)/, 'limite global do mapa infinito ausente');
 assert.match(server, /UPGRADE_KEYS=\['vida','dano','vel','moeda'\]/, 'whitelist de melhorias permanentes ausente');
 assert.match(server, /VIEW_RADIUS=640/, 'raio de visibilidade por jogador ausente');
-assert.match(server, /choiceExpiresAt=p\.ch\.length\?Date\.now\(\)\+10000/, 'timeout de escolha de habilidade de 10s ausente');
+assert.match(server, /p\.chType=p\.ch\.length\?'level':'';p\.choiceExpiresAt=0/, 'escolha de nível não deve expirar automaticamente');
+assert.match(server, /levelChoicePending=alive\.some\(p=>p\.ch&&p\.chType==='level'\)/, 'multiplayer deve pausar enquanto houver escolha de XP pendente');
+assert.match(server, /if\(alive\.length&&!levelChoicePending\)step\(r,alive\)/, 'mundo multiplayer deve ficar pausado durante a escolha de XP');
+assert.match(server, /p\.chType==='boss'&&p\.choiceExpiresAt/, 'escolhas de baú do chefe mantêm o timeout próprio');
 assert.match(server, /function roomMessage/, 'mensagens da sala de espera ausentes');
 assert.match(server, /r\.startAt=Date\.now\(\)\+5000/, 'contagem regressiva de início ausente');
 assert.match(server, /separateX/, 'separação de monstros ausente');

@@ -3,7 +3,7 @@ const R=Math.random,PW=['proj','orb','nova','raio','aura','meteoro','lanca','cor
 const CLS={normal:{hp:100,sp:4.8,dm:.8,pw:'proj'},mago:{hp:70,sp:4.8,dm:.92,pw:'raio'},cavaleiro:{hp:150,sp:4.2,dm:1.05,pw:'orb'},necromante:{hp:85,sp:4.8,dm:1,pw:'nova'},curandeiro:{hp:110,sp:4.8,dm:.7,pw:'aura',heal:1},arqueiro:{hp:80,sp:5.2,dm:.9,pw:'proj',pr:2}};
 const ET=[{h:w=>18+w*9,r:10,v:1.4,d:7,c:1,x:1},{h:w=>10+w*5,r:8,v:2.4,d:5,c:2,x:2},{h:w=>55+w*15,r:16,v:.9,d:14,c:6,x:5},{h:w=>300+w*55,r:26,v:.8,d:20,c:18,x:40},{h:w=>14+w*6,r:11,v:1.9,d:6,c:1,x:3},{h:w=>30+w*8,r:12,v:1.6,d:9,c:2,x:3},{h:w=>70+w*14,r:13,v:.7,d:10,c:2,x:4}];
 const rooms=Object.create(null);let N=1,roomSequence=1;const ITEMS=['espada','escudo','botas','amuleto','anel','coracao'];const presence=new Map(),PRESENCE_TTL_MS=45000;
-const DEV_ACCESS_CODE=String(process.env.SLIME_DEV_ACCESS_CODE||'');const devTokens=new Map(),devAttempts=new Map();
+const DEV_ACCESS_CODE=String(process.env.SLIME_DEV_ACCESS_CODE||'6767');const devTokens=new Map(),devAttempts=new Map();
 function pruneDevState(now=Date.now()){for(const [token,expiry] of devTokens)if(expiry<=now)devTokens.delete(token);for(const [ip,item] of devAttempts)if(now-item.startedAt>10*60*1000)devAttempts.delete(ip);if(devTokens.size>500){for(const token of devTokens.keys()){devTokens.delete(token);if(devTokens.size<=400)break}}if(devAttempts.size>2000){for(const ip of devAttempts.keys()){devAttempts.delete(ip);if(devAttempts.size<=1500)break}}}
 function validDevToken(token){if(typeof token!=='string'||token.length!==64)return false;const expiry=devTokens.get(token);if(!expiry)return false;if(expiry<=Date.now()){devTokens.delete(token);return false}return true}
 function randomSubset(items,count){const copy=items.slice(),take=Math.min(copy.length,Math.max(0,count|0));for(let i=0;i<take;i++){const j=i+Math.floor(R()*(copy.length-i));[copy[i],copy[j]]=[copy[j],copy[i]]}return copy.slice(0,take)}
@@ -154,8 +154,11 @@ function tick(r){
   else{if(now-r.lastRoomBroadcast>=350){r.lastRoomBroadcast=now;roomMessage(r)}return}
  }
  for(const p of P)if(p.ch&&p.chType==='boss'&&p.choiceExpiresAt&&now>=p.choiceExpiresAt)pick(p,0);
- const alive=P.filter(p=>!p.d),levelChoicePending=alive.some(p=>p.ch&&p.chType==='level');
- if(alive.length&&!levelChoicePending)step(r,alive);
+ const alive=P.filter(p=>!p.d);
+ // Só quem está escolhendo uma melhoria de nível fica parado e protegido.
+ // Os demais jogadores continuam se movendo e jogando normalmente.
+ const activePlayers=alive.filter(p=>!(p.ch&&p.chType==='level'));
+ if(activePlayers.length)step(r,activePlayers);
  if(now-r.lastSnapshotAt<50)return;
  r.lastSnapshotAt=now;
  wss.clients.forEach(client=>{

@@ -132,7 +132,7 @@ assert.ok(app.includes("screen.orientation.unlock"), 'orientação do aparelho p
 assert.ok(!app.includes("screen.orientation.lock('landscape')"), 'o jogo não pode forçar paisagem');
 assert.ok(app.includes("credentials:'include'"), 'requisições de conta devem enviar cookies');
 assert.ok(app.includes("if(connectTimer)clearTimeout(connectTimer)"), 'watchdog de entrada precisa ser limpo depois de entrar na sala');
-assert.match(html, /version-pill">v4\.4</, 'a versão exibida no lobby precisa aumentar');
+assert.match(html, /version-pill">v4\.5</, 'a versão exibida no lobby precisa aumentar');
 
 assert.match(server, /MAX_PLAYERS=4/, 'limite de quatro jogadores ausente');
 assert.match(server, /MAX_CONNECTIONS=40/, 'limite de conexões simultâneas ausente');
@@ -209,6 +209,10 @@ assert.ok(app.includes("developerModeEnabled?Object.keys(ITEMS)") && app.include
 assert.ok(app.includes("if(!player.dev&&data.w>SV.best)") && app.includes('if(!p.devMode&&p.co>gc)'), 'resultados do modo de teste não podem contaminar o progresso normal');
 assert.ok(server.includes('dropChestNearPlayer') && server.includes("q.type==='medkit'") && server.includes("q.type==='bomb'"), 'baús online precisam entregar moedas, gemas, cura, kit médico e explosivos');
 assert.ok(app.includes('offlineDropChestNearPlayer') && app.includes("q.type==='medkit'") && app.includes("q.type==='bomb'") && app.includes('(S.ch||[])'), 'baús precisam funcionar e aparecer no modo offline');
+assert.ok(app.includes('offlineDamageChests(r,p,p.x,p.y,220,hit(16*dm))'), 'ataque básico offline precisa atingir baús próximos');
+assert.ok(server.includes('damageChests(r,p.x,p.y,220,hit(16*dm),L)'), 'ataque básico online precisa atingir baús próximos');
+assert.ok(app.includes('if(q.targetChest){for(const chest') && server.includes('if(s.targetChest){for(const q'), 'projéteis que miram baús não podem ser bloqueados por monstros');
+assert.ok(app.includes("r.fx.push(['a',q.x|0,q.y|0,34,0,12])") && server.includes("r.fx.push(['a',q.x|0,q.y|0,34,0,12])"), 'abrir baú precisa mostrar efeito visual');
 
 assert.ok(server.includes("p.cls==='cavaleiro'&&rdy('knightSword',48)")&&app.includes("p.cls==='cavaleiro'&&rdy('knightSword',48)"), 'Cavaleiro precisa atacar com espada em intervalos de 1,6 segundo');
 assert.ok(server.includes("b.cls==='cavaleiro'&&(b.shieldUntil||0)>=r.t")&&app.includes("p.cls==='cavaleiro'&&(p.shieldUntil||0)>=r.t"), 'escudo temporário do Cavaleiro precisa bloquear contato online e offline');

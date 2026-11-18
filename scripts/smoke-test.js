@@ -105,9 +105,9 @@ assert.ok(app.includes('function drawBiomeLandmark('), 'decorações grandes dos
 assert.ok(app.includes('function mkS(ty){')&&app.includes('for(let i=0;i<7;i++)SPR[i]=mkS(i)'), 'monstros precisam usar sprites vetoriais suaves em alta resolução');
 assert.ok(app.includes('c.imageSmoothingEnabled=true;c.drawImage(SPR[ty]'), 'sprites de monstros precisam ser renderizados com suavização');
 assert.ok(server.includes("'/cover.svg':['cover.svg','image/svg+xml']"), 'servidor precisa entregar a capa SVG do jogo');
-assert.ok(app.includes('if(h%2===0)drawBiomeLandmark(X,Y,map,h)'), 'biomas precisam renderizar árvores, dunas, gelo e rochas de lava');
+assert.ok(app.includes('if((h&3)===0)drawBiomeLandmark(0,0,map,h)')&&app.includes('if((h&7)===0)drawForestLandmark(0,0,h)'), 'biomas precisam renderizar árvores, dunas, gelo e rochas de lava');
 assert.ok(app.includes('c.scale(1.04*(1+squash),.98*(1-squash))'), 'slime precisa manter proporções mais equilibradas');
-assert.ok(app.includes('function drawGround(cx,cy,W,H,map){')&&app.includes('Grandes manchas de terreno fixas no mundo'), 'textura de terreno limpa ausente');
+assert.ok(app.includes('function drawGround(cx,cy,W,H,map){')&&app.includes('const chunk=540')&&app.includes('roadStep=map===2?940:860'), 'textura de terreno limpa ausente');
 assert.ok(!app.includes('drawGround(0,0,W,H,map);wx(W,H,map,t)'), 'partículas flutuantes não devem aparecer no lobby');
 assert.ok(html.includes('id="create-room"')&&app.includes("$('create-room').onclick"), 'criação de sala privada ausente');
 assert.ok(app.includes("joinOnline(code,$('create-room'))"), 'sala privada precisa conectar com código compartilhável');
@@ -117,7 +117,7 @@ assert.ok(app.includes('const qualityDprCap=()=>SV.quality===0?1:SV.quality===1?
 assert.ok(app.includes('quality:Number.isInteger(Number(raw.quality))')&&app.includes('showFps:raw.showFps?1:0'), 'salvamento local/nuvem deve preservar qualidade e FPS');
 assert.ok(auth.includes('quality: Number.isInteger(quality)')&&auth.includes('showFps: raw.showFps ? 1 : 0'), 'banco de dados deve preservar qualidade e FPS');
 assert.ok(app.includes('quality:local.quality,showFps:local.showFps'), 'sincronização de conta deve preservar as preferências deste aparelho');
-assert.ok(app.includes('Math.min(Math.min(devicePixelRatio||1,qualityDprCap())'), 'ajuste automático não pode rebaixar o modo Alto para o teto do modo Padrão');
+assert.ok(app.includes('DPR=Math.min(devicePixelRatio||1,qualityDprCap())')&&app.includes('const qualityDprCap=()=>SV.quality===0?1:SV.quality===1?DEVICE_DPR_CAP:Math.min(2,DEVICE_DPR_CAP+.5)'), 'seletor de qualidade precisa aplicar o limite de resolução correto');
 assert.ok(app.includes("settings.querySelector('#setting-fps')")&&app.includes("' FPS'"), 'opção de FPS precisa exibir contador');
 assert.ok(app.includes('refreshAccountWhenActive'), 'sessão deve ser revalidada ao voltar ao jogo');
 assert.equal((app.match(/if\(p\.cls==='necromante'\)/g)||[]).length,1, 'invocação offline não pode executar duplicada');
@@ -159,8 +159,8 @@ assert.ok(server.includes('separateX*3')&&app.includes('sx*3')&&server.includes(
 assert.ok(server.includes("['l',q.x|0,q.y|0,q.type,0,70]")&&app.includes("['l',q.x|0,q.y|0,q.type,0,70]")&&app.includes("labels={coin:"), 'baús precisam mostrar visualmente o tipo de recompensa');
 assert.ok(server.includes('i<n&&r.es.length<36'), 'spawn online precisa respeitar o limite de monstros durante cada lote');
 assert.ok(app.includes('i<n&&r.es.length<36'), 'spawn offline precisa respeitar o limite de monstros durante cada lote');
-assert.ok(server.includes('life:1800')&&server.includes('r.gm.length>120')&&server.includes('r.hr.length>20'), 'drops online precisam expirar e ter limites de quantidade');
-assert.ok(app.includes('life:1800')&&app.includes('r.gm.length>120')&&app.includes('r.hr.length>20'), 'drops offline precisam expirar e ter limites de quantidade');
+assert.ok(server.includes('life:1800')&&server.includes('r.gm.length>30')&&server.includes('r.hr.length>20'), 'drops online precisam expirar e ter limites de quantidade');
+assert.ok(app.includes('life:1800')&&app.includes('r.gm.length>30')&&app.includes('r.hr.length>20'), 'drops offline precisam expirar e ter limites de quantidade');
 
 assert.match(auth, /SameSite=Lax/, 'cookie de sessão precisa usar SameSite=Lax');
 assert.match(auth, /Expires=/, 'cookie precisa ter expiração persistente');
@@ -198,7 +198,7 @@ assert.ok(server.includes('e.attackCooldown=75')&&server.includes('const stopGap
 console.log('Smoke tests aprovados. Referências DOM: ' + usedIds.length + '; classes: 6; upgrades permanentes: ' + Object.keys(shopUpgrades).length + '.');
 
 assert.ok(app.includes("if(t===b.dataset.t)panel.scrollTop=0"), 'trocar de aba deve voltar o painel ao topo');
-assert.ok(app.includes("h%53==0")&&!app.includes("h%9==0"), 'floresta deve evitar ruído excessivo de pequenos pixels');
+assert.ok(app.includes('const chunk=540')&&!app.includes('const grain=86')&&!app.includes('wx(W,H,S.mp|0,t)'), 'floresta deve evitar ruído excessivo de pequenos pixels');
 assert.ok(app.includes('gameSafeTop+88'), 'HUD da partida deve respeitar a área segura superior');
 assert.ok(app.includes("slime(pg,0,0,SV.sel,t,false,0,0)")&&!app.includes("slime(x,0,0,SV.sel,t,false,0,0)"), 'o lobby deve desenhar apenas uma prévia do slime');
 assert.ok(html.includes('.player-chips{display:flex!important'), 'saldo de moedas e cristais precisa estar visível no lobby');
@@ -215,7 +215,7 @@ assert.ok(app.includes('offlineDropChestNearPlayer') && app.includes("q.type==='
 assert.ok(app.includes('offlineDamageChests(r,p,p.x,p.y,220,hit(16*dm))'), 'ataque básico offline precisa atingir baús próximos');
 assert.ok(server.includes('damageChests(r,p.x,p.y,220,hit(16*dm),L)'), 'ataque básico online precisa atingir baús próximos');
 assert.ok(app.includes('if(q.targetChest){for(const chest') && server.includes('if(s.targetChest){for(const q'), 'projéteis que miram baús não podem ser bloqueados por monstros');
-assert.ok(app.includes("r.fx.push(['a',q.x|0,q.y|0,34,0,12])") && server.includes("r.fx.push(['a',q.x|0,q.y|0,34,0,12])"), 'abrir baú precisa mostrar efeito visual');
+assert.ok(app.includes("r.fx.push(['a',q.x|0,q.y|0,34,0,12],['l',q.x|0,q.y|0,q.type,0,70])") && server.includes("r.fx.push(['a',q.x|0,q.y|0,34,0,12],['l',q.x|0,q.y|0,q.type,0,70])"), 'abrir baú precisa mostrar efeito visual e a recompensa');
 
 assert.ok(server.includes("p.cls==='cavaleiro'&&rdy('knightSword',48)")&&app.includes("p.cls==='cavaleiro'&&rdy('knightSword',48)"), 'Cavaleiro precisa atacar com espada em intervalos de 1,6 segundo');
 assert.ok(server.includes("b.cls==='cavaleiro'&&(b.shieldUntil||0)>=r.t")&&app.includes("p.cls==='cavaleiro'&&(p.shieldUntil||0)>=r.t"), 'escudo temporário do Cavaleiro precisa bloquear contato online e offline');
@@ -233,8 +233,8 @@ assert.ok(app.includes('function updateItemHUD(p)') && app.includes('updateItemH
 const itemHudStart=app.indexOf('function updateItemHUD(p){');
 const itemHudEnd=app.indexOf('function powerHUD(p){',itemHudStart);
 const itemHudSource=app.slice(itemHudStart,itemHudEnd);
-assert.equal((itemHudSource.match(/(?:^|,)display=/g)||[]).length,1,'HUD de itens deve declarar uma única variável display');
-assert.ok(app.includes('playing&&(developerModeEnabled||SV.items.length)') && app.includes("if($('item-hud').style.display!==display)$('item-hud').style.display=display;if(key===lastItemHudKey)return"), 'HUD de itens precisa reaparecer depois de voltar ao lobby mesmo sem mudar os itens do modo DEV');
+assert.ok(itemHudSource.includes("key=items.join('|')")&&itemHudSource.includes('visible=active&&items.length>0'), 'HUD de itens deve detectar os itens atuais e o estado da partida');
+assert.ok(itemHudSource.includes("panel.style.display=button.dataset.open==='1'?'flex':'none'")&&itemHudSource.includes("$('item-count').textContent=String(items.length)"), 'HUD de itens precisa abrir, fechar e mostrar a quantidade correta');
 assert.ok(app.includes("if(q.shield>0){x.save()"), 'escudo ativo do Cavaleiro precisa de indicador visual contínuo');
 assert.ok(app.includes("p.dev?'🪙 ∞  💎 ∞'"), 'HUD do modo DEV precisa mostrar recursos ilimitados');
 assert.ok(!app.includes('x.fillRect(X-5,Y,Y+0,0)'), 'remover desenho inválido do esqueleto');
@@ -246,7 +246,7 @@ assert.ok(app.includes("if(fpsNode.style.display!==fpsDisplay)fpsNode.style.disp
 assert.ok(app.includes('moving=m2&&!p.d&&!S.pa&&Math.hypot(lookX,lookY)>.12'), 'vetor do joystick deve ser reutilizado no desenho do player');
 assert.ok(server.includes('if(devAttempts.size>2000)'), 'mapa de limitação DEV deve ter limite de memória');
 
-assert.ok(app.includes("key=items.join('|'),display=(GAME_STATE==='PLAYING'||GAME_STATE==='GAMEOVER')&&items.length?'flex':'none'") && app.includes("playing&&(developerModeEnabled||SV.items.length)"), 'HUD de itens precisa aparecer com os itens do modo DEV também');
+assert.ok(app.includes("key=items.join('|'),active=GAME_STATE==='PLAYING'||GAME_STATE==='GAMEOVER'")&&app.includes('visible=active&&items.length>0')&&app.includes('Array.isArray(p&&p.it)?p.it:SV.items'), 'HUD de itens precisa aparecer com os itens do modo DEV também');
 assert.ok(app.includes("try{ws.send(JSON.stringify({t:'pick',i}))}catch(e)"), 'envio de melhoria deve lidar com desconexões');
 assert.ok(app.includes("try{ws.send(JSON.stringify({t:'in',dx,dy}))}catch(e)"), 'envio de movimento deve lidar com desconexões');
 assert.ok(server.includes('c.bufferedAmount>262144')&&server.includes('client.bufferedAmount>524288'), 'servidor precisa limitar filas de WebSocket em conexões lentas');

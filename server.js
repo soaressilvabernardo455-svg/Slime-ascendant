@@ -69,7 +69,7 @@ function spawn(r,L,ty){const w=r.wave,p=L[R()*L.length|0],a=R()*6.28,E=ET[ty],hp
  r.es.push({x:cl(p.x+Math.cos(a)*520),y:cl(p.y+Math.sin(a)*520),ty,hp,mh:hp,r:E.r,v:E.v+(ty!=3?Math.min(w*.03,.8):0),d:E.d,attackCooldown:0})}
 function dropChest(r,x,y,type){if(!Array.isArray(r.ch))r.ch=[];if(r.ch.length>=12){if(type==='boss')r.ch.shift();else return}const choices=['coin','coin','coin','gem','heal','medkit','bomb'],kind=type||choices[Math.floor(R()*choices.length)],hp=kind==='boss'?96:48;r.ch.push({x:cl(x),y:cl(y),type:kind,hp,maxHp:hp,life:1800,broken:false})}
 function chestUpgradePool(p){const op=Object.keys(p.pw).filter(k=>p.pw[k]>0),os=Object.keys(p.ps).filter(k=>p.ps[k]>0);return[...PW.filter(k=>(p.pw[k]||0)>0?p.pw[k]<5:op.length<5).map(k=>'p:'+k),...PS.filter(k=>(p.ps[k]||0)>0?p.ps[k]<5:os.length<5).map(k=>'s:'+k)]}
-function breakChest(r,q,L){if(q.broken)return;q.broken=true;if(q.type==='boss'){let targets=L.filter(p=>!p.d&&!p.ch&&dist(p,q)<220);if(!targets.length)targets=L.filter(p=>!p.d&&!p.ch);for(const p of targets){p.ch=randomSubset(chestUpgradePool(p),3);p.chType=p.ch.length?'boss':'';p.choiceExpiresAt=p.ch.length?Date.now()+30000:0}return}for(const p of L){if(p.d||dist(p,q)>150)continue;if(q.type==='coin'){if(!p.devMode)p.co+=25+Math.floor(R()*41)}else if(q.type==='gem'){if(!p.devMode)p.cr+=1+Math.floor(R()*3)}else if(q.type==='heal')p.hp=Math.min(p.mh,p.hp+18);else if(q.type==='medkit')p.hp=Math.min(p.mh,p.hp+55);else if(q.type==='bomb'){const radius=170,damage=60+r.wave*6;for(const e of r.es)if(dist(e,q)<radius+e.r)e.hp-=damage;r.fx.push(['n',q.x|0,q.y|0,radius,0,10])}}}
+function breakChest(r,q,L){if(q.broken)return;q.broken=true;if(q.type==='boss'){let targets=L.filter(p=>!p.d&&!p.ch&&dist(p,q)<220);if(!targets.length)targets=L.filter(p=>!p.d&&!p.ch);for(const p of targets){p.ch=randomSubset(chestUpgradePool(p),3);p.chType=p.ch.length?'boss':'';p.choiceExpiresAt=p.ch.length?Date.now()+30000:0}return}for(const p of L){if(p.d||dist(p,q)>520)continue;if(q.type==='coin'){if(!p.devMode)p.co+=25+Math.floor(R()*41)}else if(q.type==='gem'){if(!p.devMode)p.cr+=1+Math.floor(R()*3)}else if(q.type==='heal')p.hp=Math.min(p.mh,p.hp+18);else if(q.type==='medkit')p.hp=Math.min(p.mh,p.hp+55);else if(q.type==='bomb'){const radius=170,damage=60+r.wave*6;for(const e of r.es)if(dist(e,q)<radius+e.r)e.hp-=damage;r.fx.push(['n',q.x|0,q.y|0,radius,0,10])}}}
 function damageChests(r,x,y,range,damage,L){if(!(damage>0))return;const point={x,y};for(const q of r.ch||[]){if(q.broken||dist(q,point)>range+14)continue;q.hp=Math.max(0,(Number(q.hp)||48)-damage);if(q.hp<=0)breakChest(r,q,L)}}
 function dropChestNearPlayer(r,L){if(!L.length)return;const p=L[Math.floor(R()*L.length)],a=R()*Math.PI*2,d=110+R()*110;dropChest(r,p.x+Math.cos(a)*d,p.y+Math.sin(a)*d)}
 
@@ -84,13 +84,14 @@ function step(r,L){
   const sp=c.sp*(1+.1*(p.ps.vel||0))*(1+.04*p.u.vel)*(p.it.includes('botas')?1.08:1);p.x=cl(p.x+p.dx*sp);p.y=cl(p.y+p.dy*sp);if(p.stopAfterStep>0&&--p.stopAfterStep===0){p.dx=0;p.dy=0;p.stopRequested=0}
   const dm=c.dm*(1+.15*(p.ps.dano||0))*(1+.08*p.u.dano)*(p.it.includes('espada')?1.12:1),cd=Math.max(.35,1-.1*(p.ps.recarga||0)),l=p.pw,hit=d=>d*(R()<Math.min(.6,.05*(p.ps.crit||0))?2:1);
   const near=g=>{let b=null;for(const e of r.es){const d=dist(e,p);if(d<g){g=d;b=e}}return b};
+  const nearChest=g=>{let b=null;for(const q of r.ch||[]){if(q.broken)continue;const d=dist(q,p);if(d<g){g=d;b=q}}return b};
   const rdy=(k,t)=>{p.cd[k]=(p.cd[k]||0)-1;if(p.cd[k]<=0){p.cd[k]=t*cd;return 1}};
   if(p.cls==='cavaleiro'&&rdy('knightSword',48)){const target=near(165);if(target){target.hp-=hit(20*dm);r.fx.push(['s',p.x|0,p.y|0,target.x|0,target.y|0,7])}else p.cd.knightSword=0;damageChests(r,p.x,p.y,165,hit(18*dm),L)}
   if(p.cls==='cavaleiro'){p.shieldTimer=(p.shieldTimer||0)+1;if(p.shieldTimer>=210){p.shieldTimer=0;p.shieldUntil=r.t+42;r.fx.push(['n',p.x|0,p.y|0,66,0,7])}}
   
-  if(l.proj&&rdy('proj',18)){const e=near(420);
-   if(e){const n=1+(l.proj>2)+(l.proj>4),a0=Math.atan2(e.y-p.y,e.x-p.x);
-    for(let i=0;i<n;i++){const a=a0+(i-(n-1)/2)*.2;r.sh.push({x:p.x,y:p.y,vx:Math.cos(a)*9,vy:Math.sin(a)*9,d:hit((7+3*l.proj)*dm),life:45,pr:c.pr||0})}}
+  if(l.proj&&rdy('proj',18)){const e=near(420),ch=nearChest(420),target=ch&&(!e||dist(ch,p)<dist(e,p))?ch:e;
+   if(target){const n=1+(l.proj>2)+(l.proj>4),a0=Math.atan2(target.y-p.y,target.x-p.x);
+    for(let i=0;i<n;i++){const a=a0+(i-(n-1)/2)*.2;r.sh.push({x:p.x,y:p.y,vx:Math.cos(a)*9,vy:Math.sin(a)*9,d:hit((7+3*l.proj)*dm),life:45,pr:c.pr||0,targetChest:target===ch,tx:target.x,ty:target.y})}}
    else p.cd.proj=0}
   if(l.orb){const n=1+l.orb;for(let i=0;i<n;i++){const a=r.t*.1+i*6.283/n,o={x:p.x+Math.cos(a)*65,y:p.y+Math.sin(a)*65};r.ob.push([o.x|0,o.y|0]);
    for(const e of r.es)if(dist(e,o)<e.r+8)e.hp-=hit(.3*(1+l.orb*.3)*dm)}}
@@ -113,10 +114,10 @@ function step(r,L){
   let separateX=0,separateY=0;for(const other of r.es){if(other===e)continue;const dx=e.x-other.x,dy=e.y-other.y,d=Math.hypot(dx,dy),gap=e.r+other.r+10;if(d>0&&d<gap){const force=(gap-d)/gap;separateX+=dx/d*force;separateY+=dy/d*force}}
   let nx=e.x+(bd>0?(b.x-e.x)/bd:0)*e.v+separateX*.95,ny=e.y+(bd>0?(b.y-e.y)/bd:0)*e.v+separateY*.95;const stopGap=e.r+22,nd=Math.hypot(nx-b.x,ny-b.y);if(nd<stopGap){const angle=nd>.001?Math.atan2(ny-b.y,nx-b.x):(r.t*.17+e.ty*2.4);nx=b.x+Math.cos(angle)*stopGap;ny=b.y+Math.sin(angle)*stopGap}e.x=cl(nx);e.y=cl(ny);
   const contact=dist(b,e);if(contact<e.r+34){e.attackCooldown=(e.attackCooldown||0)-1;if(e.attackCooldown<=0){if(b.cls==='cavaleiro'&&(b.shieldUntil||0)>=r.t){e.attackCooldown=24;r.fx.push(['n',b.x|0,b.y|0,54,0,4])}else{const armor=Math.min(.85,.08*(b.ps.armadura||0)),damage=Math.max(1,e.d*(1-armor)*(b.it.includes('escudo')?.85:1));b.hp=Math.max(0,b.hp-damage);e.attackCooldown=75;if(b.hp===0){b.d=1;b.ch=null}}}}else if(e.attackCooldown>0)e.attackCooldown--}
- r.sh=r.sh.filter(s=>{s.x+=s.vx;s.y+=s.vy;if(--s.life<1)return 0;const h=s.h||(s.h=new Set());
+ r.sh=r.sh.filter(s=>{if(s.targetChest){const angle=Math.atan2(s.ty-s.y,s.tx-s.x);s.vx=Math.cos(angle)*9;s.vy=Math.sin(angle)*9}s.x+=s.vx;s.y+=s.vy;if(--s.life<1)return 0;const h=s.h||(s.h=new Set());
   for(const e of r.es)if(e.hp>0&&!h.has(e)&&dist(e,s)<e.r+4){h.add(e);e.hp-=s.d;if(s.pr-->0)continue;return 0}
   const hc=s.hc||(s.hc=new Set());for(const q of r.ch||[])if(!q.broken&&!hc.has(q)&&dist(q,s)<18){hc.add(q);q.hp=Math.max(0,(Number(q.hp)||48)-s.d);if(q.hp<=0)breakChest(r,q,L);if(s.pr-->0)continue;return 0}return 1});
- r.es=r.es.filter(e=>{if(e.hp>0)return 1;const E=ET[e.ty];r.gm.push({x:e.x,y:e.y,v:E.x,life:1800});if(r.gm.length>30)r.gm.splice(0,r.gm.length-30);if(R()<.05){r.hr.push({x:e.x,y:e.y,life:1800});if(r.hr.length>20)r.hr.shift()}if(e.ty===3)dropChest(r,e.x,e.y,'boss');else if(R()<.05)dropChest(r,e.x,e.y);
+ r.es=r.es.filter(e=>{if(e.hp>0)return 1;const E=ET[e.ty];r.gm.push({x:e.x,y:e.y,v:E.x,life:1800});if(r.gm.length>30)r.gm.splice(0,r.gm.length-30);if(R()<.05){r.hr.push({x:e.x,y:e.y,life:1800});if(r.hr.length>20)r.hr.shift()}if(e.ty===3)dropChest(r,e.x,e.y,'boss');else if(R()<.12)dropChest(r,e.x,e.y);
   for(const p of L){if(p.d||p.devMode)continue;p.co+=Math.ceil(E.c*(1+.1*p.u.moeda+.1*(p.ps.sorte||0))*(p.it.includes('anel')?1.15:1));if(e.ty==2&&R()<.12)p.cr++;if(e.ty==3)p.cr+=3}return 0});
  r.gm=r.gm.filter(g=>{if(--g.life<=0)return 0;for(const p of L){if(p.d)continue;const d=dist(p,g)||1;
   if(d<14){p.xp+=g.v*(1+.15*(p.ps.xp||0))*(p.it.includes('amuleto')?1.15:1);if(p.xp>=p.nx&&!p.ch)lv(p);return 0}

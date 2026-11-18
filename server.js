@@ -60,7 +60,7 @@ function reset(r){r.es=[];r.sh=[];r.gm=[];r.hr=[];r.ch=[];r.fx=[];r.ob=[];r.wave
 function lv(p){p.lv++;p.xp-=p.nx;p.nx=Math.ceil(p.nx*1.35+2);
  const op=Object.keys(p.pw).filter(k=>p.pw[k]>0),os=Object.keys(p.ps).filter(k=>p.ps[k]>0);
  const pool=[...PW.filter(k=>(p.pw[k]||0)>0?p.pw[k]<5:op.length<5).map(k=>'p:'+k),...PS.filter(k=>(p.ps[k]||0)>0?p.ps[k]<5:os.length<5).map(k=>'s:'+k)];
- const shuffled=randomSubset(pool,pool.length);p.ch=p.lv===5&&(p.pw.meteoro||0)<5&&((p.pw.meteoro||0)>0||op.length<5)?['p:meteoro',...shuffled.filter(k=>k!=='p:meteoro')].slice(0,3):shuffled.slice(0,3);p.chType=p.ch.length?'level':'';p.choiceExpiresAt=p.ch.length?Date.now()+10000:0;if(!p.ch.length)p.ch=null}
+ const shuffled=randomSubset(pool,pool.length);p.ch=p.lv===5&&(p.pw.meteoro||0)<5&&((p.pw.meteoro||0)>0||op.length<5)?['p:meteoro',...shuffled.filter(k=>k!=='p:meteoro')].slice(0,3):shuffled.slice(0,3);p.chType=p.ch.length?'level':'';p.choiceExpiresAt=0;if(!p.ch.length)p.ch=null}
 function pick(p,i){const o=p.ch&&p.ch[+i];if(!o)return;const k=o.slice(2),owned=Object.keys(o[0]=='p'?p.pw:p.ps).filter(a=>(o[0]=='p'?p.pw:p.ps)[a]>0);
  if(o[0]=='p'){if(!(p.pw[k]>0)&&owned.length>=5)return;if((p.pw[k]||0)>=5)return;p.pw[k]=(p.pw[k]||0)+1}
  else{if(!(p.ps[k]>0)&&owned.length>=5)return;if((p.ps[k]||0)>=5)return;p.ps[k]=(p.ps[k]||0)+1;if(k=='vida'){const b=CLS[p.cls].hp*.2;p.mh+=b;p.hp+=b}}
@@ -153,9 +153,9 @@ function tick(r){
   if(r.locked&&r.startAt&&now>=r.startAt){r.started=true;r.startAt=0;r.wave=1;r.t=0;r.sp=30;roomMessage(r)}
   else{if(now-r.lastRoomBroadcast>=350){r.lastRoomBroadcast=now;roomMessage(r)}return}
  }
- for(const p of P)if(p.ch&&p.choiceExpiresAt&&now>=p.choiceExpiresAt)pick(p,0);
- const alive=P.filter(p=>!p.d);
- if(alive.length)step(r,alive);
+ for(const p of P)if(p.ch&&p.chType==='boss'&&p.choiceExpiresAt&&now>=p.choiceExpiresAt)pick(p,0);
+ const alive=P.filter(p=>!p.d),levelChoicePending=alive.some(p=>p.ch&&p.chType==='level');
+ if(alive.length&&!levelChoicePending)step(r,alive);
  if(now-r.lastSnapshotAt<50)return;
  r.lastSnapshotAt=now;
  wss.clients.forEach(client=>{

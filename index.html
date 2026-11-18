@@ -414,7 +414,7 @@ input,textarea,select{touch-action:auto;user-select:text}
  <section id="tab-panels">
   <div id="tj" class="tab-panel glass">
    <div class="panel-eyebrow">CENTRAL DE PARTIDA</div><h2>Preparado para a aventura?</h2>
-   <input id="n" class="player-name-input" placeholder="Nome do jogador" maxlength="10" autocomplete="nickname">
+   <input id="n" class="player-name-input" placeholder="Nome do jogador" maxlength="15" autocomplete="nickname">
    <div class="server-line"><span id="server-dot" class="server-dot pending"></span><span id="server-label">Verificando servidor...</span><b id="online-count">— jogadores</b></div>
    <button id="go" class="public-play"><span class="button-label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h18M13 4l8 8-8 8"/></svg>Entrar na sala pública</span><span class="button-arrow">›</span></button>
    <div class="private-entry"><input id="r" placeholder="Código da sala" maxlength="12" autocomplete="off"><button id="priv"><svg class="inline-button-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="m11 12 8-8 2 2-2 2-2 2"/></svg>Entrar</button></div><button id="create-room" class="offline-play">＋ Criar sala privada</button>
@@ -551,7 +551,7 @@ if(SV.economyVersion<ECONOMY_VERSION){SV.co=0;SV.cr=0;SV.economyVersion=ECONOMY_
 SV.map=Number(SV.map);
 if(!Number.isInteger(SV.map)||!SV.maps.includes(SV.map))SV.map=0;
 if(!CL.includes(SV.sel)||!SV.cls.includes(SV.sel))SV.sel='normal';
-SV.name=String(SV.name||'').slice(0,10);
+SV.name=String(SV.name||'').slice(0,15);
 SV.day=typeof SV.day==='string'?SV.day:'';
 SV.up={vida:SV.up.vida||0,dano:SV.up.dano||0,vel:SV.up.vel||0,moeda:SV.up.moeda||0};
 SV.mute=SV.mute?1:0;
@@ -1007,7 +1007,7 @@ function updateRoomWait(data){
 }
 const BLOCKED_PLAYER_NAMES=['admin','administrator','moderador','moderator','staff','owner','suporte','support','system','developer','porra','caralho','merda','bosta','puta','puto','foda','foder','viado','piranha','cacete','buceta','nazi','hitler','babaca','idiota','imbecil','putinha','putinhas','putaria','fdp','vtnc','arrombado','arrombada','desgraca','corno','escroto','otario','otaria','vagabundo','vagabunda'];
 function normalizePlayerName(value){return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/0/g,'o').replace(/1/g,'i').replace(/3/g,'e').replace(/4/g,'a').replace(/5/g,'s').replace(/6/g,'g').replace(/7/g,'t').replace(/8/g,'b').replace(/@/g,'a').replace(/\$/g,'s')}
-function isAllowedPlayerName(value){const name=String(value||'Slime').trim();if(!name||[...name].length>10)return false;const normalized=normalizePlayerName(name);if(!/^[a-z0-9_ -]+$/.test(normalized))return false;const tokens=normalized.split(/[_ -]+/).filter(Boolean);return !BLOCKED_PLAYER_NAMES.some(word=>tokens.some(token=>token===word||(token.startsWith(word)&&token.length-word.length<=3)))}
+function isAllowedPlayerName(value){const name=String(value||'Slime').trim();if(!name||[...name].length>15)return false;const normalized=normalizePlayerName(name);if(!/^[a-z0-9_ -]+$/.test(normalized))return false;const tokens=normalized.split(/[_ -]+/).filter(Boolean);return !BLOCKED_PLAYER_NAMES.some(word=>tokens.some(token=>token===word||(token.startsWith(word)&&token.length-word.length<=3)))}
 function joinOnline(roomCode,button){
  if(developerModeEnabled)roomCode=developerRoomCode;
  if(GAME_STATE!=='LOBBY'||(ws&&(ws.readyState===0||ws.readyState===1)))return;
@@ -1017,7 +1017,7 @@ function joinOnline(roomCode,button){
  const attempt=++joinAttempt;currentRoomCode=roomCode;$('room-wait').classList.add('h');
  // Contadores de saldo são reiniciados uma única vez por partida, nunca a cada snapshot.
  lw=0;gc=0;gk=0;
- SV.name=requestedName.slice(0,10);$('n').value=SV.name;save();
+ SV.name=requestedName.slice(0,15);$('n').value=SV.name;save();
  startMusic();
  setGameState('LOADING','Acordando servidor...','O Render pode precisar iniciar o servidor antes de abrir a sala.');
  clearConnectTimers();
@@ -1263,7 +1263,7 @@ function offlinePlayer(){
  const cls=OCLS[SV.sel]?SV.sel:'normal',c=OCLS[cls],u={};
  for(const k of Object.keys(UPG))u[k]=developerModeEnabled?10:Math.min(10,Math.max(0,Math.floor(+SV.up[k]||0)));
  const it=developerModeEnabled?Object.keys(ITEMS):Array.isArray(SV.items)?SV.items.slice():[],mh=developerModeEnabled?1000000:Math.round(c.hp*(1+.1*u.vida)*(it.includes('coracao')?1.25:1));
- const p={id:1,name:String($('n').value||SV.name||'Slime').slice(0,10),cls,u,up:SV.up,it,x:0,y:0,hp:mh,mh,lv:1,xp:0,nx:5,pw:{[c.pw]:1},ps:{},cd:{},dx:0,dy:0,ch:null,d:0,co:0,cr:0,stopAfterStep:0,stopRequested:0,devMode:developerModeEnabled};
+ const p={id:1,name:String($('n').value||SV.name||'Slime').slice(0,15),cls,u,up:SV.up,it,x:0,y:0,hp:mh,mh,lv:1,xp:0,nx:5,pw:{[c.pw]:1},ps:{},cd:{},dx:0,dy:0,ch:null,d:0,co:0,cr:0,stopAfterStep:0,stopRequested:0,devMode:developerModeEnabled};
  if(developerModeEnabled){p.co=999999999;p.cr=999999999;p.pw=Object.fromEntries(['proj','orb','nova','raio','aura','meteoro','lanca','corrente','espinhos','furacao'].map(k=>[k,1]));p.ps=Object.fromEntries(['vida','dano','vel','recarga','ima','regen','xp','armadura','crit','sorte'].map(k=>[k,1]))}return p;
 }
 function offlineLevel(p){
@@ -1354,7 +1354,7 @@ function offlineStart(){
  if(GAME_STATE!=='LOBBY')return;
  const offlineName=String($('n').value||'Slime').trim();if(!isAllowedPlayerName(offlineName)){toast('Esse nome não é permitido. Escolha outro.');$('n').focus();return}
  enterImmersiveMode();
- SV.name=offlineName.slice(0,10);$('n').value=SV.name;save();startMusic();
+ SV.name=offlineName.slice(0,15);$('n').value=SV.name;save();startMusic();
  cleanupGameSession();
  OFF=true;OR={ps:{1:offlinePlayer()},es:[],sh:[],gm:[],hr:[],ch:[],fx:[],ob:[],wave:1,t:0,sp:30,map:SV.map};
  me=1;gc=0;gk=0;lw=0;pp=null;lt=0;last='';lastPow='';

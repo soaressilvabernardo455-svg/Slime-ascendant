@@ -131,7 +131,7 @@ assert.ok(app.includes("screen.orientation.unlock"), 'orientação do aparelho p
 assert.ok(!app.includes("screen.orientation.lock('landscape')"), 'o jogo não pode forçar paisagem');
 assert.ok(app.includes("credentials:'include'"), 'requisições de conta devem enviar cookies');
 assert.ok(app.includes("if(connectTimer)clearTimeout(connectTimer)"), 'watchdog de entrada precisa ser limpo depois de entrar na sala');
-assert.match(html, /version-pill">v4\.1</, 'a versão exibida no lobby precisa aumentar');
+assert.match(html, /version-pill">v4\.4</, 'a versão exibida no lobby precisa aumentar');
 
 assert.match(server, /MAX_PLAYERS=4/, 'limite de quatro jogadores ausente');
 assert.match(server, /MAX_CONNECTIONS=40/, 'limite de conexões simultâneas ausente');
@@ -182,6 +182,10 @@ assert.equal(noStore.test('public, max-age=86400'), false, 'cache público não 
 
 assert.ok(html.includes('id="fps-indicator"')&&app.includes('fpsNode.textContent!==fpsText')&&app.includes('fpsNode.style.display!==fpsDisplay'), 'FPS precisa aparecer em uma camada DOM visível durante a partida');
 assert.ok(html.includes("url('/cover.svg')")&&html.includes('#m::before'), 'capa ilustrada do lobby ausente');
+assert.ok(app.includes('function resetGameCanvas()')&&app.includes("globalCompositeOperation='source-over'")&&app.includes("x.filter='none'"), 'canvas deve limpar estado visual entre quadros para evitar artefatos/estática');
+assert.ok(app.includes('skill-special-card')&&app.includes('MELHORIA ESPECIAL · NÍVEL 5/5'), 'a quinta melhoria deve ter apresentação especial exclusiva');
+assert.ok(app.includes('class-stats')&&app.includes('data-biome')&&app.includes('--upgrade-color'), 'classes, mapas e melhorias precisam de apresentação visual distinta');
+assert.ok(app.includes('top:calc(env(safe-area-inset-top,0px) + 88px)'), 'indicador de FPS deve ficar abaixo da barra de vida');
 assert.ok(app.includes('c.bezierCurveTo(7,12,-7,12,-17,7)')&&!app.includes('c.bezierCurveTo(3,10,-3,10,-7,5)'), 'corpo do slime precisa ter uma base única e suave');
 assert.ok(app.includes('e.attackCooldown=75')&&app.includes('const stopGap=e.r+22')&&app.includes('const contact=oDist(p,e)'), 'modo offline precisa espaçar monstros e limitar ataques a 2,5 segundos');
 assert.ok(server.includes('e.attackCooldown=75')&&server.includes('const stopGap=e.r+22')&&server.includes('attackCooldown:0'), 'servidor precisa espaçar monstros e limitar ataques a 2,5 segundos');

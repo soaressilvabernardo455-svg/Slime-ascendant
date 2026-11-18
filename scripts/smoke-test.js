@@ -151,8 +151,9 @@ assert.match(server, /Math\.max\(-1000000000,Math\.min\(1000000000,v\)/, 'limite
 assert.match(server, /UPGRADE_KEYS=\['vida','dano','vel','moeda'\]/, 'whitelist de melhorias permanentes ausente');
 assert.match(server, /VIEW_RADIUS=640/, 'raio de visibilidade por jogador ausente');
 assert.match(server, /p\.chType=p\.ch\.length\?'level':'';p\.choiceExpiresAt=0/, 'escolha de nível não deve expirar automaticamente');
-assert.match(server, /levelChoicePending=alive\.some\(p=>p\.ch&&p\.chType==='level'\)/, 'multiplayer deve pausar enquanto houver escolha de XP pendente');
-assert.match(server, /if\(alive\.length&&!levelChoicePending\)step\(r,alive\)/, 'mundo multiplayer deve ficar pausado durante a escolha de XP');
+assert.match(server, /const activePlayers=alive\.filter\(p=>!\(p\.ch&&p\.chType==='level'\)\)/, 'somente o jogador escolhendo XP deve ficar parado');
+assert.match(server, /if\(activePlayers\.length\)step\(r,activePlayers\)/, 'os demais jogadores devem continuar a partida durante a escolha de XP');
+assert.match(server, /SLIME_DEV_ACCESS_CODE\|\|'6767'/, 'código padrão do modo desenvolvedor deve ser 6767');
 assert.match(server, /p\.chType==='boss'&&p\.choiceExpiresAt/, 'escolhas de baú do chefe mantêm o timeout próprio');
 assert.match(server, /function roomMessage/, 'mensagens da sala de espera ausentes');
 assert.match(server, /r\.startAt=Date\.now\(\)\+5000/, 'contagem regressiva de início ausente');

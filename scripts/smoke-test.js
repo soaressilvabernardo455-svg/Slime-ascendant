@@ -55,6 +55,7 @@ assert.ok(app.includes("accountRequest('/api/progress','PUT'"), 'envio automáti
 assert.ok(!app.includes('backup-export') && !app.includes('createBackupCode('), 'a loja não deve exibir backup manual');
 assert.ok(app.includes('function pingPresence('), 'presença de jogadores online ausente');
 assert.ok(app.includes('function isAllowedPlayerName('), 'validação do nome no cliente ausente');
+assert.ok(app.includes("'putinha','putinhas','putaria','fdp','vtnc'")&&server.includes("'putinha','putinhas','putaria','fdp','vtnc'"), 'filtro de nomes precisa cobrir variações comuns e ser igual no cliente e servidor');
 assert.ok(app.includes('const cx=pp.x-W/2,cy=pp.y-H/2'), 'a câmera deve seguir sem bordas do mapa');
 assert.match(app, /const oClamp=v=>Math\.max\(-1000000000/);
 assert.match(app, /const PRICE=\{normal:\[0,0\],arqueiro:\[900,0\],cavaleiro:\[3000,0\],mago:\[5000,0\],curandeiro:\[0,600\],necromante:\[0,900\]\}/);

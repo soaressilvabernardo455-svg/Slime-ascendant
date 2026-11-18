@@ -23,7 +23,7 @@ button:disabled{opacity:.4}button:not(:disabled){transition:transform .08s,filte
 .cd.p{border-color:#fbbf24}.cd.v{border-color:#38bdf8}
 #go{background:#5eea8a;color:#0d1a10;font-weight:700;border-color:#5eea8a;font-size:1.2rem}
 #ex{position:fixed;top:8px;right:8px;display:none;z-index:5;padding:6px 12px}
-#fps-indicator{position:fixed;left:12px;right:auto;top:calc(env(safe-area-inset-top,0px) + 58px);bottom:auto;display:none;z-index:20;pointer-events:none;padding:6px 9px;border:1px solid #8ce5a188;border-radius:10px;background:#06130de8;color:#a7f3b8;font:800 12px/1 system-ui;letter-spacing:.04em;box-shadow:0 3px 12px #0008}
+#fps-indicator{position:fixed;left:12px;right:auto;top:calc(env(safe-area-inset-top,0px) + 88px);bottom:auto;display:none;z-index:20;pointer-events:none;padding:6px 9px;border:1px solid #8ce5a188;border-radius:10px;background:#06130de8;color:#a7f3b8;font:800 12px/1 system-ui;letter-spacing:.04em;box-shadow:0 3px 12px #0008}
 small{opacity:.7}
 #fim{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#000c;text-align:center;padding:16px;z-index:6}#fr{font-size:1.2rem}
 #tt{position:fixed;top:140px;left:50%;transform:translateX(-50%);background:#1f4128;border:2px solid #5eea8a;border-radius:10px;padding:8px 14px;z-index:9;display:none}
@@ -368,12 +368,41 @@ input,textarea,select{touch-action:auto;user-select:text}
 #item-hud{position:fixed;left:68px;top:50%;transform:translateY(-50%);display:none;flex-direction:column;gap:7px;max-height:60dvh;overflow-y:auto;z-index:15;pointer-events:auto;padding:10px;border:1px solid #ffffff44;border-radius:15px;background:#07140def;box-shadow:0 8px 24px #000a}
 .inventory-title{font-size:9px;letter-spacing:.1em;color:#b9f7ca}
 .item-hud-chip{min-width:126px}
+
+/* Revisão visual v4.4: cartões mais distintos e leitura melhor no celular. */
+#fps-indicator{top:calc(env(safe-area-inset-top,0px) + 88px);bottom:auto;left:12px;right:auto}
+.class-card{border-color:color-mix(in srgb,var(--class-color,#4ade80) 62%,#ffffff 12%)!important;background:radial-gradient(circle at 15% 20%,color-mix(in srgb,var(--class-color,#4ade80) 20%,transparent),transparent 58%),linear-gradient(145deg,#203b2b,#0d1c14)!important}
+.class-card.s{box-shadow:0 0 0 1px var(--class-color,#4ade80),0 8px 22px color-mix(in srgb,var(--class-color,#4ade80) 22%,transparent)!important}
+.class-art{background:radial-gradient(circle at 50% 45%,color-mix(in srgb,var(--class-color,#4ade80) 24%,transparent),#ffffff04 72%)}
+.class-stats{font-size:.58rem!important;line-height:1.2;color:#e5f7e9!important;font-weight:850;letter-spacing:.015em}
+#tm .map-card{position:relative;overflow:hidden}
+#tm .map-card:before{content:"";position:absolute;inset:0;opacity:.35;pointer-events:none;background:radial-gradient(circle at 10% 15%,var(--map-color,#8ee4a4),transparent 60%)}
+#tm .map-card>*{position:relative;z-index:1}
+#tm .map-card[data-biome="0"]{background:linear-gradient(145deg,#285b35,#10251a)}
+#tm .map-card[data-biome="1"]{background:linear-gradient(145deg,#76502b,#342217)}
+#tm .map-card[data-biome="2"]{background:linear-gradient(145deg,#315a76,#142638)}
+#tm .map-card[data-biome="3"]{background:linear-gradient(145deg,#713b39,#2b171d)}
+.item-card{position:relative;overflow:hidden}
+.item-card:before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 0% 0%,color-mix(in srgb,var(--item-color,#a7f3b8) 22%,transparent),transparent 65%)}
+.item-card>*{position:relative;z-index:1}
+.item-card .small-icon{color:var(--item-color,#a7f3b8);border-color:color-mix(in srgb,var(--item-color,#a7f3b8) 58%,#ffffff20);background:linear-gradient(145deg,#ffffff18,#00000018)}
+.item-card .item-copy small{color:#d1e7d6;font-weight:650}
+.item-card button{min-height:34px}
+.upgrade-card{border-color:color-mix(in srgb,var(--upgrade-color,#86efac) 48%,#ffffff16);background:radial-gradient(circle at 0% 0%,color-mix(in srgb,var(--upgrade-color,#86efac) 18%,transparent),transparent 66%),linear-gradient(145deg,#203b2b,#0e1c14)}
+.upgrade-icon{color:var(--upgrade-color,#86efac);border-color:color-mix(in srgb,var(--upgrade-color,#86efac) 60%,#ffffff20)}
+.upgrade-track i{background:linear-gradient(90deg,var(--upgrade-color,#5bdc80),#f0fff2)}
+.skill-special-card{border:2px solid #fb5b5b!important;background:radial-gradient(circle at 10% 15%,#ff9a4d55,transparent 52%),linear-gradient(120deg,#621d25,#27131c)!important;box-shadow:0 0 0 1px #ffb1a944,0 0 20px #ef444455,0 7px 20px #0008!important}
+.skill-special-card .skill-icon{border-color:#ffd2a4!important;background:radial-gradient(circle at 32% 24%,#fff 0 7%,#ffffff55 14%,transparent 38%),radial-gradient(circle at 38% 32%,#fb923c,#7f1d1d 83%)!important;box-shadow:0 0 18px #fb5b5b88,inset 0 2px 5px #fff8!important}
+.skill-special-card .skill-copy b{color:#fff1e8}
+.skill-special-card .skill-copy small:last-child{color:#ffd4b8;font-weight:950;letter-spacing:.035em}
+.skill-level.skill-max{background:linear-gradient(135deg,#ff9a55,#dc2626 58%,#7f1d1d);border:1px solid #ffe0bf;color:#fff;box-shadow:0 0 16px #ef4444aa;text-shadow:0 1px 2px #450a0a}
+@media(max-width:620px){.class-stats{font-size:.54rem!important}.skill-special-card{min-height:76px}}
 </style></head><body>
 <canvas id="c"></canvas><div id="item-hud" aria-label="Itens equipados"></div><button id="item-toggle" type="button" aria-label="Abrir inventário" aria-expanded="false" onclick="toggleItemInventory()"><span class="item-toggle-icon">🎒</span><span id="item-count" class="item-count">0</span></button><div id="fps-indicator" aria-live="off">FPS …</div><button id="ex" aria-label="Voltar ao lobby"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Lobby</span></button>
 <div id="m" class="lobby-screen">
  <header class="lobby-top">
   <div class="brand-panel glass">
-   <div class="brand-line"><div class="brand-emblem">✦</div><div class="brand-copy"><div class="brand-title">SLIME ASCENDANT <span class="version-pill">v4.3</span></div><div id="sel" class="brand-subtitle">Slime • Aventureiro</div></div></div>
+   <div class="brand-line"><div class="brand-emblem">✦</div><div class="brand-copy"><div class="brand-title">SLIME ASCENDANT <span class="version-pill">v4.4</span></div><div id="sel" class="brand-subtitle">Slime • Aventureiro</div></div></div>
    <div class="player-chips"><span id="rec">🏆 Recorde: onda 0</span><span id="bal">🪙 0　💎 0</span></div>
   </div>
   <div class="account-top glass">
@@ -751,7 +780,7 @@ function mkS(ty){
  g.restore();return c
 }
 for(let i=0;i<7;i++)SPR[i]=mkS(i);
-function mon(c,X,Y,ty,t){const k=KS[ty],Z=16*k,s=ER[ty],bob=ty==4?Math.sin(t/200+X)*3:0,h=Z*(1+Math.sin(t/120+X)*.05);
+function mon(c,X,Y,ty,t){const k=KS[ty],Z=16*k,s=ER[ty],bob=ty==4?Math.sin(t/360+X*.025)*2:0,h=Z*(1+Math.sin(t/520+X*.025)*.018);
  c.fillStyle='#0004';c.beginPath();c.ellipse(X,Y+s,s*.9,s*.3,0,0,7);c.fill();
  if(ty==3){c.fillStyle='#be123c33';c.beginPath();c.arc(X,Y,s*(1.3+Math.sin(t/200)*.08),0,7);c.fill()}
  if(ty==1){const fl=Math.sin(t/60)*7;c.fillStyle='#4c1d95';c.strokeStyle='#1e1033';c.lineWidth=2;
@@ -895,7 +924,7 @@ function lobby(){
  const mapIcons=['forest','desert','snow','volcano'],mapColors=['#73d64d','#f3bc52','#a5e4ff','#ff8650'];
  const tm=$('tm');tm.innerHTML='<div class="section-intro"><span>EXPLORAÇÃO</span><h2>Escolha seu mundo</h2><p>Quatro biomas procedurais, gerados sem bordas.</p></div>';
  MAPS.forEach(([nm,pc,pk],i)=>{const own=developerModeEnabled||SV.maps.includes(i),b=document.createElement('button'),art=document.createElement('span'),copy=document.createElement('span'),title=document.createElement('b'),desc=document.createElement('small'),state=document.createElement('em');
-  b.className='map-card'+(own&&SV.map===i?' s':'');art.className='map-icon';art.style.setProperty('--map-color',mapColors[i]);art.innerHTML=svgIcon(mapIcons[i]);
+  b.className='map-card'+(own&&SV.map===i?' s':'');b.dataset.biome=String(i);art.className='map-icon';art.style.setProperty('--map-color',mapColors[i]);art.innerHTML=svgIcon(mapIcons[i]);
   copy.className='map-copy';title.textContent=nm;desc.textContent=MAP_INFO[i];state.textContent=own?(developerModeEnabled?'DISPONÍVEL · TESTE DEV':SV.map===i?'EM USO':'DESBLOQUEADO'):(pc?pc+' moedas':pk+' cristais');
   copy.append(title,desc,state);b.append(art,copy);
   b.onclick=()=>{if(developerModeEnabled){SV.map=i;lobby();return}if(own)SV.map=i;else if(pc?SV.co>=pc:SV.cr>=pk){if(pc)SV.co-=pc;else SV.cr-=pk;SV.maps.push(i);SV.map=i}else{toast('Você ainda não tem saldo para desbloquear esse mapa.');return}save();lobby()};
@@ -903,11 +932,12 @@ function lobby(){
  const ti=$('ti');ti.innerHTML='<div class="section-intro"><span>EQUIPAMENTO</span><h2>Itens permanentes</h2><p>Compre bônus que também funcionam no modo offline.</p></div>';
  const itemIcons={espada:'sword',escudo:'shield',botas:'boots',amuleto:'amulet',anel:'ring',coracao:'heart'};
  Object.entries(ITEMS).forEach(([k,[nm,ds,pc,pk]])=>{const own=developerModeEnabled||SV.items.includes(k),r=document.createElement('div'),art=document.createElement('span'),copy=document.createElement('span'),title=document.createElement('b'),desc=document.createElement('small'),b=document.createElement('button');
-  r.className='item-card';art.className='small-icon';art.innerHTML=svgIcon(itemIcons[k]||'gem','item-svg');copy.className='item-copy';title.textContent=nm;desc.textContent=ds;copy.append(title,desc);
+  r.className='item-card';r.dataset.item=k;art.className='small-icon';art.style.setProperty('--item-color',({espada:'#f5c36b',escudo:'#93c5fd',botas:'#86efac',amuleto:'#c4b5fd',anel:'#facc15',coracao:'#fb7185'})[k]||'#a7f3b8');art.innerHTML=svgIcon(itemIcons[k]||'gem','item-svg');copy.className='item-copy';title.textContent=nm;desc.textContent=ds;copy.append(title,desc);
   b.textContent=own?(developerModeEnabled?'DISPONÍVEL · TESTE DEV':'ADQUIRIDO'):(pc?pc+' moedas':pk+' cristais');b.disabled=own||(pc?SV.co<pc:SV.cr<pk);
   b.onclick=()=>{if(own)return;if(pc?SV.co<pc:SV.cr<pk){toast('Saldo insuficiente.');return}if(pc)SV.co-=pc;else SV.cr-=pk;SV.items.push(k);save();lobby()};
   r.append(art,copy,b);ti.append(r)});
 
+ const upgradeColors={vida:'#fb7185',dano:'#fb923c',vel:'#60a5fa',moeda:'#facc15'};
  const daily=dailyClaimed();$('dl').innerHTML=svgIcon('daily','button-svg')+(daily?'Recompensa coletada':'Recompensa diária · +25 moedas / +2 cristais');$('dl').disabled=daily;
  $('mu').innerHTML=svgIcon(SV.mute?'mute':'sound','button-svg')+(SV.mute?'Música desligada':'Música ligada');
  const settings=$('ts');
@@ -923,13 +953,13 @@ function lobby(){
  settings.querySelector('#setting-fps').onclick=()=>{SV.showFps=SV.showFps?0:1;save();lobby()};
  settings.querySelector('#reset-game').onclick=()=>{if(developerModeEnabled){toast('Desative o modo de teste antes de resetar o perfil.');return}if(!confirm('Tem certeza? Todo o progresso deste perfil será apagado.'))return;SV={co:0,cr:0,economyVersion:ECONOMY_VERSION,cls:['normal'],sel:'normal',name:SV.name||'',up:{vida:0,dano:0,vel:0,moeda:0},maps:[0],map:0,best:0,items:[],ach:[],day:'',mute:SV.mute?1:0,quality:SV.quality===0?0:1,showFps:0};try{localStorage.setItem('slimeSave',JSON.stringify(SV))}catch(e){}scheduleCloudSave();toast('Progresso reiniciado.');lobby()};
  const cs=$('tc');cs.innerHTML='<div class="section-intro"><span>PERSONAGENS</span><h2>Escolha sua classe</h2><p>Cada slime tem atributos e um estilo de combate diferente.</p></div>';
- CL.forEach(k=>{const own=developerModeEnabled||SV.cls.includes(k),[pc,pk]=PRICE[k],b=document.createElement('button'),art=document.createElement('span'),copy=document.createElement('span'),title=document.createElement('b'),desc=document.createElement('small'),sub=document.createElement('em'),c=document.createElement('canvas');
-  b.className='class-card'+(own&&SV.sel===k?' s':'');art.className='class-art';copy.className='class-copy';c.width=80;c.height=80;
+ CL.forEach(k=>{const own=developerModeEnabled||SV.cls.includes(k),[pc,pk]=PRICE[k],b=document.createElement('button'),art=document.createElement('span'),copy=document.createElement('span'),title=document.createElement('b'),desc=document.createElement('small'),stats=document.createElement('small'),sub=document.createElement('em'),c=document.createElement('canvas');
+  b.className='class-card'+(own&&SV.sel===k?' s':'');b.style.setProperty('--class-color',CO[k]||'#4ade80');art.className='class-art';copy.className='class-copy';c.width=80;c.height=80;
   const g=c.getContext('2d');if(g){g.globalAlpha=own?1:.68;try{slime(g,40,64,k,0)}catch(error){console.warn('Prévia da classe indisponível:',k,error)}}
-  art.append(c);title.textContent=LB[k];desc.textContent=CLASS_INFO[k];sub.textContent=own?(developerModeEnabled?'DISPONÍVEL · TESTE DEV':SV.sel===k?'SELECIONADO':'DESBLOQUEADO'):(pc?pc+' moedas':pk+' cristais');copy.append(title,desc,sub);b.append(art,copy);
+  art.append(c);title.textContent=LB[k];desc.textContent=CLASS_INFO[k];const attr=OCLS[k]||{hp:100,dm:1,sp:4.8};stats.className='class-stats';stats.textContent='VIDA '+attr.hp+'  ·  DANO '+Math.round(attr.dm*100)+'%  ·  VEL '+attr.sp.toFixed(1);sub.textContent=own?(developerModeEnabled?'DISPONÍVEL · TESTE DEV':SV.sel===k?'SELECIONADO':'DESBLOQUEADO'):(pc?pc+' moedas':pk+' cristais');copy.append(title,desc,stats,sub);b.append(art,copy);
   b.onclick=()=>{if(developerModeEnabled){SV.sel=k;lobby();return}if(own)SV.sel=k;else if(pc?SV.co>=pc:SV.cr>=pk){if(pc)SV.co-=pc;else SV.cr-=pk;SV.cls.push(k);SV.sel=k}else{toast('Saldo insuficiente para desbloquear essa classe.');return}save();lobby()};cs.append(b)});
  $('tu').innerHTML='<div class="section-intro"><span>PROGRESSÃO</span><h2>Melhorias permanentes</h2><p>Fortaleça seu slime em combate. Cada atributo pode chegar ao nível 10.</p></div>'+Object.keys(UPG).map(k=>{const l=SV.up[k],cost=ucost(l),max=l>=10;
-  return '<div class="upgrade-card"><span class="upgrade-icon">'+svgIcon(k,'item-svg')+'</span><div class="upgrade-copy"><b>'+UPG[k][0]+'</b><small>'+UPG[k][1]+'</small><em>NÍVEL '+l+'/10</em><span class="upgrade-track"><i style="width:'+(l*10)+'%"></i></span></div><button '+(max||(!developerModeEnabled&&SV.co<cost)?'disabled':'')+' onclick="buy(\''+k+'\')">'+(max?'MAX':developerModeEnabled?'GRÁTIS · TESTE':cost+' moedas')+'</button></div>'}).join('');
+  return '<div class="upgrade-card" style="--upgrade-color:'+(upgradeColors[k]||'#86efac')+'"><span class="upgrade-icon">'+svgIcon(k,'item-svg')+'</span><div class="upgrade-copy"><b>'+UPG[k][0]+'</b><small>'+UPG[k][1]+'</small><em>NÍVEL '+l+'/10</em><span class="upgrade-track"><i style="width:'+(l*10)+'%"></i></span></div><button '+(max||(!developerModeEnabled&&SV.co<cost)?'disabled':'')+' onclick="buy(\''+k+'\')">'+(max?'MAX':developerModeEnabled?'GRÁTIS · TESTE':cost+' moedas')+'</button></div>'}).join('');
 }
 function buy(k){if(!Object.prototype.hasOwnProperty.call(UPG,k))return;const l=SV.up[k],cost=ucost(l);if(l>=10)return;if(!developerModeEnabled&&SV.co<cost){toast('Moedas insuficientes.');return}if(!developerModeEnabled)SV.co-=cost;SV.up[k]++;save();lobby();}
 document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{startMusic();document.querySelectorAll('[data-t]').forEach(e=>e.className='');b.className='s';
@@ -973,9 +1003,9 @@ function updateRoomWait(data){
  else if(data.phase==='playing'){modal.classList.add('h')}
  else{button.textContent=host?'Começar partida':'Aguardando o anfitrião';$('room-wait-status').textContent=data.autoStartIn?'A sala pública inicia automaticamente em '+data.autoStartIn+'s.':''}
 }
-const BLOCKED_PLAYER_NAMES=['admin','administrator','moderador','moderator','staff','owner','suporte','support','system','developer','porra','caralho','merda','bosta','puta','puto','foda','foder','viado','piranha','cacete','buceta','nazi','hitler'];
-function normalizePlayerName(value){return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/0/g,'o').replace(/1/g,'i').replace(/3/g,'e').replace(/4/g,'a').replace(/5/g,'s').replace(/7/g,'t').replace(/@/g,'a').replace(/\$/g,'s')}
-function isAllowedPlayerName(value){const name=String(value||'Slime').trim();if(!name||[...name].length>10)return false;const normalized=normalizePlayerName(name);if(!/^[a-z0-9_ -]+$/.test(normalized))return false;const compact=normalized.replace(/[^a-z0-9]/g,'');return !BLOCKED_PLAYER_NAMES.some(word=>compact.includes(word))}
+const BLOCKED_PLAYER_NAMES=['admin','administrator','moderador','moderator','staff','owner','suporte','support','system','developer','porra','caralho','merda','bosta','puta','puto','foda','foder','viado','piranha','cacete','buceta','nazi','hitler','babaca','idiota','imbecil','arrombado','arrombada','desgraca','corno','escroto','otario','otaria','vagabundo','vagabunda'];
+function normalizePlayerName(value){return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/0/g,'o').replace(/1/g,'i').replace(/3/g,'e').replace(/4/g,'a').replace(/5/g,'s').replace(/6/g,'g').replace(/7/g,'t').replace(/8/g,'b').replace(/@/g,'a').replace(/\$/g,'s')}
+function isAllowedPlayerName(value){const name=String(value||'Slime').trim();if(!name||[...name].length>10)return false;const normalized=normalizePlayerName(name);if(!/^[a-z0-9_ -]+$/.test(normalized))return false;const tokens=normalized.split(/[_ -]+/).filter(Boolean);return !BLOCKED_PLAYER_NAMES.some(word=>tokens.some(token=>token===word||(token.startsWith(word)&&token.length-word.length<=3)))}
 function joinOnline(roomCode,button){
  if(developerModeEnabled)roomCode=developerRoomCode;
  if(GAME_STATE!=='LOBBY'||(ws&&(ws.readyState===0||ws.readyState===1)))return;
@@ -1219,8 +1249,8 @@ function pick(i){if(OFF){offlinePick(i);return}if(ws&&ws.readyState===1){try{ws.
 function ui(p){
  const u=$('u'),ch=p&&p.ch;if(!ch){u.style.display='none';return}u.style.display='flex';
  u.innerHTML='<h2>'+(p.chType==='boss'?'Baú do chefe · escolha 1 melhoria':'Subiu de nível! Escolha uma habilidade')+'</h2>'+ch.map((o,i)=>{
-  const label=NM[o][0],desc=NM[o][1],k=o.slice(2),n=((o[0]=='p'?p.pw:p.ps)[k]||0),title=label.replace(/^\S+\s/,'');
-  return '<button class="cd '+(o[0]=='p'?'p':'v')+'" onclick="pick('+i+')"><span class="skill-icon" style="--skill-color:'+(SKCOLOR[k]||'#38bdf8')+'">'+svgIcon(k,'skill-svg')+'</span><span class="skill-copy"><b>'+title+'</b><small>'+desc+'</small><small>'+(o[0]=='p'?'PODER':'PASSIVA')+' · NÍVEL '+(n+1)+'</small></span><span class="skill-level '+(n+1>=5?'skill-max':'')+'">+'+(n+1)+'</span></button>';
+  const label=NM[o][0],desc=NM[o][1],k=o.slice(2),n=((o[0]=='p'?p.pw:p.ps)[k]||0),title=label.replace(/^\S+\s/,'');const special=n+1>=5;
+  return '<button class="cd '+(o[0]=='p'?'p':'v')+(special?' skill-special-card':'')+'" onclick="pick('+i+')"><span class="skill-icon" style="--skill-color:'+(SKCOLOR[k]||'#38bdf8')+'">'+svgIcon(k,'skill-svg')+'</span><span class="skill-copy"><b>'+title+'</b><small>'+desc+'</small><small>'+(special?'✦ MELHORIA ESPECIAL · NÍVEL 5/5':(o[0]=='p'?'PODER':'PASSIVA')+' · NÍVEL '+(n+1))+'</small></span><span class="skill-level '+(special?'skill-max':'')+'">'+(special?'✦ 5':'+'+(n+1))+'</span></button>';
  }).join('');
 }
 let OFF=false,OR=null,offlineTimer=0;
@@ -1379,6 +1409,7 @@ let DPR=Math.min(devicePixelRatio||1,1.25),fpsFrames=0,fpsStart=0,lastQuality=0,
 let GAME_SAFE_TOP=28;
 function resizeGame(){cv.width=Math.round(innerWidth*DPR);cv.height=Math.round(innerHeight*DPR);x.imageSmoothingEnabled=true;const safe=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--game-safe-top'));GAME_SAFE_TOP=Math.max(28,Number.isFinite(safe)?safe:0)}
 onresize=resizeGame;resizeGame();
+function resetGameCanvas(){x.setTransform(1,0,0,1,0,0);x.globalAlpha=1;x.globalCompositeOperation='source-over';x.filter='none';x.shadowBlur=0;x.shadowColor='transparent';x.clearRect(0,0,cv.width,cv.height);x.setTransform(DPR,0,0,DPR,0,0);x.beginPath()}
 const fpsNode=$('fps-indicator');
 function draw(t){requestAnimationFrame(draw);
  if(document.hidden){fpsStart=0;fpsFrames=0;if(fpsNode)fpsNode.style.display='none';return}
@@ -1387,7 +1418,7 @@ function draw(t){requestAnimationFrame(draw);
   fpsStart=0;fpsFrames=0;
   if(GAME_STATE==='LOADING'||t-idleRenderAt<33)return;
   idleRenderAt=t;
-  const W=innerWidth,H=innerHeight,map=Math.max(0,Math.min(3,SV.map|0));x.setTransform(DPR,0,0,DPR,0,0);x.clearRect(0,0,W,H);drawGround(0,0,W,H,map);const portrait=H>W,cx=portrait?W*.5:W*.69,cy=portrait?H*.29:H*.53,scale=portrait?1.45:Math.min(1.95,Math.max(1.5,Math.min(W/420,H/250)));const halo=x.createRadialGradient(cx,cy,8,cx,cy,Math.min(W,H)*.62);halo.addColorStop(0,'#b7ff8233');halo.addColorStop(.48,'#6df59a18');halo.addColorStop(1,'#06100c55');x.fillStyle=halo;x.fillRect(0,0,W,H);x.save();x.translate(cx,cy+34);x.scale(scale,scale);x.fillStyle='#020b0688';x.beginPath();x.ellipse(0,8,58,14,0,0,Math.PI*2);x.fill();x.strokeStyle='#a5f58b99';x.lineWidth=2;x.beginPath();x.ellipse(0,3,78,18,0,0,Math.PI*2);x.stroke();x.restore();/* O slime do lobby é desenhado na prévia DOM acima da capa. */const preview=$('pv');if(preview){if(preview.width!==192){preview.width=192;preview.height=192}const pg=preview.getContext('2d');if(pg){pg.setTransform(2,0,0,2,0,0);pg.clearRect(0,0,96,96);pg.save();pg.translate(48,55);pg.scale(1.12,1.12);slime(pg,0,0,SV.sel,t,false,0,0);pg.restore()}}return}
+  const W=innerWidth,H=innerHeight,map=Math.max(0,Math.min(3,SV.map|0));resetGameCanvas();drawGround(0,0,W,H,map);const portrait=H>W,cx=portrait?W*.5:W*.69,cy=portrait?H*.29:H*.53,scale=portrait?1.45:Math.min(1.95,Math.max(1.5,Math.min(W/420,H/250)));const halo=x.createRadialGradient(cx,cy,8,cx,cy,Math.min(W,H)*.62);halo.addColorStop(0,'#b7ff8233');halo.addColorStop(.48,'#6df59a18');halo.addColorStop(1,'#06100c55');x.fillStyle=halo;x.fillRect(0,0,W,H);x.save();x.translate(cx,cy+34);x.scale(scale,scale);x.fillStyle='#020b0688';x.beginPath();x.ellipse(0,8,58,14,0,0,Math.PI*2);x.fill();x.strokeStyle='#a5f58b99';x.lineWidth=2;x.beginPath();x.ellipse(0,3,78,18,0,0,Math.PI*2);x.stroke();x.restore();/* O slime do lobby é desenhado na prévia DOM acima da capa. */const preview=$('pv');if(preview){if(preview.width!==192){preview.width=192;preview.height=192}const pg=preview.getContext('2d');if(pg){pg.setTransform(2,0,0,2,0,0);pg.clearRect(0,0,96,96);pg.save();pg.translate(48,55);pg.scale(1.12,1.12);slime(pg,0,0,SV.sel,t,false,0,0);pg.restore()}}return}
  fpsFrames++;if(!fpsStart)fpsStart=t;if(t-fpsStart>=1800){currentFps=fpsFrames*1000/(t-fpsStart);fpsFrames=0;fpsStart=t}
  x.setTransform(DPR,0,0,DPR,0,0);const W=innerWidth,H=innerHeight,p=S.p.find(q=>q.id==me);if(!p)return;powerHUD(p);updateItemHUD(p);if(fpsNode){const fpsDisplay=SV.showFps?'block':'none';if(fpsNode.style.display!==fpsDisplay)fpsNode.style.display=fpsDisplay;if(SV.showFps){const fpsText=currentFps>0?Math.round(currentFps)+' FPS':'FPS …';if(fpsNode.textContent!==fpsText)fpsNode.textContent=fpsText}}if(!S.o&&$('fim').style.display!=='none')$('fim').style.display='none';
  if(p.h<lh){sfx(110,.12,'sawtooth',.05)}if(p.xp>lx&&t-lsx>90){lsx=t;sfx(1000,.04,'sine',.02)}lx=p.xp;if(S.w!=lw){lw=S.w;if(lw>1)toast(lw%5==0?'⚠ O CHEFE CHEGOU!':'Onda '+lw);if(lw%5==0)sfx(90,.5,'sawtooth',.06)}lh=p.h;sh=0;
@@ -1395,7 +1426,7 @@ function draw(t){requestAnimationFrame(draw);
  if(!p.d&&!S.pa){const[dx,dy]=getDir(),m=Math.hypot(dx,dy),k=m>1?1/m:1;pp.x=Math.max(-1000000000,Math.min(1000000000,pp.x+dx*k*sp*dt));pp.y=Math.max(-1000000000,Math.min(1000000000,pp.y+dy*k*sp*dt))}
  const ex=p.x-pp.x,ey=p.y-pp.y,err=Math.hypot(ex,ey);if(err>1.5){const corr=err>50 ? .35 : .22;pp.x+=ex*corr;pp.y+=ey*corr}
  const cx=pp.x-W/2,cy=pp.y-H/2;
- const T=TH[S.mp|0];x.clearRect(0,0,W,H);x.imageSmoothingEnabled=true;x.save();drawGround(cx,cy,W,H,S.mp|0);
+ const T=TH[S.mp|0];resetGameCanvas();x.imageSmoothingEnabled=true;x.save();drawGround(cx,cy,W,H,S.mp|0);
  S.g.forEach(([a,b])=>{const o=Math.sin(t/260+a)*1.5,X=a-cx,Y=b-cy+o;x.save();x.shadowColor='#38e6d5';x.shadowBlur=8;x.fillStyle='#0e7490';x.beginPath();x.ellipse(X,Y+3,5,3,0,0,Math.PI*2);x.fill();const gem=x.createLinearGradient(X-4,Y-7,X+4,Y+6);gem.addColorStop(0,'#f0fdfa');gem.addColorStop(.35,'#67e8f9');gem.addColorStop(1,'#0e7490');x.fillStyle=gem;x.beginPath();x.moveTo(X,Y-8);x.lineTo(X+5,Y-1);x.lineTo(X,Y+6);x.lineTo(X-5,Y-1);x.closePath();x.fill();x.strokeStyle='#d9fffb';x.lineWidth=1;x.stroke();x.shadowBlur=0;x.fillStyle='#fff';x.beginPath();x.arc(X-1.5,Y-3,1.2,0,Math.PI*2);x.fill();x.restore()});
  (S.hr||[]).forEach(([a,b])=>{const X=a-cx,Y=b-cy+Math.sin(t/150+a)*2;x.save();x.shadowColor='#fb7185';x.shadowBlur=7;x.fillStyle='#f43f5e';x.beginPath();x.moveTo(X,Y+6);x.bezierCurveTo(X-3,Y+3,X-9,Y-2,X-7,Y-7);x.bezierCurveTo(X-5,Y-12,X,Y-10,X,Y-6);x.bezierCurveTo(X,Y-10,X+5,Y-12,X+7,Y-7);x.bezierCurveTo(X+9,Y-2,X+3,Y+3,X,Y+6);x.closePath();x.fill();x.shadowBlur=0;x.fillStyle='#fecdd3';x.beginPath();x.arc(X-3,Y-6,1.5,0,Math.PI*2);x.fill();x.restore()});
  S.e.forEach(([a,b,ty,h])=>{if(a<cx-90||a>cx+W+90||b<cy-90||b>cy+H+90)return;const X=a-cx,Y=b-cy,s=ER[ty];mon(x,X,Y,ty,t);

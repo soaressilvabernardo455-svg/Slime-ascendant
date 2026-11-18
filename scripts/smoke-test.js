@@ -183,6 +183,8 @@ assert.equal(noStore.test('public, max-age=86400'), false, 'cache público não 
 assert.ok(html.includes('id="fps-indicator"')&&app.includes('fpsNode.textContent!==fpsText')&&app.includes('fpsNode.style.display!==fpsDisplay'), 'FPS precisa aparecer em uma camada DOM visível durante a partida');
 assert.ok(html.includes("url('/cover.svg')")&&html.includes('#m::before'), 'capa ilustrada do lobby ausente');
 assert.ok(app.includes('function resetGameCanvas()')&&app.includes("globalCompositeOperation='source-over'")&&app.includes("x.filter='none'"), 'canvas deve limpar estado visual entre quadros para evitar artefatos/estática');
+assert.ok(app.includes('const chunk=540')&&app.includes('h&7')&&app.includes('h&3'), 'mapas devem reduzir detalhes muito pequenos e densos');
+assert.ok(app.includes('bezierCurveTo(-25,-22,-16,-34,-4,-35)')&&app.includes('const aura=['), 'slimes e monstros devem ter acabamento visual melhor');
 assert.ok(app.includes('skill-special-card')&&app.includes('MELHORIA ESPECIAL · NÍVEL 5/5'), 'a quinta melhoria deve ter apresentação especial exclusiva');
 assert.ok(app.includes('class-stats')&&app.includes('data-biome')&&app.includes('--upgrade-color'), 'classes, mapas e melhorias precisam de apresentação visual distinta');
 assert.ok(app.includes('top:calc(env(safe-area-inset-top,0px) + 88px)'), 'indicador de FPS deve ficar abaixo da barra de vida');

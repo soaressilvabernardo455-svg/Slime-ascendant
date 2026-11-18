@@ -235,7 +235,7 @@ assert.ok(app.includes('playing&&(developerModeEnabled||SV.items.length)') && ap
 assert.ok(app.includes("if(q.shield>0){x.save()"), 'escudo ativo do Cavaleiro precisa de indicador visual contínuo');
 assert.ok(app.includes("p.dev?'🪙 ∞  💎 ∞'"), 'HUD do modo DEV precisa mostrar recursos ilimitados');
 assert.ok(!app.includes('x.fillRect(X-5,Y,Y+0,0)'), 'remover desenho inválido do esqueleto');
-assert.ok(serviceWorker.includes('shell-v16'), 'service worker precisa invalidar a versão antiga do shell');
+assert.ok(serviceWorker.includes('shell-v22'), 'service worker precisa invalidar a versão antiga do shell');
 
 assert.ok(app.includes("if(OFF&&offlineTimer){clearInterval(offlineTimer);offlineTimer=0}") && app.includes("if(OFF&&OR&&!offlineTimer){offlineTimer=setInterval(offlineTick,33);offlineTick()}"), 'timer offline precisa parar em segundo plano e retomar ao voltar');
 assert.ok(app.includes('let GAME_SAFE_TOP=28;') && app.includes('const gameSafeTop=GAME_SAFE_TOP;'), 'área segura do HUD deve ser calculada no resize e não em todos os frames');

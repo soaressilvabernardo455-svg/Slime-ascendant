@@ -402,7 +402,7 @@ input,textarea,select{touch-action:auto;user-select:text}
 <div id="m" class="lobby-screen">
  <header class="lobby-top">
   <div class="brand-panel glass">
-   <div class="brand-line"><div class="brand-emblem">✦</div><div class="brand-copy"><div class="brand-title">SLIME ASCENDANT <span class="version-pill">v4.7</span></div><div id="sel" class="brand-subtitle">Slime • Aventureiro</div></div></div>
+   <div class="brand-line"><div class="brand-emblem">✦</div><div class="brand-copy"><div class="brand-title">SLIME ASCENDANT <span class="version-pill">v4.8</span></div><div id="sel" class="brand-subtitle">Slime • Aventureiro</div></div></div>
    <div class="player-chips"><span id="rec">🏆 Recorde: onda 0</span><span id="bal">🪙 0　💎 0</span></div>
   </div>
   <div class="account-top glass">
@@ -1271,7 +1271,10 @@ function offlineLevel(p){
  const op=Object.keys(p.pw).filter(k=>p.pw[k]>0),os=Object.keys(p.ps).filter(k=>p.ps[k]>0);
  const pool=[...['proj','orb','nova','raio','aura','meteoro','lanca','corrente','espinhos','furacao'].filter(k=>(p.pw[k]||0)>0?p.pw[k]<5:op.length<5).map(k=>'p:'+k),...['vida','dano','vel','recarga','ima','regen','xp','armadura','crit','sorte'].filter(k=>(p.ps[k]||0)>0?p.ps[k]<5:os.length<5).map(k=>'s:'+k)];
  for(let i=pool.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[pool[i],pool[j]]=[pool[j],pool[i]]}
- p.ch=p.lv===5&&(p.pw.meteoro||0)<5&&((p.pw.meteoro||0)>0||op.length<5)?['p:meteoro',...pool.filter(k=>k!=='p:meteoro')].slice(0,3):pool.slice(0,3);
+ const special='p:'+OCLS[p.cls].pw,hasSpecial=pool.includes(special),choices=pool.slice(0,3);
+ if(hasSpecial&&!choices.includes(special))choices[2]=special;
+ if(p.lv===5&&(p.pw.meteoro||0)<5&&((p.pw.meteoro||0)>0||op.length<5)){choices[0]='p:meteoro';if(hasSpecial)choices[1]=special}
+ p.ch=choices.slice(0,3);
  p.chType=p.ch.length?'level':'';if(!p.ch.length)p.ch=null;
 }
 function offlinePick(i){
@@ -1335,9 +1338,10 @@ function offlineStep(r,p){
  r.hr=r.hr.filter(h=>{if(--h.life<=0)return 0;if(!p.d&&oDist(p,h)<18){p.hp=Math.min(p.mh,p.hp+25);return 0}return 1});
  r.ch=(r.ch||[]).filter(q=>!q.broken&&--q.life>0);r.fx=r.fx.filter(f=>--f[5]>0);if(r.fx.length>160)r.fx.splice(0,r.fx.length-160);
  if(p.cls==='necromante'){
+  const summonLevel=Math.max(1,Math.min(5,p.pw.nova||1)),maxSk=2+summonLevel,spawnEvery=Math.max(45,90-summonLevel*8);
   p.sk=p.sk||[];p.skTimer=(p.skTimer||0)+1;
-  if(p.skTimer>=90){p.skTimer=0;for(let i=0;i<2&&p.sk.length<4;i++){const a=Math.random()*Math.PI*2;p.sk.push({x:p.x+Math.cos(a)*28,y:p.y+Math.sin(a)*28,hp:24,life:900,hit:0})}}
-  p.sk=p.sk.filter(k=>{if(--k.life<=0||k.hp<=0)return false;let e=null,bd=1e9;for(const q of r.es){const d=oDist(k,q);if(d<bd){bd=d;e=q}}if(e){const d=Math.max(1,bd);if(d>24){k.x+=(e.x-k.x)/d*2.5;k.y+=(e.y-k.y)/d*2.5}else if(++k.hit>=30){k.hit=0;e.hp-=4}}return true});
+  if(p.skTimer>=spawnEvery){p.skTimer=0;for(let i=0;i<(summonLevel>=3?2:1)&&p.sk.length<maxSk;i++){const a=Math.random()*Math.PI*2;p.sk.push({x:p.x+Math.cos(a)*28,y:p.y+Math.sin(a)*28,hp:24+8*summonLevel,life:900+100*summonLevel,hit:0})}}
+  p.sk=p.sk.filter(k=>{if(--k.life<=0||k.hp<=0)return false;let e=null,bd=1e9;for(const q of r.es){const d=oDist(k,q);if(d<bd){bd=d;e=q}}if(e){const d=Math.max(1,bd);if(d>24){k.x+=(e.x-k.x)/d*2.5;k.y+=(e.y-k.y)/d*2.5}else if(++k.hit>=30){k.hit=0;e.hp-=4+2*summonLevel}}return true});
  }else p.sk=[];
 }
 function offlineSnapshot(){

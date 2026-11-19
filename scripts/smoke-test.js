@@ -50,7 +50,7 @@ assert.equal(capacitor.server.errorPath, 'offline.html');
 const offlineScript = offlinePage.split('<script>')[1]?.split('</script>')[0];
 assert.ok(offlineScript);
 new vm.Script(offlineScript, { filename: 'android-app/www/offline.html' });
-assert.ok(serviceWorker.includes('slime-ascendant-shell-v36'));
+assert.ok(serviceWorker.includes('slime-ascendant-shell-v37'));
 assert.ok(serviceWorker.includes("url.pathname.startsWith('/api/')") && serviceWorker.includes("url.pathname==='/health'"));
 console.log('Smoke tests aprovados: HTML/JS, salas, Boss, reroll, XP, ranking e ícone do APK.');
 

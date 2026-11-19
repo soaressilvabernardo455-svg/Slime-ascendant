@@ -672,6 +672,12 @@ function slime(c,px,py,k,t,moving=false,lookX=0,lookY=0,ascended=false){
  c.translate(px,py+bob);c.scale(1.04*(1+squash),.98*(1-squash));
  // Sombra e base espalhada: o corpo é largo, baixo e irregular, não uma esfera.
  c.fillStyle='#0005';c.beginPath();c.ellipse(0,5,25,5.5,0,0,Math.PI*2);c.fill();
+ // Braços curtos e afunilados para dar leitura de personagem, sem criar bolinhas laterais.
+ const armSwing=moving?step*2.2:Math.sin(t/620)*.7;
+ c.save();c.fillStyle=dark;c.strokeStyle=light;c.lineWidth=1.4;c.lineJoin='round';
+ c.beginPath();c.moveTo(-19,-11);c.quadraticCurveTo(-28,-9+armSwing,-31,-1+armSwing);c.quadraticCurveTo(-32,3+armSwing,-28,5+armSwing);c.lineTo(-23,-2+armSwing);c.lineTo(-17,-4);c.closePath();c.fill();c.stroke();
+ c.beginPath();c.moveTo(19,-11);c.quadraticCurveTo(28,-9-armSwing,31,-1-armSwing);c.quadraticCurveTo(32,3-armSwing,28,5-armSwing);c.lineTo(23,-2-armSwing);c.lineTo(17,-4);c.closePath();c.fill();c.stroke();
+ c.restore();
  const body=c.createLinearGradient(-5,-34,4,8);
  body.addColorStop(0,light);body.addColorStop(.18,color);body.addColorStop(.62,color);body.addColorStop(1,dark);
  c.shadowColor=dark;c.shadowBlur=7;

@@ -473,7 +473,9 @@ const NM={
 'p:proj':['💧 Gosma','Projéteis que perseguem inimigos'],'p:orb':['🪐 Orbes','Orbes giram e atingem inimigos'],'p:nova':['💥 Nova','Explosão mágica ao redor do slime'],'p:raio':['⚡ Relâmpago','Atinge inimigos próximos'],'p:aura':['🌀 Aura','Dano contínuo ao redor'],'p:meteoro':['☄️ Meteoro','Invoca um meteoro explosivo'],'p:lanca':['🔱 Lança Astral','Lança perfurante que atravessa inimigos'],'p:corrente':['⛓️ Corrente Elétrica','Eletricidade salta entre inimigos'],'p:espinhos':['🌵 Espinhos','Barreira de espinhos ao redor'],'p:furacao':['🌪️ Furacão','Redemoinho que atinge e empurra inimigos'],
 's:vida':['❤️ Vitalidade','+20% de vida máxima'],'s:dano':['⚔️ Poder','+15% de dano'],'s:vel':['👟 Agilidade','+10% de velocidade'],'s:recarga':['⏱️ Recarga Rápida','-10% no tempo dos poderes'],'s:ima':['🧲 Ímã','Atrai experiência de mais longe'],'s:regen':['🌿 Regeneração','Recupera vida continuamente'],'s:xp':['✨ Sabedoria','+15% de experiência'],'s:armadura':['🛡️ Armadura','-8% de dano recebido'],'s:crit':['💠 Crítico','Chance de causar dano dobrado'],'s:sorte':['🍀 Sorte','+10% de moedas']
 };
-const ER=[10,8,16,26,11,12,13],KS=[2,2,3,5,2,2,2];
+const ER=[10,8,16,26,11,12,13,7],KS=[2,2,3,5,2,2,2,1];
+const RUN_BOSS_TIMES=[4500,9000,13500,18000],RUN_TICKS=18000;
+const RUN_DIFFICULTY={easy:{hp:.78,damage:.68,speed:.9,spawn:1.28,xp:1.12},medium:{hp:1,damage:1,speed:1,spawn:1,xp:1},hard:{hp:1.3,damage:1.28,speed:1.08,spawn:.9,xp:1.3},inferno:{hp:1.65,damage:1.7,speed:1.13,spawn:.84,xp:1.55}};
 const ITEMS={espada:['Espada Afiada','+12% de dano',1800,0],escudo:['Escudo','-15% de dano recebido',2200,0],botas:['Botas Velozes','+8% de velocidade',1400,0],amuleto:['Amuleto','+15% de XP',0,120],anel:['Anel da Sorte','+15% de moedas',0,160],coracao:['Coração de Cristal','+25% de vida máxima',0,200]};
 const MAPS=[['Floresta Antiga',0,0],['Deserto Dourado',6000,0],['Tundra Gelada',15000,0],['Vulcão Carmesim',0,300]];
 const TH=[{vg:'#000a'},{vg:'#3b2a0faa'},{vg:'#0b2a4aaa'},{vg:'#2a0a05cc'}];
@@ -534,7 +536,7 @@ const ucost=l=>Math.round(220*Math.pow(l+1,1.42)),W8=[4,8,10,12,12,12,12,10];
 const dk=(h,f)=>'#'+[1,3,5].map(i=>Math.max(0,Math.min(255,Math.round(parseInt(h.substr(i,2),16)*f))).toString(16).padStart(2,'0')).join('');
 const hs=(i,j)=>((i*73856093)^(j*19349663))>>>0;
 let SV;try{SV=JSON.parse(localStorage.getItem('slimeSave')||'null')}catch(e){SV=null}
-SV=Object.assign({co:0,cr:0,economyVersion:0,quality:1,showFps:0,cls:['normal'],sel:'normal',name:'',up:{},maps:[0],map:0,best:0,items:[],ach:[],day:'',mute:0,mapAccessVersion:0},SV&&typeof SV==='object'&&!Array.isArray(SV)?SV:{});
+SV=Object.assign({co:0,cr:0,economyVersion:0,quality:1,showFps:0,cls:['normal'],sel:'normal',name:'',up:{},maps:[0],map:0,best:0,items:[],ach:[],day:'',mute:0,difficulty:'medium',mapAccessVersion:0},SV&&typeof SV==='object'&&!Array.isArray(SV)?SV:{});
 if(Number(SV.mapAccessVersion||0)<MAP_ACCESS_VERSION){SV.maps=(Array.isArray(SV.maps)?SV.maps:[0]).filter(i=>Number(i)!==3);SV.mapAccessVersion=MAP_ACCESS_VERSION;try{localStorage.slimeSave=JSON.stringify(SV)}catch(e){}}
 const savedQuality=Number(SV.quality);SV.quality=Number.isInteger(savedQuality)?Math.max(0,Math.min(2,savedQuality)):1;SV.showFps=SV.showFps?1:0;
 SV.cls=Array.isArray(SV.cls)?SV.cls.filter(k=>CL.includes(k)):['normal'];
@@ -554,9 +556,9 @@ if(!CL.includes(SV.sel)||!SV.cls.includes(SV.sel))SV.sel='normal';
 SV.name=String(SV.name||'').slice(0,15);
 SV.day=typeof SV.day==='string'?SV.day:'';
 SV.up={vida:SV.up.vida||0,dano:SV.up.dano||0,vel:SV.up.vel||0,moeda:SV.up.moeda||0};
-SV.mute=SV.mute?1:0;
+SV.mute=SV.mute?1:0;SV.difficulty=['easy','medium','hard','inferno'].includes(SV.difficulty)?SV.difficulty:'medium';
 let accountAuthenticated=false,cloudSyncReady=false,cloudSyncBusy=false,cloudSyncPending=false,cloudSyncTimer=0;
-let developerModeEnabled=false,developerToken='',developerRoomCode='',developerBackup='';
+let developerModeEnabled=false,developerToken='',developerRoomCode='',developerBackup='',developerSettings={coins:false,crystals:false,items:false,run:false},accountCreatedAt=null;
 const save=()=>{if(developerModeEnabled)return;try{localStorage.slimeSave=JSON.stringify(SV)}catch(e){}scheduleCloudSave()};
 function localDayKey(date=new Date()){const y=date.getFullYear(),m=String(date.getMonth()+1).padStart(2,'0'),d=String(date.getDate()).padStart(2,'0');return y+'-'+m+'-'+d}
 function dailyClaimed(){const today=localDayKey();return SV.day===today||SV.day===new Date().toDateString()}
@@ -1267,58 +1269,63 @@ function ui(p){
 }
 let OFF=false,OR=null,offlineTimer=0;
 const OCLS={normal:{hp:100,sp:4.8,dm:.8,pw:'proj'},mago:{hp:70,sp:4.8,dm:.92,pw:'raio'},cavaleiro:{hp:150,sp:4.2,dm:1.05,pw:'orb'},necromante:{hp:85,sp:4.8,dm:1,pw:'nova'},curandeiro:{hp:110,sp:4.8,dm:.7,pw:'aura',heal:1},arqueiro:{hp:80,sp:5.2,dm:.9,pw:'proj',pr:2}};
-const OET=[{h:w=>18+w*9,r:10,v:1.4,d:7,c:1,x:5},{h:w=>10+w*5,r:8,v:2.4,d:5,c:2,x:3},{h:w=>55+w*15,r:16,v:.9,d:14,c:6,x:20},{h:w=>300+w*55,r:26,v:.8,d:20,c:18,x:100},{h:w=>14+w*6,r:11,v:1.9,d:6,c:1,x:6},{h:w=>30+w*8,r:12,v:1.6,d:9,c:2,x:9},{h:w=>70+w*14,r:13,v:.7,d:10,c:2,x:14}];
+const OET=[{h:w=>18+w*9,r:10,v:1.4,d:7,c:1,x:5},{h:w=>10+w*5,r:8,v:2.4,d:5,c:2,x:3},{h:w=>55+w*15,r:16,v:.9,d:14,c:6,x:30},{h:w=>300+w*55,r:26,v:.8,d:20,c:18,x:120},{h:w=>14+w*6,r:11,v:1.9,d:6,c:1,x:12},{h:w=>30+w*8,r:12,v:1.6,d:9,c:2,x:18},{h:w=>70+w*14,r:13,v:.7,d:10,c:2,x:24},{h:w=>5+w*1.2,r:7,v:2.25,d:1.5,c:1,x:2}];
 const oClamp=v=>Math.max(-1000000000,Math.min(1000000000,v)),oDist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y),offlineRandomSubset=(items,count)=>{const copy=items.slice(),take=Math.min(copy.length,Math.max(0,count|0));for(let i=0;i<take;i++){const j=i+Math.floor(Math.random()*(copy.length-i));[copy[i],copy[j]]=[copy[j],copy[i]]}return copy.slice(0,take)};
 function offlinePlayer(){
- const cls=OCLS[SV.sel]?SV.sel:'normal',c=OCLS[cls],u={};
- for(const k of Object.keys(UPG))u[k]=developerModeEnabled?10:Math.min(10,Math.max(0,Math.floor(+SV.up[k]||0)));
- const it=developerModeEnabled?Object.keys(ITEMS):Array.isArray(SV.items)?SV.items.slice():[],mh=developerModeEnabled?1000000:Math.round(c.hp*(1+.1*u.vida)*(it.includes('coracao')?1.25:1));
- const p={id:1,name:String($('n').value||SV.name||'Slime').slice(0,15),cls,u,up:SV.up,it,x:0,y:0,hp:mh,mh,lv:1,xp:0,nx:5,pw:{[c.pw]:1},ps:{},cd:{},dx:0,dy:0,ch:null,d:0,co:0,cr:0,stopAfterStep:0,stopRequested:0,devMode:developerModeEnabled};
- if(developerModeEnabled){p.co=999999999;p.cr=999999999;p.pw=Object.fromEntries(['proj','orb','nova','raio','aura','meteoro','lanca','corrente','espinhos','furacao'].map(k=>[k,1]));p.ps=Object.fromEntries(['vida','dano','vel','recarga','ima','regen','xp','armadura','crit','sorte'].map(k=>[k,1]))}return p;
+ const cls=OCLS[SV.sel]?SV.sel:'normal',c=OCLS[cls],flags=developerModeEnabled?developerSettings:{coins:false,crystals:false,items:false,run:false},u={};
+ for(const k of Object.keys(UPG))u[k]=flags.items?10:Math.min(10,Math.max(0,Math.floor(+SV.up[k]||0)));
+ const it=flags.items?Object.keys(ITEMS):Array.isArray(SV.items)?SV.items.slice():[],baseHp=Math.round(c.hp*(1+.1*u.vida)*(it.includes('coracao')?1.25:1)),mh=flags.run?1000000:(SV.difficulty==='inferno'?Math.max(1,Math.floor(baseHp*.5)):baseHp);
+ const p={id:1,name:String($('n').value||SV.name||'Slime').slice(0,15),cls,u,up:SV.up,it,x:0,y:0,hp:mh,mh,lv:1,xp:0,nx:5,pw:{[c.pw]:1},ps:{},cd:{},dx:0,dy:0,ch:null,chType:'',d:0,co:flags.coins?999999999:0,cr:flags.crystals?999999999:0,stopAfterStep:0,stopRequested:0,devMode:developerModeEnabled,devFlags:{...flags},buildRewardClaimed:false,sk:[],skTimer:0};
+ return p;
 }
+function offlineMaxedCount(values){return Object.values(values||{}).filter(value=>Number(value)>=5).length}
+function offlineProgressionPool(p){
+ const op=Object.keys(p.pw).filter(k=>p.pw[k]>0).length,os=Object.keys(p.ps).filter(k=>p.ps[k]>0).length,maxed=offlineMaxedCount(p.pw),unlimited=!!(p.devMode&&p.devFlags&&p.devFlags.run);
+ const powers=['proj','orb','nova','raio','aura','meteoro','lanca','corrente','espinhos','furacao'].filter(k=>{const n=p.pw[k]||0;return (n<5||unlimited)&&!(n===4&&maxed>=3&&!unlimited)&&(n>0||op<5||unlimited)}).map(k=>'p:'+k);
+ const passives=['vida','dano','vel','recarga','ima','regen','xp','armadura','crit','sorte'].filter(k=>{const n=p.ps[k]||0;return n<5||unlimited ? (n>0||os<5||unlimited):false}).map(k=>'s:'+k);
+ return [...powers,...passives];
+}
+function offlineMaybeBuildReward(p){if(p.buildRewardClaimed||offlineMaxedCount(p.pw)<3||offlineMaxedCount(p.ps)<5)return false;p.ch=['r:coins','r:crystals'];p.chType='reward';return true}
 function offlineLevel(p){
- p.lv++;p.xp-=p.nx;p.nx=Math.ceil(p.nx*1.35+2);
- const op=Object.keys(p.pw).filter(k=>p.pw[k]>0),os=Object.keys(p.ps).filter(k=>p.ps[k]>0);
- const pool=[...['proj','orb','nova','raio','aura','meteoro','lanca','corrente','espinhos','furacao'].filter(k=>(p.pw[k]||0)>0?p.pw[k]<5:op.length<5).map(k=>'p:'+k),...['vida','dano','vel','recarga','ima','regen','xp','armadura','crit','sorte'].filter(k=>(p.ps[k]||0)>0?p.ps[k]<5:os.length<5).map(k=>'s:'+k)];
- for(let i=pool.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[pool[i],pool[j]]=[pool[j],pool[i]]}
- const classPower={normal:'proj',mago:'raio',cavaleiro:'orb',necromante:'nova',curandeiro:'aura',arqueiro:'proj'},special='p:'+classPower[p.cls],hasSpecial=pool.includes(special),choices=pool.slice(0,3);
- if(hasSpecial&&!choices.includes(special))choices[2]=special;
- if(p.lv===5&&(p.pw.meteoro||0)<5&&((p.pw.meteoro||0)>0||op.length<5)){choices[0]='p:meteoro';if(hasSpecial)choices[1]=special}
- p.ch=choices.slice(0,3);
- p.chType=p.ch.length?'level':'';if(!p.ch.length)p.ch=null;
+ p.lv++;p.xp-=p.nx;p.nx=Math.ceil(p.nx*1.24+1.6);
+ const pool=offlineRandomSubset(offlineProgressionPool(p),offlineProgressionPool(p).length),classPower={normal:'proj',mago:'raio',cavaleiro:'orb',necromante:'nova',curandeiro:'aura',arqueiro:'proj'},special='p:'+classPower[p.cls],choices=pool.slice(0,3);
+ if(pool.includes(special)&&!choices.includes(special))choices[2]=special;
+ p.ch=choices.slice(0,3);p.chType=p.ch.length?'level':'';if(!p.ch.length)p.ch=null;offlineMaybeBuildReward(p);
 }
 function offlinePick(i){
- const index=Number(i),p=OR&&OR.ps[1],o=p&&Array.isArray(p.ch)&&Number.isInteger(index)&&index>=0?p.ch[index]:null;
- if(!o)return;
- const k=o.slice(2);
- if(o[0]=='p'){
-  if((p.pw[k]||0)>=5)return;
-  if(!(p.pw[k]>0)&&Object.keys(p.pw).filter(a=>p.pw[a]>0).length>=5)return;
-  p.pw[k]=(p.pw[k]||0)+1;
- }else{
-  if((p.ps[k]||0)>=5)return;
-  if(!(p.ps[k]>0)&&Object.keys(p.ps).filter(a=>p.ps[a]>0).length>=5)return;
-  p.ps[k]=(p.ps[k]||0)+1;
-  if(k=='vida'){const add=OCLS[p.cls].hp*.2;p.mh+=add;p.hp+=add}
- }
- p.ch=null;p.chType='';if(p.xp>=p.nx)offlineLevel(p);offlineTick();
+ const p=OR&&OR.ps[1],index=Number(i),o=p&&Array.isArray(p.ch)&&Number.isInteger(index)&&index>=0?p.ch[index]:null;if(!o)return;
+ if(p.chType==='reward'){if(o==='r:coins'){if(!(p.devFlags&&p.devFlags.coins))p.co+=500}else if(o==='r:crystals'){if(!(p.devFlags&&p.devFlags.crystals))p.cr+=25}else return;p.buildRewardClaimed=true;p.ch=null;p.chType='';if(p.xp>=p.nx)offlineLevel(p);offlineTick();return}
+ const k=o.slice(2),values=o[0]==='p'?p.pw:p.ps,owned=Object.keys(values).filter(a=>(values[a]||0)>0),unlimited=!!(p.devMode&&p.devFlags&&p.devFlags.run);
+ if(!unlimited&&values[k]>=5)return;
+ if(o[0]==='p'){if(!unlimited&&values[k]===4&&offlineMaxedCount(p.pw)>=3)return;if(!(values[k]>0)&&owned.length>=5&&!unlimited)return;values[k]=(values[k]||0)+1}
+ else{if(!(values[k]>0)&&owned.length>=5&&!unlimited)return;values[k]=(values[k]||0)+1;if(k==='vida'){const add=OCLS[p.cls].hp*.2;p.mh+=add;p.hp+=add}}
+ p.ch=null;p.chType='';if(!offlineMaybeBuildReward(p)&&p.xp>=p.nx)offlineLevel(p);offlineTick();
 }
 function offlineSpawn(r,p,ty){
- const a=Math.random()*Math.PI*2,E=OET[ty],hp=E.h(r.wave);
- r.es.push({x:oClamp(p.x+Math.cos(a)*520),y:oClamp(p.y+Math.sin(a)*520),ty,hp,mh:hp,r:E.r,v:E.v+(ty!=3?Math.min(r.wave*.03,.8):0),d:E.d,attackCooldown:0});
+ const a=Math.random()*Math.PI*2,E=OET[ty],difficulty=RUN_DIFFICULTY[r.difficulty]||RUN_DIFFICULTY.medium,hp=E.h(r.wave)*(difficulty.hp||1);
+ r.es.push({x:oClamp(p.x+Math.cos(a)*420),y:oClamp(p.y+Math.sin(a)*420),ty,hp,mh:hp,r:E.r,v:E.v*(difficulty.speed||1),d:E.d*(difficulty.damage||1),attackCooldown:0});
 }
-function offlineDropChest(r,x,y,type){if(!Array.isArray(r.ch))r.ch=[];if(r.ch.length>=12){if(type==='boss')r.ch.shift();else return}const choices=['coin','coin','gem','gem','heal','medkit','bomb'],kind=type||choices[Math.floor(Math.random()*choices.length)],hp=kind==='boss'?96:48;r.ch.push({x:oClamp(x),y:oClamp(y),type:kind,hp,maxHp:hp,life:1800,broken:false})}
-function offlineChestUpgradePool(p){const op=Object.keys(p.pw).filter(k=>p.pw[k]>0),os=Object.keys(p.ps).filter(k=>p.ps[k]>0);return[...['proj','orb','nova','raio','aura','meteoro','lanca','corrente','espinhos','furacao'].filter(k=>(p.pw[k]||0)>0?p.pw[k]<5:op.length<5).map(k=>'p:'+k),...['vida','dano','vel','recarga','ima','regen','xp','armadura','crit','sorte'].filter(k=>(p.ps[k]||0)>0?p.ps[k]<5:os.length<5).map(k=>'s:'+k)]}
-function offlineBreakChest(r,q,p){if(q.broken)return;q.broken=true;r.fx.push(['a',q.x|0,q.y|0,34,0,12],['l',q.x|0,q.y|0,q.type,0,70]);if(q.type==='boss'){if(!p.devMode){p.co+=100;p.cr+=5}p.ch=offlineRandomSubset(offlineChestUpgradePool(p),3);p.chType=p.ch.length?'boss':'';if(!p.ch.length)p.hp=Math.min(p.mh,p.hp+Math.ceil(p.mh*.25));return}if(q.type==='coin'){if(!p.devMode)p.co+=25+Math.floor(Math.random()*41)}else if(q.type==='gem'){if(!p.devMode)p.cr+=1+Math.floor(Math.random()*3)}else if(q.type==='heal')p.hp=Math.min(p.mh,p.hp+18);else if(q.type==='medkit')p.hp=Math.min(p.mh,p.hp+55);else if(q.type==='bomb'){const radius=170,damage=60+r.wave*6;for(const e of r.es)if(oDist(e,q)<radius+e.r)e.hp-=damage;r.fx.push(['n',q.x|0,q.y|0,radius,0,10])}}
+function offlineSpawnBoss(r,p,tier){
+ const difficulty=RUN_DIFFICULTY[r.difficulty]||RUN_DIFFICULTY.medium,base=OET[3],scale=1+.8*(tier-1),hp=base.h(r.wave)*scale*(difficulty.hp||1);
+ r.es=[];r.sh=[];r.gm=[];r.hr=[];r.loot=[];r.arena={x:p.x,y:p.y,radius:620};r.bossActive=true;r.activeBossTier=tier;r.sp=9999;
+ r.es.push({x:p.x+140,y:p.y-80,ty:3,hp,mh:hp,r:base.r+4*(tier-1),v:base.v*(difficulty.speed||1)*(.9+.08*tier),d:base.d*(difficulty.damage||1)*(1+.55*(tier-1)),attackCooldown:0,isBoss:true,bossTier:tier});
+ r.fx.push(['n',p.x|0,p.y|0,260+35*tier,0,24]);
+}
+function offlineAddLoot(r,x,y,type,amount){if(!Array.isArray(r.loot))r.loot=[];if(r.loot.length>=60)r.loot.shift();r.loot.push({x:oClamp(x),y:oClamp(y),type,amount:Math.max(1,Math.floor(amount||1)),life:1800})}
+function offlineDropChest(r,x,y,type){if(!Array.isArray(r.ch))r.ch=[];if(r.ch.length>=12){if(type==='boss')r.ch.shift();else return}const choices=['coin','coin','gem','gem','heal','medkit','bomb'],kind=type||choices[Math.floor(Math.random()*choices.length)],hp=kind==='boss'?96:48;r.ch.push({x:oClamp(x),y:oClamp(y),type:kind,hp,maxHp:hp,life:2100,broken:false})}
+function offlineChestUpgradePool(p){return offlineProgressionPool(p)}
+function offlineBreakChest(r,q,p){if(q.broken)return;q.broken=true;r.fx.push(['a',q.x|0,q.y|0,34,0,12],['l',q.x|0,q.y|0,q.type,0,70]);if(q.type==='boss'){if(!(p.devFlags&&p.devFlags.coins))p.co+=250;if(!(p.devFlags&&p.devFlags.crystals))p.cr+=12;p.hp=Math.min(p.mh,p.hp+Math.ceil(p.mh*.35));p.ch=offlineRandomSubset(offlineChestUpgradePool(p),3);p.chType=p.ch.length?'boss':'';offlineAddLoot(r,q.x-24,q.y,'coin',250);offlineAddLoot(r,q.x+24,q.y,'gem',12);offlineAddLoot(r,q.x,q.y+22,'medkit',1);return}offlineAddLoot(r,q.x,q.y,q.type,q.type==='coin'?25+Math.floor(Math.random()*41):q.type==='gem'?1+Math.floor(Math.random()*3):1)}
 function offlineDamageChests(r,p,x,y,range,damage){if(!(damage>0))return;const point={x,y};for(const q of r.ch||[]){if(q.broken||oDist(q,point)>range+14)continue;q.hp=Math.max(0,(Number(q.hp)||48)-damage);if(q.hp<=0)offlineBreakChest(r,q,p)}}
 function offlineDropChestNearPlayer(r,p){const a=Math.random()*Math.PI*2,d=110+Math.random()*110;offlineDropChest(r,p.x+Math.cos(a)*d,p.y+Math.sin(a)*d)}
 function offlineStep(r,p){
- r.t++;r.ob=[];
- if(r.t%600===0){r.wave++;if(r.wave%2===0&&!p.devMode)p.cr++;if(r.wave%2===0)offlineDropChestNearPlayer(r,p);if(r.wave%5===0)offlineSpawn(r,p,3)}
- if(--r.sp<1){const w=r.wave;r.sp=Math.max(20,60-w*2);if(r.es.length<36)for(let i=0,n=1+(w>>2);i<n&&r.es.length<36;i++){const q=Math.random();offlineSpawn(r,p,w>2&&q<.08?5:w>3&&q<.17?6:w>1&&q<.36?4:w>2&&q<.46?2:q<.7?1:0)}}
+ if(r.completed)return;r.t++;r.ob=[];
+ if(r.t%600===0){r.wave++;if(r.wave%2===0&&!(p.devFlags&&p.devFlags.crystals))p.cr++;if(r.wave%2===0)offlineDropChestNearPlayer(r,p)}
+ if(r.bossIndex<4&&r.t>=RUN_BOSS_TIMES[r.bossIndex]){r.bossIndex++;r.pendingBossTiers.push(r.bossIndex)}
+ if(!r.bossActive&&r.pendingBossTiers.length)offlineSpawnBoss(r,p,r.pendingBossTiers.shift());
+ if(!r.bossActive&&--r.sp<1){const w=r.wave,difficulty=RUN_DIFFICULTY[r.difficulty]||RUN_DIFFICULTY.medium;r.sp=Math.max(72,Math.round((108-Math.min(w,18)*2)*(difficulty.spawn||1)));if(r.es.length<42)for(let i=0,n=1+Math.floor(w/8);i<n&&r.es.length<42;i++){const q=Math.random();offlineSpawn(r,p,w>3&&q<.1?5:w>4&&q<.18?6:w>2&&q<.38?4:w>2&&q<.5?2:q<.74?1:0)}if(w>=4&&w%4===0&&r.lastHordeWave!==w){r.lastHordeWave=w;for(let i=0;i<12&&r.es.length<42;i++)offlineSpawn(r,p,7)}}
  const c=OCLS[p.cls],m=Math.hypot(p.dx,p.dy);if(m>1){p.dx/=m;p.dy/=m}
  const sp=c.sp*(1+.1*(p.ps.vel||0))*(1+.04*p.u.vel)*(p.it.includes('botas')?1.08:1);
- p.x=oClamp(p.x+p.dx*sp);p.y=oClamp(p.y+p.dy*sp);
+ p.x=oClamp(p.x+p.dx*sp);p.y=oClamp(p.y+p.dy*sp);if(r.arena){const ax=p.x-r.arena.x,ay=p.y-r.arena.y,ad=Math.hypot(ax,ay)||1,limit=r.arena.radius-22;if(ad>limit){p.x=r.arena.x+ax/ad*limit;p.y=r.arena.y+ay/ad*limit;if(r.t%30===0){p.hp=Math.max(0,p.hp-8);r.fx.push(['a',p.x|0,p.y|0,26,0,5]);if(p.hp<=0){p.d=1;p.ch=null}}}}
  if(p.stopAfterStep>0&&--p.stopAfterStep===0){p.dx=0;p.dy=0;p.stopRequested=0}
  const dm=c.dm*(1+.15*(p.ps.dano||0))*(1+.08*p.u.dano)*(p.it.includes('espada')?1.12:1),cd=Math.max(.35,1-.1*(p.ps.recarga||0)),hit=d=>d*(Math.random()<Math.min(.6,.05*(p.ps.crit||0))?2:1);
  const near=g=>{let b=null;for(const e of r.es){const d=oDist(e,p);if(d<g){g=d;b=e}}return b};
@@ -1327,26 +1334,28 @@ function offlineStep(r,p){
  if(p.cls==='cavaleiro'&&rdy('knightSword',48)){const target=near(165);if(target){target.hp-=hit(20*dm);r.fx.push(['s',p.x|0,p.y|0,target.x|0,target.y|0,7])}else p.cd.knightSword=0;offlineDamageChests(r,p,p.x,p.y,165,hit(18*dm))}
  if(p.cls==='cavaleiro'){p.shieldTimer=(p.shieldTimer||0)+1;if(p.shieldTimer>=210){p.shieldTimer=0;p.shieldUntil=r.t+42;r.fx.push(['n',p.x|0,p.y|0,66,0,7])}}
  
- if(l.proj&&rdy('proj',18)){const e=near(420),ch=nearChest(420),target=ch&&(!e||oDist(ch,p)<oDist(e,p))?ch:e;if(target){const n=1+(l.proj>2)+(l.proj>4),a0=Math.atan2(target.y-p.y,target.x-p.x);for(let i=0;i<n;i++){const a=a0+(i-(n-1)/2)*.2;r.sh.push({x:p.x,y:p.y,vx:Math.cos(a)*9,vy:Math.sin(a)*9,d:hit((7+3*l.proj)*dm),life:45,pr:c.pr||0,targetChest:target===ch,tx:target.x,ty:target.y})}}else p.cd.proj=0}
- if(l.orb){const n=1+l.orb;for(let i=0;i<n;i++){const a=r.t*.1+i*6.283/n,o={x:p.x+Math.cos(a)*65,y:p.y+Math.sin(a)*65};r.ob.push([o.x|0,o.y|0]);for(const e of r.es)if(oDist(e,o)<e.r+8)e.hp-=hit(.3*(1+l.orb*.3)*dm)}}
- if(l.nova&&rdy('nova',90)){const rr=90+12*l.nova;r.fx.push(['n',p.x|0,p.y|0,rr,0,6]);for(const e of r.es)if(oDist(e,p)<rr+e.r)e.hp-=hit((10+5*l.nova)*dm);offlineDamageChests(r,p,p.x,p.y,rr,hit((10+5*l.nova)*dm))}
- if(l.raio&&rdy('raio',45)){const hits=offlineRandomSubset(r.es.filter(e=>oDist(e,p)<380),1+l.raio);hits.forEach(e=>{e.hp-=hit((14+4*l.raio)*dm);r.fx.push(['r',p.x|0,p.y|0,e.x|0,e.y|0,5]);offlineDamageChests(r,p,e.x,e.y,18,hit((14+4*l.raio)*dm))})}
+ if(l.proj&&rdy('proj',18)){const e=near(420),ch=nearChest(420),target=ch&&(!e||oDist(ch,p)<oDist(e,p))?ch:e;if(target){const n=1+(l.proj>2)+(l.proj>4)+(l.proj>=5?2:0),a0=Math.atan2(target.y-p.y,target.x-p.x);for(let i=0;i<n;i++){const a=a0+(i-(n-1)/2)*.2;r.sh.push({x:p.x,y:p.y,vx:Math.cos(a)*9,vy:Math.sin(a)*9,d:hit((7+3*l.proj)*(l.proj>=5?1.35:1)*dm),life:45,pr:(c.pr||0)+(l.proj>=5?5:0),targetChest:target===ch,tx:target.x,ty:target.y})}}else p.cd.proj=0}
+ if(l.orb){const n=1+l.orb+(l.orb>=5?2:0),radius=l.orb>=5?82:65;for(let i=0;i<n;i++){const a=r.t*.1+i*6.283/n,o={x:p.x+Math.cos(a)*radius,y:p.y+Math.sin(a)*radius};r.ob.push([o.x|0,o.y|0]);for(const e of r.es)if(oDist(e,o)<e.r+10)e.hp-=hit(.3*(1+l.orb*.3)*(l.orb>=5?1.5:1)*dm)}}
+ if(l.nova&&rdy('nova',90)){const rr=90+12*l.nova+(l.nova>=5?48:0);r.fx.push(['n',p.x|0,p.y|0,rr,0,6]);for(const e of r.es)if(oDist(e,p)<rr+e.r)e.hp-=hit((10+5*l.nova)*dm);offlineDamageChests(r,p,p.x,p.y,rr,hit((10+5*l.nova)*dm))}
+ if(l.raio&&rdy('raio',45)){const hits=offlineRandomSubset(r.es.filter(e=>oDist(e,p)<380),Math.min(10,1+l.raio+(l.raio>=5?4:0)));hits.forEach(e=>{e.hp-=hit((14+4*l.raio)*dm);r.fx.push(['r',p.x|0,p.y|0,e.x|0,e.y|0,5]);offlineDamageChests(r,p,e.x,e.y,18,hit((14+4*l.raio)*dm))})}
  if(l.meteoro&&rdy('meteoro',120)){const e=near(450);if(e){const rr=60+6*l.meteoro;r.fx.push(['n',e.x|0,e.y|0,rr,0,8]);for(const q of r.es)if(oDist(q,e)<rr+q.r)q.hp-=hit((25+8*l.meteoro)*dm);offlineDamageChests(r,p,e.x,e.y,rr,hit((25+8*l.meteoro)*dm))}else p.cd.meteoro=0}
- if(l.aura){const rr=50+8*l.aura;for(const e of r.es)if(oDist(e,p)<rr+e.r)e.hp-=hit((.3+.12*l.aura)*dm);if(r.t%18===0)offlineDamageChests(r,p,p.x,p.y,rr,hit((3+1.5*l.aura)*dm))}
+ if(l.aura){const rr=50+8*l.aura+(l.aura>=5?45:0);for(const e of r.es)if(oDist(e,p)<rr+e.r)e.hp-=hit((.3+.12*l.aura)*dm);if(r.t%18===0)offlineDamageChests(r,p,p.x,p.y,rr,hit((3+1.5*l.aura)*dm))}
  if(l.lanca&&rdy('lanca',58)){const e=near(520),ch=nearChest(520),target=ch&&(!e||oDist(ch,p)<oDist(e,p))?ch:e;if(target){const a=Math.atan2(target.y-p.y,target.x-p.x);r.sh.push({x:p.x,y:p.y,vx:Math.cos(a)*12,vy:Math.sin(a)*12,d:hit((20+7*l.lanca)*dm),life:48,pr:5,targetChest:target===ch,tx:target.x,ty:target.y})}else p.cd.lanca=0}
- if(l.corrente&&rdy('corrente',72)){let from=p;const chain=r.es.filter(e=>oDist(e,p)<430).sort((a,b)=>oDist(a,p)-oDist(b,p)).slice(0,Math.min(2+l.corrente,6));for(const e of chain){e.hp-=hit((13+5*l.corrente)*dm);r.fx.push(['r',from.x|0,from.y|0,e.x|0,e.y|0,5]);offlineDamageChests(r,p,e.x,e.y,16,hit((13+5*l.corrente)*dm));from=e}}
+ if(l.corrente&&rdy('corrente',72)){let from=p;const chain=r.es.filter(e=>oDist(e,p)<430).sort((a,b)=>oDist(a,p)-oDist(b,p)).slice(0,Math.min(10,2+l.corrente+(l.corrente>=5?3:0)));for(const e of chain){e.hp-=hit((13+5*l.corrente)*dm);r.fx.push(['r',from.x|0,from.y|0,e.x|0,e.y|0,5]);offlineDamageChests(r,p,e.x,e.y,16,hit((13+5*l.corrente)*dm));from=e}}
  if(l.espinhos&&rdy('espinhos',24)){const rr=82+9*l.espinhos;r.fx.push(['n',p.x|0,p.y|0,rr,0,5]);for(const e of r.es)if(oDist(e,p)<rr+e.r)e.hp-=hit((8+3*l.espinhos)*dm);offlineDamageChests(r,p,p.x,p.y,rr,hit((8+3*l.espinhos)*dm))}
  if(l.furacao&&rdy('furacao',150)){const rr=135+12*l.furacao;r.fx.push(['n',p.x|0,p.y|0,rr,0,9]);for(const e of r.es)if(oDist(e,p)<rr+e.r){e.hp-=hit((28+9*l.furacao)*dm);const a=Math.atan2(e.y-p.y,e.x-p.x);e.x=oClamp(e.x+Math.cos(a)*18);e.y=oClamp(e.y+Math.sin(a)*18)}offlineDamageChests(r,p,p.x,p.y,rr,hit((28+9*l.furacao)*dm))}
  if(p.lv>=5&&rdy('ascensao',540)){const rr=150;for(const e of r.es)if(oDist(e,p)<rr+e.r)e.hp-=hit((24+4*p.lv)*dm);offlineDamageChests(r,p,p.x,p.y,rr,hit((24+4*p.lv)*dm));p.hp=Math.min(p.mh,p.hp+Math.ceil(p.mh*.08));r.fx.push(['a',p.x|0,p.y|0,rr,0,18])}
- if(p.ps.regen&&r.t%30===0)p.hp=Math.min(p.mh,p.hp+p.ps.regen);if(c.heal&&r.t%60===0)p.hp=Math.min(p.mh,p.hp+8);
+ if(r.difficulty!=='inferno'&&r.t%30===0)p.hp=Math.min(p.mh,p.hp+Math.max(1,Math.ceil(p.mh*.005))+(p.ps.regen||0));if(c.heal&&r.t%60===0)p.hp=Math.min(p.mh,p.hp+8);
  if(r.t%20===0)offlineDamageChests(r,p,p.x,p.y,220,hit(16*dm));
  if(r.sh.length>80)r.sh.splice(0,r.sh.length-80);
- for(let ei=0;ei<r.es.length;ei++){const e=r.es[ei],d=oDist(p,e)||1;let sx=0,sy=0;for(let oi=0;oi<r.es.length;oi++){if(oi===ei)continue;const other=r.es[oi],ox=e.x-other.x,oy=e.y-other.y,od=Math.hypot(ox,oy),gap=e.r+other.r+28;if(od<gap){const angle=od>.001?Math.atan2(oy,ox):(ei-oi)*2.399963229728653,push=Math.min(3,(gap-od)/gap*4);sx+=Math.cos(angle)*push;sy+=Math.sin(angle)*push}}let nx=e.x+(p.x-e.x)/d*e.v+sx*3,ny=e.y+(p.y-e.y)/d*e.v+sy*.95;const stopGap=e.r+27,nd=Math.hypot(nx-p.x,ny-p.y);if(nd<stopGap){const angle=nd>.001?Math.atan2(ny-p.y,nx-p.x):(r.t*.17+e.ty*2.4);nx=p.x+Math.cos(angle)*stopGap;ny=p.y+Math.sin(angle)*stopGap}e.x=oClamp(nx);e.y=oClamp(ny);const contact=oDist(p,e);if(contact<e.r+38){e.attackCooldown=(e.attackCooldown||0)-1;if(e.attackCooldown<=0){if(p.cls==='cavaleiro'&&(p.shieldUntil||0)>=r.t){e.attackCooldown=24;r.fx.push(['n',p.x|0,p.y|0,54,0,4])}else{const damage=Math.max(1,e.d*(1-Math.min(.85,.08*(p.ps.armadura||0)))*(p.it.includes('escudo')?.85:1));p.hp=Math.max(0,p.hp-damage);e.attackCooldown=75;if(p.hp<=0){p.d=1;p.ch=null;break}}}}else if(e.attackCooldown>0)e.attackCooldown--}
+ for(let ei=0;ei<r.es.length;ei++){const e=r.es[ei];let target=p,isSkeleton=false,d=oDist(p,e)||1;for(const sk of p.sk||[]){if(sk.hp<=0)continue;const sd=oDist(sk,e)||1;if(sd<d){d=sd;target=sk;isSkeleton=true}}let sx=0,sy=0;for(let oi=0;oi<r.es.length;oi++){if(oi===ei)continue;const other=r.es[oi],ox=e.x-other.x,oy=e.y-other.y,od=Math.hypot(ox,oy),gap=e.r+other.r+28;if(od<gap){const angle=od>.001?Math.atan2(oy,ox):(ei-oi)*2.399963229728653,push=Math.min(3,(gap-od)/gap*4);sx+=Math.cos(angle)*push;sy+=Math.sin(angle)*push}}let nx=e.x+(target.x-e.x)/d*e.v+sx*3,ny=e.y+(target.y-e.y)/d*e.v+sy*.95;const stopGap=e.r+(isSkeleton?14:27),nd=Math.hypot(nx-target.x,ny-target.y);if(nd<stopGap){const angle=nd>.001?Math.atan2(ny-target.y,nx-target.x):(r.t*.17+e.ty*2.4);nx=target.x+Math.cos(angle)*stopGap;ny=target.y+Math.sin(angle)*stopGap}e.x=oClamp(nx);e.y=oClamp(ny);const contact=oDist(target,e);if(contact<e.r+(isSkeleton?18:38)){e.attackCooldown=(e.attackCooldown||0)-1;if(e.attackCooldown<=0){if(isSkeleton){target.hp=Math.max(0,target.hp-Math.max(1,e.d*.8));e.attackCooldown=65}else if(p.cls==='cavaleiro'&&(p.shieldUntil||0)>=r.t){e.attackCooldown=24;r.fx.push(['n',p.x|0,p.y|0,54,0,4])}else{const damage=Math.max(1,e.d*(1-Math.min(.85,.08*(p.ps.armadura||0)))*(p.it.includes('escudo')?.85:1));p.hp=Math.max(0,p.hp-damage);e.attackCooldown=75;if(p.hp<=0){p.d=1;p.ch=null;break}}}}else if(e.attackCooldown>0)e.attackCooldown--}
  r.sh=r.sh.filter(q=>{if(q.targetChest){const angle=Math.atan2(q.ty-q.y,q.tx-q.x);q.vx=Math.cos(angle)*9;q.vy=Math.sin(angle)*9}q.x+=q.vx;q.y+=q.vy;if(--q.life<1)return 0;if(!q.hitChests)q.hitChests=new Set();if(q.targetChest){for(const chest of r.ch||[])if(!chest.broken&&!q.hitChests.has(chest)&&oDist(chest,q)<25){q.hitChests.add(chest);chest.hp=Math.max(0,(Number(chest.hp)||48)-q.d);if(chest.hp<=0)offlineBreakChest(r,chest,p);return 0}return 1}if(!q.hit)q.hit=new Set();for(const e of r.es)if(e.hp>0&&!q.hit.has(e)&&oDist(e,q)<e.r+4){q.hit.add(e);e.hp-=q.d;if(q.pr-->0)continue;return 0}for(const chest of r.ch||[])if(!chest.broken&&!q.hitChests.has(chest)&&oDist(chest,q)<23){q.hitChests.add(chest);chest.hp=Math.max(0,(Number(chest.hp)||48)-q.d);if(chest.hp<=0)offlineBreakChest(r,chest,p);if(q.pr-->0)continue;return 0}return 1});
- r.es=r.es.filter(e=>{if(e.hp>0)return 1;const E=OET[e.ty];r.gm.push({x:e.x,y:e.y,v:E.x,life:1800});if(r.gm.length>30)r.gm.splice(0,r.gm.length-30);if(Math.random()<.05){r.hr.push({x:e.x,y:e.y,life:1800});if(r.hr.length>20)r.hr.shift()}if(e.ty===3)offlineDropChest(r,e.x,e.y,'boss');else if(Math.random()<.12)offlineDropChest(r,e.x,e.y);if(!p.d&&!p.devMode){p.co+=Math.ceil(E.c*(1+.1*p.u.moeda+.1*(p.ps.sorte||0))*(p.it.includes('anel')?1.15:1));if(e.ty==2&&Math.random()<.12)p.cr++;if(e.ty==3)p.cr+=3}return 0});
+ r.es=r.es.filter(e=>{if(e.hp>0)return 1;const E=OET[e.ty],difficulty=RUN_DIFFICULTY[r.difficulty]||RUN_DIFFICULTY.medium,xp=E.x*(difficulty.xp||1)*(1+Math.max(0,r.wave-1)*.025);r.gm.push({x:e.x,y:e.y,v:xp,life:1800});if(r.gm.length>42)r.gm.splice(0,r.gm.length-42);if(Math.random()<.06){r.hr.push({x:e.x,y:e.y,life:1800});if(r.hr.length>28)r.hr.shift()}if(e.isBoss){r.bossActive=false;r.sp=120;offlineDropChest(r,e.x,e.y,'boss');if((e.bossTier||1)>=4)r.completed=true}else if(e.ty===3)offlineDropChest(r,e.x,e.y,'boss');else if(Math.random()<.22)offlineDropChest(r,e.x,e.y);const luckMultiplier=1+.1*(p.u.moeda||0)+.1*(p.ps.sorte||0);if(!p.d){if(!(p.devFlags&&p.devFlags.coins))p.co+=Math.ceil(E.c*luckMultiplier*(p.it.includes('anel')?1.15:1));if(!(p.devFlags&&p.devFlags.crystals)){if(e.ty===2&&Math.random()<.12)p.cr++;if(e.ty===3)p.cr+=3;if(e.isBoss)p.cr+=4}}return 0});
  r.gm=r.gm.filter(g=>{if(--g.life<=0)return 0;if(p.d)return 1;const d=oDist(p,g)||1;if(d<14){p.xp+=g.v*(1+.15*(p.ps.xp||0))*(p.it.includes('amuleto')?1.15:1);if(p.xp>=p.nx&&!p.ch)offlineLevel(p);return 0}if(d<60*(1+.4*(p.ps.ima||0))){g.x+=(p.x-g.x)/d*5;g.y+=(p.y-g.y)/d*5}return 1});
- r.hr=r.hr.filter(h=>{if(--h.life<=0)return 0;if(!p.d&&oDist(p,h)<18){p.hp=Math.min(p.mh,p.hp+25);return 0}return 1});
- r.ch=(r.ch||[]).filter(q=>!q.broken&&--q.life>0);r.fx=r.fx.filter(f=>--f[5]>0);if(r.fx.length>160)r.fx.splice(0,r.fx.length-160);
+ const magnetRange=70*(1+.55*(p.ps.ima||0));
+ r.hr=r.hr.filter(h=>{if(--h.life<=0)return 0;const d=oDist(p,h)||1;if(d<18){p.hp=Math.min(p.mh,p.hp+25);return 0}if(d<magnetRange){h.x+=(p.x-h.x)/d*5.5;h.y+=(p.y-h.y)/d*5.5}return 1});
+ r.loot=(r.loot||[]).filter(q=>{if(--q.life<=0)return 0;const d=oDist(p,q)||1;if(d<20){if(q.type==='coin'&&!(p.devFlags&&p.devFlags.coins))p.co+=q.amount;if(q.type==='gem'&&!(p.devFlags&&p.devFlags.crystals))p.cr+=q.amount;if(q.type==='heal')p.hp=Math.min(p.mh,p.hp+18);if(q.type==='medkit')p.hp=Math.min(p.mh,p.hp+55);if(q.type==='bomb'){for(const e of r.es)if(oDist(e,q)<175+e.r)e.hp-=65+r.wave*5;r.fx.push(['n',q.x|0,q.y|0,175,0,10])}r.fx.push(['l',q.x|0,q.y|0,q.type,0,70]);return 0}if(d<magnetRange){q.x+=(p.x-q.x)/d*5.5;q.y+=(p.y-q.y)/d*5.5}return 1});
+  r.ch=(r.ch||[]).filter(q=>!q.broken&&--q.life>0);r.fx=r.fx.filter(f=>--f[5]>0);if(r.fx.length>160)r.fx.splice(0,r.fx.length-160);
  if(p.cls==='necromante'){
   const summonLevel=Math.max(1,Math.min(5,p.pw.nova||1)),maxSk=2+summonLevel,spawnEvery=Math.max(45,90-summonLevel*8);
   p.sk=p.sk||[];p.skTimer=(p.skTimer||0)+1;
@@ -1356,9 +1365,9 @@ function offlineStep(r,p){
 }
 function offlineSnapshot(){
  const r=OR,p=r.ps[1],c=OCLS[p.cls],sp=c.sp*(1+.1*(p.ps.vel||0))*(1+.04*p.u.vel)*(p.it.includes('botas')?1.08:1);
- S={w:r.wave,mp:r.map|0,pa:p.ch?1:0,o:p.d?1:0,
- p:[{id:1,n:p.name,c:p.cls,x:p.x|0,y:p.y|0,h:p.hp|0,m:p.mh|0,l:p.lv,xp:p.xp,nx:p.nx,d:p.d,pw:p.pw,ps:p.ps,ch:p.ch,chType:p.chType,it:p.it,shield:p.shieldUntil>r.t?p.shieldUntil-r.t:0,co:p.devMode?999999999:p.co,cr:p.devMode?999999999:p.cr,dev:!!p.devMode,sp:+sp.toFixed(2)}],
- k:(p.sk||[]).map(q=>[q.x|0,q.y|0]),e:r.es.map(e=>[e.x|0,e.y|0,e.ty,Math.max(0,e.hp/e.mh)]),s:r.sh.slice(-80).map(q=>[q.x|0,q.y|0]),b:r.ob,g:r.gm.slice(-30).map(q=>[q.x|0,q.y|0]),f:r.fx.slice(-160),hr:r.hr.map(q=>[q.x|0,q.y|0]),ch:(r.ch||[]).map(q=>[q.x|0,q.y|0,q.type,Math.max(0,q.hp/(q.maxHp||48))])};
+ S={w:r.wave,mp:r.map|0,pa:p.ch?1:0,o:p.d?1:0,win:!!r.completed,time:r.t||0,difficulty:r.difficulty||'medium',bossTier:r.activeBossTier||r.bossIndex||0,bossActive:!!r.bossActive,arena:r.arena?[r.arena.x|0,r.arena.y|0,r.arena.radius|0]:null,
+ p:[{id:1,n:p.name,c:p.cls,x:p.x|0,y:p.y|0,h:p.hp|0,m:p.mh|0,l:p.lv,xp:p.xp,nx:p.nx,d:p.d,pw:p.pw,ps:p.ps,ch:p.ch,chType:p.chType,it:p.it,shield:p.shieldUntil>r.t?p.shieldUntil-r.t:0,co:p.devFlags&&p.devFlags.coins?999999999:p.co,cr:p.devFlags&&p.devFlags.crystals?999999999:p.cr,dev:!!p.devMode,sp:+sp.toFixed(2)}],
+ k:(p.sk||[]).map(q=>[q.x|0,q.y|0]),e:r.es.map(e=>[e.x|0,e.y|0,e.ty,Math.max(0,e.hp/e.mh),e.bossTier||0]),s:r.sh.slice(-80).map(q=>[q.x|0,q.y|0]),b:r.ob,g:r.gm.slice(-42).map(q=>[q.x|0,q.y|0]),f:r.fx.slice(-160),hr:r.hr.map(q=>[q.x|0,q.y|0]),loot:(r.loot||[]).map(q=>[q.x|0,q.y|0,q.type,q.amount]),ch:(r.ch||[]).map(q=>[q.x|0,q.y|0,q.type,Math.max(0,q.hp/(q.maxHp||48))])};
  const d=S;
  if(!p.devMode&&d.w>SV.best){SV.best=d.w;[[5,15,0],[10,0,2],[15,0,5],[20,0,10]].forEach(([w,co,cr])=>{if(d.w>=w&&!SV.ach.includes(w)){SV.ach.push(w);SV.co+=co;SV.cr+=cr;toast('🏆 Onda '+w+'! Recompensa recebida')}});save()}
  if(!p.devMode&&p.co>gc){SV.co+=p.co-gc;gc=p.co;save()}if(!p.devMode&&p.cr>gk){SV.cr+=p.cr-gk;gk=p.cr;save()}
@@ -1370,7 +1379,7 @@ function offlineStart(){
  enterImmersiveMode();
  SV.name=offlineName.slice(0,15);$('n').value=SV.name;save();startMusic();
  cleanupGameSession();
- OFF=true;OR={ps:{1:offlinePlayer()},es:[],sh:[],gm:[],hr:[],ch:[],fx:[],ob:[],wave:1,t:0,sp:30,map:SV.map};
+ OFF=true;OR={ps:{1:offlinePlayer()},es:[],sh:[],gm:[],hr:[],ch:[],loot:[],fx:[],ob:[],wave:1,t:0,sp:105,map:SV.map,difficulty:SV.difficulty,bossIndex:0,pendingBossTiers:[],bossActive:false,activeBossTier:0,completed:false,arena:null,lastHordeWave:0};
  me=1;gc=0;gk=0;lw=0;pp=null;lt=0;last='';lastPow='';
  setGameState('PLAYING');
  offlineTimer=setInterval(offlineTick,33);offlineTick();toast('Modo offline ativo · progresso salvo no aparelho');

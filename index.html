@@ -397,8 +397,30 @@ input,textarea,select{touch-action:auto;user-select:text}
 .skill-special-card .skill-copy small:last-child{color:#ffd4b8;font-weight:950;letter-spacing:.035em}
 .skill-level.skill-max{background:linear-gradient(135deg,#ff9a55,#dc2626 58%,#7f1d1d);border:1px solid #ffe0bf;color:#fff;box-shadow:0 0 16px #ef4444aa;text-shadow:0 1px 2px #450a0a}
 @media(max-width:620px){.class-stats{font-size:.54rem!important}.skill-special-card{min-height:76px}}
+
+#difficulty-control{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin:1px 0 2px}
+#difficulty-control button{padding:7px 3px;font-size:.68rem;font-weight:850;border:1px solid #ffffff28;background:#0b1c12;border-radius:10px;min-width:0}
+#difficulty-control button.s{border-color:#a7f3b8;background:linear-gradient(145deg,#34784a,#173d28);box-shadow:0 0 0 1px #86efac44}
+#difficulty-control button[data-difficulty="inferno"]{color:#fecaca;border-color:#9f343c}
+#difficulty-control button[data-difficulty="inferno"].s{background:linear-gradient(145deg,#8b252d,#3b151d);border-color:#ff8585;color:#fff}
+.difficulty-hint{grid-column:1/-1;text-align:left;color:#bddbc5;font-size:.61rem;line-height:1.25;padding:0 2px}
+#run-board{position:fixed;right:10px;top:calc(env(safe-area-inset-top,0px) + 88px);z-index:12;display:none;min-width:132px;padding:8px 10px;border:1px solid #c7f9d244;border-radius:13px;background:#07150fe8;box-shadow:0 6px 18px #0008;pointer-events:none}
+.run-board-top{display:flex;justify-content:space-between;gap:14px;color:#f2fff4;font-size:.78rem}.run-board-top b:last-child{color:#a7f3b8;font-variant-numeric:tabular-nums}
+#run-board-boss{margin-top:4px;color:#c5e9ce;font-size:.62rem;text-align:right}
+.profile-card{max-height:86dvh;overflow:auto;touch-action:pan-y}
+#profile-content{display:flex;flex-direction:column;gap:10px;text-align:left}
+.profile-hero{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid #ffffff20;border-radius:15px;background:linear-gradient(120deg,#21452e,#101e15)}
+.profile-avatar{width:54px;height:54px;flex:0 0 54px;border-radius:16px;display:grid;place-items:center;font-size:30px;background:radial-gradient(circle at 30% 25%,#fff,#69e994 35%,#14532d 85%);color:#092d18}
+.profile-meta{min-width:0}.profile-meta b{display:block;font-size:1.05rem;overflow-wrap:anywhere}.profile-meta small{font-size:.69rem;color:#bcd9c4}
+.profile-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.profile-stat{padding:10px;border:1px solid #ffffff1c;border-radius:12px;background:#ffffff09}.profile-stat b{display:block;font-size:1.12rem;color:#b6f6c7}.profile-stat small{font-size:.65rem;color:#c2dcc9}
+.profile-section{padding:10px;border:1px solid #ffffff20;border-radius:13px;background:#ffffff08}
+.profile-section h3{font-size:.78rem;margin:0 0 8px;color:#a7f3b8}.profile-tags{display:flex;flex-wrap:wrap;gap:6px}.profile-tag{padding:5px 8px;border-radius:20px;background:#21432d;border:1px solid #639b6d;color:#e6f8e9;font-size:.65rem}.profile-tag.empty{background:#252d28;border-color:#4e5b51;color:#b9c8bc}
+.dev-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:9px;border:1px solid #c4b5fd55;border-radius:13px;background:#20163d66}
+.dev-options button{font-size:.7rem;padding:8px 5px;border:1px solid #ffffff20;background:#ffffff0a;border-radius:9px}.dev-options button.s{background:#51358a;border-color:#d6bcff;color:#fff}
+@media(max-width:620px){#run-board{top:calc(env(safe-area-inset-top,0px) + 84px);right:8px;min-width:119px;padding:7px 8px}#difficulty-control button{font-size:.62rem;padding:6px 1px}}
 </style></head><body>
-<canvas id="c"></canvas><div id="item-hud" aria-label="Itens equipados"></div><button id="item-toggle" type="button" aria-label="Abrir inventário" aria-expanded="false" onclick="toggleItemInventory()"><span class="item-toggle-icon">🎒</span><span id="item-count" class="item-count">0</span></button><div id="fps-indicator" aria-live="off">FPS …</div><button id="ex" aria-label="Voltar ao lobby"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Lobby</span></button>
+<canvas id="c"></canvas><div id="item-hud" aria-label="Itens equipados"></div><button id="item-toggle" type="button" aria-label="Abrir inventário" aria-expanded="false" onclick="toggleItemInventory()"><span class="item-toggle-icon">🎒</span><span id="item-count" class="item-count">0</span></button><div id="fps-indicator" aria-live="off">FPS …</div><div id="run-board"><div class="run-board-top"><b id="run-board-wave">ONDA 1</b><b id="run-board-time">00:00</b></div><div id="run-board-boss">Primeiro chefe em 02:30</div></div><button id="ex" aria-label="Voltar ao lobby"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Lobby</span></button>
 <div id="m" class="lobby-screen">
  <header class="lobby-top">
   <div class="brand-panel glass">
@@ -407,14 +429,14 @@ input,textarea,select{touch-action:auto;user-select:text}
   </div>
   <div class="account-top glass">
    <div id="account-guest" class="account-guest"><button id="account-open-login" class="account-quiet">Entrar</button><button id="account-open-register" class="account-create">Criar conta</button></div>
-   <div id="account-logged" class="account-logged h"><button id="account-user" class="account-user">Minha conta　⌄</button><div id="account-dropdown" class="account-dropdown h"><div id="account-status">Não conectado</div><button id="account-logout">Sair da conta</button><button id="account-delete-open" class="account-delete-open">Excluir conta</button></div></div>
+   <div id="account-logged" class="account-logged h"><button id="account-user" class="account-user">Minha conta　⌄</button><div id="account-dropdown" class="account-dropdown h"><div id="account-status">Não conectado</div><button id="account-profile-open">Meu perfil</button><button id="account-logout">Sair da conta</button><button id="account-delete-open" class="account-delete-open">Excluir conta</button></div></div>
   </div>
  </header>
  <div class="lobby-tagline"><span class="live-dot"></span> SUA AVENTURA COMEÇA AQUI <span class="tagline-map" id="lobby-map-name">🌲 Floresta Antiga</span></div>
  <section id="tab-panels">
   <div id="tj" class="tab-panel glass">
    <div class="panel-eyebrow">CENTRAL DE PARTIDA</div><h2>Preparado para a aventura?</h2>
-   <input id="n" class="player-name-input" placeholder="Nome do jogador" maxlength="15" autocomplete="nickname">
+   <input id="n" class="player-name-input" placeholder="Nome do jogador" maxlength="15" autocomplete="nickname"><div id="difficulty-control"></div>
    <div class="server-line"><span id="server-dot" class="server-dot pending"></span><span id="server-label">Verificando servidor...</span><b id="online-count">— jogadores</b></div>
    <button id="go" class="public-play"><span class="button-label"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h18M13 4l8 8-8 8"/></svg>Entrar na sala pública</span><span class="button-arrow">›</span></button>
    <div class="private-entry"><input id="r" placeholder="Código da sala" maxlength="12" autocomplete="off"><button id="priv"><svg class="inline-button-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="m11 12 8-8 2 2-2 2-2 2"/></svg>Entrar</button></div><button id="create-room" class="offline-play">＋ Criar sala privada</button>
@@ -451,6 +473,7 @@ input,textarea,select{touch-action:auto;user-select:text}
   <small id="account-message" class="account-message">Suas credenciais são usadas apenas para acessar esta conta.</small>
  </section>
 </div>
+<div id="profile-modal" class="modal-backdrop h"><section class="modal-card glass profile-card" role="dialog" aria-modal="true" aria-labelledby="profile-title"><button id="profile-close" class="modal-close" aria-label="Fechar">×</button><div class="modal-kicker">PERFIL DO AVENTUREIRO</div><div id="profile-content"></div></section></div>
 <div id="room-wait" class="modal-backdrop h"><section class="room-wait-card glass" role="dialog" aria-modal="true" aria-labelledby="room-wait-title"><div class="room-kicker">SALA COOPERATIVA</div><h2 id="room-wait-title">Preparando a partida</h2><p id="room-wait-code"></p><div id="room-player-list"></div><p id="room-wait-status">Aguardando o anfitrião.</p><button id="room-start">Começar partida</button><button id="room-leave">Sair da sala</button></section></div>
 <div id="loading-overlay" class="modal-backdrop h">
  <section class="loading-card glass"><div class="loading-orb">✦</div><h2 id="loading-title">Acordando servidor...</h2><p id="loading-message">Preparando a conexão com o mundo.</p><div class="loading-track"><span></span></div><button id="cancel-loading">Cancelar</button></section>

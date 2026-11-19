@@ -60,7 +60,7 @@ function reset(r){r.es=[];r.sh=[];r.gm=[];r.hr=[];r.ch=[];r.fx=[];r.ob=[];r.wave
 function lv(p){p.lv++;p.xp-=p.nx;p.nx=Math.ceil(p.nx*1.35+2);
  const op=Object.keys(p.pw).filter(k=>p.pw[k]>0),os=Object.keys(p.ps).filter(k=>p.ps[k]>0);
  const pool=[...PW.filter(k=>(p.pw[k]||0)>0?p.pw[k]<5:op.length<5).map(k=>'p:'+k),...PS.filter(k=>(p.ps[k]||0)>0?p.ps[k]<5:os.length<5).map(k=>'s:'+k)];
- const shuffled=randomSubset(pool,pool.length),special='p:'+CLS[p.cls].pw,choices=shuffled.slice(0,3),hasSpecial=shuffled.includes(special);
+ const shuffled=randomSubset(pool,pool.length),classPower={normal:'proj',mago:'raio',cavaleiro:'orb',necromante:'nova',curandeiro:'aura',arqueiro:'proj'},special='p:'+classPower[p.cls],choices=shuffled.slice(0,3),hasSpecial=shuffled.includes(special);
  if(hasSpecial&&!choices.includes(special))choices[2]=special;
  if(p.lv===5&&(p.pw.meteoro||0)<5&&((p.pw.meteoro||0)>0||op.length<5)){choices[0]='p:meteoro';if(hasSpecial)choices[1]=special}
  p.ch=choices.slice(0,3);p.chType=p.ch.length?'level':'';p.choiceExpiresAt=0;if(!p.ch.length)p.ch=null}

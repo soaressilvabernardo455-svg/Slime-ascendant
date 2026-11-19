@@ -1411,7 +1411,7 @@ function offlinePick(i){
  else{if(!(values[k]>0)&&owned.length>=5&&!unlimited)return;values[k]=(values[k]||0)+1;if(k==='vida'){const add=OCLS[p.cls].hp*.2;p.mh+=add;p.hp+=add}}
  p.ch=null;p.chType='';if(!offlineMaybeBuildReward(p)&&p.xp>=p.nx)offlineLevel(p);offlineTick();
 }
-function offlineReroll(){const p=OR&&OR.ps[1];if(!p||!p.ch||p.chType!=='level')return;const pool=offlineProgressionPool(p),alternatives=pool.filter(option=>!p.ch.includes(option)),source=alternatives.length?alternatives:pool,choices=offlineRandomSubset(source,Math.min(3,source.length));if(!choices.length)return;if((p.rerolls||0)>0)p.rerolls--;else if(p.devFlags&&p.devFlags.crystals){}else if(p.cr>=10)p.cr-=10;else{toast('Você precisa de 10 cristais para outro giro.');return}p.ch=choices;p.chType='level';offlineTick()}
+function offlineReroll(){const p=OR&&OR.ps[1];if(!p)return;if(!Number.isInteger(p.rerolls))p.rerolls=3;if(!p.ch||p.chType!=='level')return;const pool=offlineProgressionPool(p),alternatives=pool.filter(option=>!p.ch.includes(option)),source=alternatives.length?alternatives:pool,choices=offlineRandomSubset(source,Math.min(3,source.length));if(!choices.length)return;if((p.rerolls||0)>0)p.rerolls--;else if(p.devFlags&&p.devFlags.crystals){}else if(p.cr>=10)p.cr-=10;else{toast('Você precisa de 10 cristais para outro giro.');return}p.ch=choices;p.chType='level';offlineTick()}
 function rerollSkills(){if(OFF){offlineReroll();return}if(ws&&ws.readyState===1){try{ws.send(JSON.stringify({t:'reroll'}))}catch(e){toast('Não foi possível girar as habilidades.')}}}
 function offlineSpawn(r,p,ty){
  const a=Math.random()*Math.PI*2,E=OET[ty],difficulty=RUN_DIFFICULTY[r.difficulty]||RUN_DIFFICULTY.medium,hp=E.h(r.wave)*(difficulty.hp||1);

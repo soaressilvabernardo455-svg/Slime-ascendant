@@ -842,7 +842,7 @@ function mkS(ty){
  }
  g.restore();return c
 }
-for(let i=0;i<8;i++)SPR[i]=mkS(i);
+for(let i=0;i<9;i++)SPR[i]=mkS(i);
 function mon(c,X,Y,ty,t){const k=KS[ty],Z=16*k,s=ER[ty],bob=ty==4?Math.sin(t/360+X*.025)*2:0,h=Z*(1+Math.sin(t/520+X*.025)*.018);
  c.fillStyle='#0004';c.beginPath();c.ellipse(X,Y+s,s*.9,s*.3,0,0,7);c.fill();
  const aura=['#fb7185','#c4b5fd','#cbd5e1','#fb7185','#7dd3fc','#e5e7eb','#86efac','#ffffff','#38bdf8'][ty]||'#ffffff';c.save();c.globalAlpha=ty===3?.22:.12;c.fillStyle=aura;c.beginPath();c.ellipse(X,Y-2,s*1.12,s*1.22,0,0,Math.PI*2);c.fill();c.restore();

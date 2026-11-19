@@ -39,7 +39,7 @@ const getArray = (source, marker) => {
 const serverXp = Array.from(getArray(server, 'const ET='), enemy => enemy.x);
 const offlineXp = Array.from(getArray(app, 'const OET='), enemy => enemy.x);
 assert.deepEqual(serverXp, offlineXp, 'XP online e offline precisam ser iguais');
-assert.equal(serverXp.length, 8);
+assert.equal(serverXp.length, 9, 'Katiga também precisa ter XP configurado');
 assert.ok(auth.includes('slice(0, 15)'));
 assert.ok(auth.includes("pathname === '/api/leaderboard'") && app.includes('/api/leaderboard'));
 assert.ok(app.includes("player.name||'Slime'"));
@@ -53,3 +53,16 @@ new vm.Script(offlineScript, { filename: 'android-app/www/offline.html' });
 assert.ok(serviceWorker.includes('slime-ascendant-shell-v34'));
 assert.ok(serviceWorker.includes("url.pathname.startsWith('/api/')") && serviceWorker.includes("url.pathname==='/health'"));
 console.log('Smoke tests aprovados: HTML/JS, salas, Boss, reroll, XP, ranking e ícone do APK.');
+
+assert.ok(server.includes('2.4*scale'), 'Boss deve ter vida maior');
+assert.ok(server.includes('bossSkillIndex=(skill+1)%9'), 'Boss deve alternar nove habilidades');
+assert.ok(server.includes('bossSkillTimer=270'), 'habilidades do Boss devem ter intervalo de nove segundos');
+assert.ok(server.includes('r.gm.push({x:enemy.x,y:enemy.y,v:xp,life:2400})'), 'monstros removidos na chegada do Boss devem deixar XP');
+assert.ok(app.includes('r.gm.push({x:enemy.x,y:enemy.y,v:xp,life:2400})'), 'modo offline deve manter XP ao surgir Boss');
+assert.ok(server.includes('w>5&&q<.12?8') && app.includes('w>5&&q<.12?8'), 'Katiga deve aparecer nas ondas');
+assert.ok(server.includes('e.ty===8&&!isSkeleton') && app.includes('e.ty===8&&!isSkeleton'), 'Katiga deve atacar de longe');
+assert.ok(server.includes("rdy('raio',72)") && app.includes("rdy('raio',72)"), 'Mago deve ter intervalo de ataque maior');
+assert.ok(server.includes('Math.min(4,1+l.raio)') && app.includes('Math.min(4,1+l.raio)'), 'Mago não deve atingir a onda inteira');
+assert.ok(server.includes('(1+.08*(p.ps.dano||0))') && app.includes('(1+.08*(p.ps.dano||0))'), 'dano deve acumular oito por cento por nível');
+assert.ok(app.includes('left:10px;right:auto;top:calc(env(safe-area-inset-top,0px) + 62px)'), 'placar da partida não deve ficar no centro');
+assert.ok(app.includes('overflow-wrap:anywhere;word-break:break-word'), 'nomes do ranking devem quebrar linha');

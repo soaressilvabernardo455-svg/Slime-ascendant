@@ -67,3 +67,5 @@ assert.ok(server.includes('Math.min(4,1+l.raio)') && app.includes('Math.min(4,1+
 assert.ok(server.includes('(1+.08*(p.ps.dano||0))') && app.includes('(1+.08*(p.ps.dano||0))'), 'dano deve acumular oito por cento por nível');
 assert.ok(html.includes('#run-board{position:fixed;left:10px;right:auto;'), 'placar da partida não deve ficar no centro');
 assert.ok(html.includes('overflow-wrap:anywhere;word-break:break-word'), 'nomes do ranking devem quebrar linha');
+
+assert.ok(app.includes('for(let i=0;i<9;i++)SPR[i]=mkS(i)'), 'sprite do Katiga precisa ser inicializado');

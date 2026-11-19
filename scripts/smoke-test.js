@@ -36,8 +36,8 @@ const getArray = (source, marker) => {
   assert.ok(start >= 0 && end > start, marker + ' ausente');
   return vm.runInNewContext(source.slice(start + marker.length, end + 1));
 };
-const serverXp = getArray(server, 'const ET=').map(enemy => enemy.x);
-const offlineXp = getArray(app, 'const OET=').map(enemy => enemy.x);
+const serverXp = Array.from(getArray(server, 'const ET='), enemy => enemy.x);
+const offlineXp = Array.from(getArray(app, 'const OET='), enemy => enemy.x);
 assert.deepEqual(serverXp, offlineXp, 'XP online e offline precisam ser iguais');
 assert.equal(serverXp.length, 8);
 assert.ok(auth.includes('slice(0, 15)'));

@@ -404,9 +404,12 @@ input,textarea,select{touch-action:auto;user-select:text}
 #difficulty-control button[data-difficulty="inferno"]{color:#fecaca;border-color:#9f343c}
 #difficulty-control button[data-difficulty="inferno"].s{background:linear-gradient(145deg,#8b252d,#3b151d);border-color:#ff8585;color:#fff}
 .difficulty-hint{grid-column:1/-1;text-align:left;color:#bddbc5;font-size:.61rem;line-height:1.25;padding:0 2px}
-#run-board{position:fixed;right:10px;top:calc(env(safe-area-inset-top,0px) + 88px);z-index:12;display:none;min-width:132px;padding:8px 10px;border:1px solid #c7f9d244;border-radius:13px;background:#07150fe8;box-shadow:0 6px 18px #0008;pointer-events:none}
-.run-board-top{display:flex;justify-content:space-between;gap:14px;color:#f2fff4;font-size:.78rem}.run-board-top b:last-child{color:#a7f3b8;font-variant-numeric:tabular-nums}
-#run-board-boss{margin-top:4px;color:#c5e9ce;font-size:.62rem;text-align:right}
+#run-board{position:fixed;right:10px;top:calc(env(safe-area-inset-top,0px) + 158px);z-index:16;display:none;width:min(224px,calc(100vw - 20px));min-width:190px;padding:10px 12px;border:1px solid #c7f9d266;border-radius:14px;background:#06130ff2;box-shadow:0 7px 22px #000a;pointer-events:none}
+.run-board-top{display:flex;justify-content:space-between;align-items:center;gap:12px;color:#f2fff4;font-size:.82rem;white-space:nowrap}.run-board-top b:last-child{color:#a7f3b8;font-variant-numeric:tabular-nums}
+#run-board-boss{margin-top:5px;color:#c5e9ce;font-size:.68rem;text-align:left;white-space:nowrap}
+.run-board-stats{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:7px;padding-top:7px;border-top:1px solid #ffffff22;color:#d9f4df;font-size:.66rem;font-weight:750;font-variant-numeric:tabular-nums}
+.run-board-stats span:last-child{grid-column:1/-1;color:#a7f3b8}
+@media(max-width:420px){#run-board{top:calc(env(safe-area-inset-top,0px) + 158px);width:190px;padding:9px 10px}.run-board-top{font-size:.78rem}}
 .profile-card{max-height:86dvh;overflow:auto;touch-action:pan-y}
 #profile-content{display:flex;flex-direction:column;gap:10px;text-align:left}
 .profile-hero{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid #ffffff20;border-radius:15px;background:linear-gradient(120deg,#21452e,#101e15)}
@@ -420,7 +423,7 @@ input,textarea,select{touch-action:auto;user-select:text}
 .dev-options button{font-size:.7rem;padding:8px 5px;border:1px solid #ffffff20;background:#ffffff0a;border-radius:9px}.dev-options button.s{background:#51358a;border-color:#d6bcff;color:#fff}
 @media(max-width:620px){#run-board{top:calc(env(safe-area-inset-top,0px) + 84px);right:8px;min-width:119px;padding:7px 8px}#difficulty-control button{font-size:.62rem;padding:6px 1px}}
 </style></head><body>
-<canvas id="c"></canvas><div id="item-hud" aria-label="Itens equipados"></div><button id="item-toggle" type="button" aria-label="Abrir inventário" aria-expanded="false" onclick="toggleItemInventory()"><span class="item-toggle-icon">🎒</span><span id="item-count" class="item-count">0</span></button><div id="fps-indicator" aria-live="off">FPS …</div><div id="run-board"><div class="run-board-top"><b id="run-board-wave">ONDA 1</b><b id="run-board-time">00:00</b></div><div id="run-board-boss">Primeiro chefe em 02:30</div></div><button id="ex" aria-label="Voltar ao lobby"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Lobby</span></button>
+<canvas id="c"></canvas><div id="item-hud" aria-label="Itens equipados"></div><button id="item-toggle" type="button" aria-label="Abrir inventário" aria-expanded="false" onclick="toggleItemInventory()"><span class="item-toggle-icon">🎒</span><span id="item-count" class="item-count">0</span></button><div id="fps-indicator" aria-live="off">FPS …</div><div id="run-board" aria-live="off"><div class="run-board-top"><b id="run-board-wave">ONDA 1</b><b id="run-board-time">TEMPO 00:00</b></div><div id="run-board-boss">Próximo chefe em 02:30</div><div class="run-board-stats"><span id="run-board-level">NÍVEL 1</span><span id="run-board-health">VIDA 100/100</span><span id="run-board-enemies">INIMIGOS PRÓXIMOS 0</span></div></div><button id="ex" aria-label="Voltar ao lobby"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Lobby</span></button>
 <div id="m" class="lobby-screen">
  <header class="lobby-top">
   <div class="brand-panel glass">
@@ -1489,7 +1492,24 @@ function resizeGame(){cv.width=Math.round(innerWidth*DPR);cv.height=Math.round(i
 onresize=resizeGame;resizeGame();
 function resetGameCanvas(){x.setTransform(1,0,0,1,0,0);x.globalAlpha=1;x.globalCompositeOperation='source-over';x.filter='none';x.shadowBlur=0;x.shadowColor='transparent';x.clearRect(0,0,cv.width,cv.height);x.setTransform(DPR,0,0,DPR,0,0);x.beginPath()}
 const fpsNode=$('fps-indicator');let runBoardSecond=-1,runBoardWave=-1,lastPlayerSnapshot=null;
-function updateRunBoard(snapshot){const board=$('run-board'),active=GAME_STATE==='PLAYING'||GAME_STATE==='GAMEOVER';if(board.style.display!==(active?'block':'none'))board.style.display=active?'block':'none';if(!active||!snapshot)return;const tick=Math.max(0,Number(snapshot.time)||0),seconds=Math.floor(tick/30),wave=Number(snapshot.w)||1;if(seconds===runBoardSecond&&wave===runBoardWave)return;runBoardSecond=seconds;runBoardWave=wave;const mm=String(Math.floor(seconds/60)).padStart(2,'0'),ss=String(seconds%60).padStart(2,'0');$('run-board-wave').textContent='ONDA '+wave;$('run-board-time').textContent=mm+':'+ss;const bossTimes=[4500,9000,13500,18000],tier=Math.max(0,Math.min(4,Number(snapshot.bossTier)||0));if(snapshot.bossActive){$('run-board-boss').textContent='CHEFE '+tier+' · EM COMBATE'}else if(tier<4){const left=Math.max(0,Math.ceil((bossTimes[tier]-tick)/30)),bm=String(Math.floor(left/60)).padStart(2,'0'),bs=String(left%60).padStart(2,'0');$('run-board-boss').textContent='Próximo chefe em '+bm+':'+bs}else $('run-board-boss').textContent=snapshot.win?'VITÓRIA · ARENA CONCLUÍDA':'CHEFE FINAL'}
+function updateRunBoard(snapshot){
+ const board=$('run-board'),active=GAME_STATE==='PLAYING'||GAME_STATE==='GAMEOVER';
+ if(board.style.display!==(active?'block':'none'))board.style.display=active?'block':'none';
+ if(!active||!snapshot)return;
+ const tick=Math.max(0,Number(snapshot.time)||0),seconds=Math.floor(tick/30),wave=Number(snapshot.w)||1;
+ const mm=String(Math.floor(seconds/60)).padStart(2,'0'),ss=String(seconds%60).padStart(2,'0');
+ $('run-board-wave').textContent='ONDA '+wave;
+ $('run-board-time').textContent='TEMPO '+mm+':'+ss;
+ const bossTimes=[4500,9000,13500,18000],tier=Math.max(0,Math.min(4,Number(snapshot.bossTier)||0));
+ if(snapshot.bossActive)$('run-board-boss').textContent='CHEFE '+tier+' · EM COMBATE';
+ else if(tier<4){const left=Math.max(0,Math.ceil((bossTimes[tier]-tick)/30)),bm=String(Math.floor(left/60)).padStart(2,'0'),bs=String(left%60).padStart(2,'0');$('run-board-boss').textContent='PRÓXIMO CHEFE '+bm+':'+bs}
+ else $('run-board-boss').textContent=snapshot.win?'VITÓRIA · ARENA CONCLUÍDA':'CHEFE FINAL';
+ const players=Array.isArray(snapshot.p)?snapshot.p:[],player=players.find(q=>q.id==me)||players[0];
+ const enemies=Array.isArray(snapshot.e)?snapshot.e.length:0;
+ $('run-board-level').textContent='NÍVEL '+Math.max(1,Number(player&&player.l)||1);
+ $('run-board-health').textContent='VIDA '+Math.max(0,Math.ceil(Number(player&&player.h)||0))+'/'+Math.max(1,Math.ceil(Number(player&&player.m)||1));
+ $('run-board-enemies').textContent='INIMIGOS PRÓXIMOS '+enemies;
+}
 function draw(t){requestAnimationFrame(draw);
  if(document.hidden){fpsStart=0;fpsFrames=0;if(fpsNode)fpsNode.style.display='none';return}
  if(!S){

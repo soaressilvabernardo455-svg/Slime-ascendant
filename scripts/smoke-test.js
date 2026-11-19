@@ -107,7 +107,7 @@ assert.ok(auth.includes('economyVersion: Math.max(0, Math.min(1,'), 'servidor pr
 const joinSection=app.match(/function joinOnline\(roomCode,button\)\{([\s\S]*?)const openSocket/);
 assert.ok(joinSection&&/lw=0;gc=0;gk=0/.test(joinSection[1]), 'contadores precisam iniciar uma vez por partida');
 assert.ok(app.includes('function drawBiomeLandmark('), 'decorações grandes dos biomas ausentes');
-assert.ok(app.includes('function mkS(ty){')&&app.includes('for(let i=0;i<7;i++)SPR[i]=mkS(i)'), 'monstros precisam usar sprites vetoriais suaves em alta resolução');
+assert.ok(app.includes('function mkS(ty){')&&app.includes('for(let i=0;i<8;i++)SPR[i]=mkS(i)'), 'monstros precisam usar sprites vetoriais suaves em alta resolução');
 assert.ok(app.includes('c.imageSmoothingEnabled=true;c.drawImage(SPR[ty]'), 'sprites de monstros precisam ser renderizados com suavização');
 assert.ok(server.includes("'/cover.svg':['cover.svg','image/svg+xml']"), 'servidor precisa entregar a capa SVG do jogo');
 assert.ok(app.includes('if((h&3)===0)drawBiomeLandmark(0,0,map,h)')&&app.includes('if((h&7)===0)drawForestLandmark(0,0,h)'), 'biomas precisam renderizar árvores, dunas, gelo e rochas de lava');
@@ -259,7 +259,7 @@ assert.ok(app.includes("stats.textContent='VIDA '+attr.hp+'  ·  DANO '+(attr.dm
 assert.ok(app.includes("x.arc(0,-9,5.2,0,Math.PI*2)")&&!app.includes("x.fillRect(X-4,Y-9,8,8)"), 'esqueletos devem usar desenho vetorial suave, não quadradinhos');
 assert.ok(server.includes("filter(q=>visible(q.x,q.y)).map(q=>[q.x|0,q.y|0])"), 'snapshots não devem enviar esqueletos fora do raio visível');
 
-assert.ok(serviceWorker.includes('shell-v26'), 'service worker precisa invalidar a versão antiga do shell');
+assert.ok(serviceWorker.includes('slime-ascendant-shell-v28'), 'service worker precisa invalidar a versão antiga do shell');
 
 assert.ok(app.includes("if(OFF&&offlineTimer){clearInterval(offlineTimer);offlineTimer=0}") && app.includes("if(OFF&&OR&&!offlineTimer){offlineTimer=setInterval(offlineTick,33);offlineTick()}"), 'timer offline precisa parar em segundo plano e retomar ao voltar');
 assert.ok(app.includes('let GAME_SAFE_TOP=28;') && app.includes('const gameSafeTop=GAME_SAFE_TOP;'), 'área segura do HUD deve ser calculada no resize e não em todos os frames');

@@ -300,3 +300,10 @@ assert.ok(!app.includes('const patch=x.createRadialGradient')&&!app.includes("c.
 assert.ok(app.includes('permanentUpgradeTotal(k,l)')&&app.includes("(n+1)*15)+'% de XP no total"), 'melhorias permanentes e XP devem exibir bônus acumulados');
 assert.ok(server.includes('(180-Math.min(w,18)*2)')&&app.includes('(180-Math.min(w,18)*2)'), 'intervalo de spawn deve ser consistente no online e offline');
 assert.ok(app.includes('lastPlayerSnapshot=p')&&app.includes('S.p.find(q=>q.id==me)||S.p[0]||lastPlayerSnapshot'), 'o personagem local deve usar snapshot de recuperação se um frame vier sem jogador');
+
+
+// The horde contains monster type 7; every enemy type must have a generated sprite.
+assert.ok(app.includes('for(let i=0;i<8;i++)SPR[i]=mkS(i)'), 'todos os oito tipos de monstros, incluindo o monstro fraco de horda, precisam de sprite');
+assert.ok(app.includes("['#d4e85d','#547b1c','#f5ffb0','#c8ff72']"), 'o monstro fraco de horda precisa de paleta própria');
+assert.ok(sw.includes('slime-ascendant-shell-v28'), 'o navegador deve invalidar o shell e descarregar os sprites novos');
+assert.ok(app.includes('const counter=[784,698.46,659.25,587.33]'), 'a trilha deve ter camada harmônica e contraponto além da melodia básica');

@@ -50,12 +50,13 @@ assert.equal(capacitor.server.errorPath, 'offline.html');
 const offlineScript = offlinePage.split('<script>')[1]?.split('</script>')[0];
 assert.ok(offlineScript);
 new vm.Script(offlineScript, { filename: 'android-app/www/offline.html' });
-assert.ok(serviceWorker.includes('slime-ascendant-shell-v37'));
+assert.ok(serviceWorker.includes('slime-ascendant-shell-v38'));
 assert.ok(serviceWorker.includes("url.pathname.startsWith('/api/')") && serviceWorker.includes("url.pathname==='/health'"));
 console.log('Smoke tests aprovados: HTML/JS, salas, Boss, reroll, XP, ranking e ícone do APK.');
 
 assert.ok(server.includes('2.4*scale'), 'Boss deve ter vida maior');
 assert.ok(server.includes('bossSkillIndex=(skill+1)%9'), 'Boss deve alternar nove habilidades');
+assert.ok(server.includes('case 3:{const vx=attack.x-e.x'), 'Boss precisa ter ataques em formatos diferentes');
 assert.ok(server.includes('bossSkillTimer=270'), 'habilidades do Boss devem ter intervalo de nove segundos');
 assert.ok(server.includes('r.gm.push({x:enemy.x,y:enemy.y,v:xp,life:2400})'), 'monstros removidos na chegada do Boss devem deixar XP');
 assert.ok(app.includes('r.gm.push({x:enemy.x,y:enemy.y,v:xp,life:2400})'), 'modo offline deve manter XP ao surgir Boss');

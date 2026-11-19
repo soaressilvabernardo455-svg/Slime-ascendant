@@ -23,8 +23,27 @@ jobs:
           distribution: temurin
           java-version: 21
       - run: npm install
+      - run: npm install --no-save sharp
       - run: npx cap add android
       - run: npx cap sync android
+      - name: Apply website icon to Android launcher
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const sharp = require('sharp');
+          const source = path.resolve('../icon.svg');
+          const root = path.resolve('android/app/src/main/res');
+          (async () => {
+            for (const [folder, size] of [['mipmap-mdpi',48],['mipmap-hdpi',72],['mipmap-xhdpi',96],['mipmap-xxhdpi',144],['mipmap-xxxhdpi',192]]) {
+              const dir = path.join(root, folder);
+              fs.mkdirSync(dir, { recursive: true });
+              for (const name of ['ic_launcher.png','ic_launcher_round.png','ic_launcher_foreground.png']) {
+                await sharp(source).resize(size, size, { fit: 'contain' }).png().toFile(path.join(dir, name));
+              }
+            }
+          })().catch(error => { console.error(error); process.exit(1); });
+          NODE
       - run: chmod +x gradlew && ./gradlew assembleDebug
         working-directory: android-app/android
       - run: cp android/app/build/outputs/apk/debug/app-debug.apk slime-ascendent.apk

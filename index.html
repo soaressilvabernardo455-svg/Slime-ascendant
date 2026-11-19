@@ -138,7 +138,7 @@ body{background:#0b1710;color:var(--text)}
 .panel-footer{display:flex;justify-content:space-between;gap:8px}
 .panel-footer button{font-size:.68rem;padding:6px 8px;border:1px solid #ffffff1d;background:#ffffff09}#ts{display:flex;flex-direction:column;gap:10px}#ts .settings-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px;border:1px solid #ffffff20;border-radius:12px;background:#ffffff09;text-align:left}#ts .settings-row small{display:block;color:#bed8c4;font-size:.68rem;margin-top:3px}#ts .settings-row button{min-width:96px;font-size:.75rem}#reset-game{background:#57262b;border-color:#d77a82;color:#ffe8e9}
 .panel-note{font-size:.66rem;line-height:1.35;color:#b8d3be}
-#nav-tabs{position:absolute;left:50%;bottom:13px;transform:translateX(-50%);width:min(650px,calc(100vw - 18px));display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;padding:6px;border-radius:18px;pointer-events:auto}
+#nav-tabs{grid-template-columns:repeat(7,minmax(0,1fr));position:absolute;left:50%;bottom:13px;transform:translateX(-50%);width:min(650px,calc(100vw - 18px));display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;padding:6px;border-radius:18px;pointer-events:auto}
 #nav-tabs button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:1px solid transparent;border-radius:12px;background:transparent;padding:7px 2px;font-size:.67rem;color:#c8dfce}
 #nav-tabs button.s{background:linear-gradient(145deg,#2a6842,#173c28);border-color:#6fcb8a;color:#fff;box-shadow:inset 0 1px #ffffff24}
 #nav-tabs .tab-icon{font-size:1.1rem;margin:0}
@@ -422,6 +422,19 @@ input,textarea,select{touch-action:auto;user-select:text}
 .dev-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:9px;border:1px solid #c4b5fd55;border-radius:13px;background:#20163d66}
 .dev-options button{font-size:.7rem;padding:8px 5px;border:1px solid #ffffff20;background:#ffffff0a;border-radius:9px}.dev-options button.s{background:#51358a;border-color:#d6bcff;color:#fff}
 @media(max-width:620px){#run-board{top:calc(env(safe-area-inset-top,0px) + 220px);right:8px;width:190px;min-width:190px;padding:9px 10px;z-index:30}.run-board-top{font-size:.78rem}#difficulty-control button{font-size:.62rem;padding:6px 1px}}
+
+#tl{display:flex;flex-direction:column;gap:10px;text-align:left}
+#tl .section-intro{margin-bottom:2px}
+#leaderboard-status{padding:8px 10px;border:1px solid #ffffff18;border-radius:10px;background:#ffffff08}
+#leaderboard-list{display:flex;flex-direction:column;gap:8px}
+.leader-row{display:grid;grid-template-columns:42px minmax(0,1fr);gap:9px;align-items:center;padding:10px;border:1px solid #ffffff20;border-radius:13px;background:linear-gradient(120deg,#183322,#102018)}
+.leader-position{font-size:1.08rem;font-weight:950;text-align:center;color:#a7f3b8}
+.leader-row:nth-child(1) .leader-position{color:#facc15}.leader-row:nth-child(2) .leader-position{color:#d1d5db}.leader-row:nth-child(3) .leader-position{color:#d99a63}
+.leader-details{min-width:0;display:flex;flex-direction:column;gap:3px}
+.leader-name{font-weight:850;overflow-wrap:anywhere}
+.leader-stats,.leader-items{font-size:.68rem;line-height:1.35;color:#c6dfcc}
+#leaderboard-refresh{width:100%;border-color:#8ce5a1;background:#1c4a2d;font-weight:800}
+@media(max-width:620px){#nav-tabs{grid-template-columns:repeat(7,minmax(0,1fr))}#nav-tabs button{font-size:.55rem;letter-spacing:-.025em}#nav-tabs .tab-icon{font-size:.9rem}}
 </style></head><body>
 <canvas id="c"></canvas><div id="item-hud" aria-label="Itens equipados"></div><button id="item-toggle" type="button" aria-label="Abrir inventário" aria-expanded="false" onclick="toggleItemInventory()"><span class="item-toggle-icon">🎒</span><span id="item-count" class="item-count">0</span></button><div id="fps-indicator" aria-live="off">FPS …</div><div id="run-board" aria-live="off"><div class="run-board-top"><b id="run-board-wave">ONDA 1</b><b id="run-board-time">TEMPO 00:00</b></div><div id="run-board-boss">Próximo chefe em 02:30</div><div class="run-board-stats"><span id="run-board-level">NÍVEL 1</span><span id="run-board-health">VIDA 100/100</span><span id="run-board-enemies">INIMIGOS PRÓXIMOS 0</span></div></div><button id="ex" aria-label="Voltar ao lobby"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Lobby</span></button>
 <div id="m" class="lobby-screen">
@@ -451,9 +464,10 @@ input,textarea,select{touch-action:auto;user-select:text}
   <div id="tu" class="tab-panel glass h"></div>
   <div id="tm" class="cs tab-panel glass h" style="grid-template-columns:repeat(2,1fr)"></div>
   <div id="ti" class="cs tab-panel glass h" style="grid-template-columns:1fr"></div><div id="ts" class="tab-panel glass h"></div>
+  <div id="tl" class="tab-panel glass h"><div class="section-intro"><span>CLASSIFICAÇÃO GLOBAL</span><h2>Ranking mundial</h2><p>Jogadores ordenados pela melhor onda registrada.</p></div><div id="leaderboard-status" class="panel-note">Carregue o ranking para ver os melhores jogadores.</div><div id="leaderboard-list"></div><button id="leaderboard-refresh" type="button">Atualizar ranking</button></div>
  </section>
  <nav id="nav-tabs" class="tabs glass">
-  <button data-t="j" class="s"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8h10a4 4 0 0 1 3.8 5l-1 3a2 2 0 0 1-3.3.9L14 14H10l-2.5 2.9a2 2 0 0 1-3.3-.9l-1-3A4 4 0 0 1 7 8Z"/><path d="M7 10v4m-2-2h4m7-1h.01M18 13h.01"/></svg></span>Jogar</button><button data-t="c"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8m0-12.8L5.6 18.4"/><circle cx="12" cy="12" r="8.5"/></svg></span>Classes</button><button data-t="u"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-9 12h7l-1 8 10-13h-7z"/></svg></span>Melhorias</button><button data-t="m"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></span>Mapas</button><button data-t="i"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l1 13H4L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></span>Itens</button><button data-t="s"><span class="tab-icon">⚙</span>Config.</button>
+  <button data-t="j" class="s"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8h10a4 4 0 0 1 3.8 5l-1 3a2 2 0 0 1-3.3.9L14 14H10l-2.5 2.9a2 2 0 0 1-3.3-.9l-1-3A4 4 0 0 1 7 8Z"/><path d="M7 10v4m-2-2h4m7-1h.01M18 13h.01"/></svg></span>Jogar</button><button data-t="c"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8m0-12.8L5.6 18.4"/><circle cx="12" cy="12" r="8.5"/></svg></span>Classes</button><button data-t="u"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-9 12h7l-1 8 10-13h-7z"/></svg></span>Melhorias</button><button data-t="m"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></span>Mapas</button><button data-t="i"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l1 13H4L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></span>Itens</button><button data-t="l"><span class="tab-icon">🏆</span>Mundial</button><button data-t="s"><span class="tab-icon">⚙</span>Config.</button>
  </nav>
  <canvas id="pv" width="64" height="64" aria-hidden="true"></canvas>
 </div>
@@ -1003,8 +1017,39 @@ function lobby(){
 }
 function buy(k){if(!Object.prototype.hasOwnProperty.call(UPG,k))return;const l=SV.up[k],cost=ucost(l);if(l>=10)return;if(!developerModeEnabled&&SV.co<cost){toast('Moedas insuficientes.');return}if(!developerModeEnabled)SV.co-=cost;SV.up[k]++;save();lobby();}
 document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{startMusic();document.querySelectorAll('[data-t]').forEach(e=>e.className='');b.className='s';
- ['j','c','u','m','i','s'].forEach(t=>{const panel=$('t'+t);panel.classList.toggle('h',t!=b.dataset.t);if(t===b.dataset.t)panel.scrollTop=0})});
+ ['j','c','u','m','i','s','l'].forEach(t=>{const panel=$('t'+t);panel.classList.toggle('h',t!=b.dataset.t);if(t===b.dataset.t)panel.scrollTop=0});if(b.dataset.t==='l')loadWorldLeaderboard()});
 
+
+const LEADER_CLASS_NAMES={normal:'Guerreiro',mago:'Mago',cavaleiro:'Cavaleiro',necromante:'Necromante',curandeiro:'Curandeiro',arqueiro:'Arqueiro'};
+const LEADER_ITEM_NAMES={espada:'Espada',escudo:'Escudo',botas:'Botas',amuleto:'Amuleto',anel:'Anel',coracao:'Coração'};
+let leaderboardLoading=false;
+async function loadWorldLeaderboard(){
+ if(leaderboardLoading)return;
+ leaderboardLoading=true;
+ const status=$('leaderboard-status'),list=$('leaderboard-list'),button=$('leaderboard-refresh');
+ status.textContent='Carregando classificação mundial...';button.disabled=true;
+ try{
+  const response=await fetch('/api/leaderboard',{cache:'no-store',credentials:'same-origin'});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(data.error||'Não foi possível carregar o ranking.');
+  list.textContent='';
+  const players=Array.isArray(data.players)?data.players:[];
+  if(!players.length){status.textContent='Ainda não há recordes registrados. Entre na sua conta e alcance uma onda para aparecer aqui.';return}
+  status.textContent=players.length+' jogadores no ranking · atualização em tempo real ao abrir esta aba.';
+  players.forEach(player=>{
+   const row=document.createElement('article');row.className='leader-row';
+   const pos=document.createElement('div');pos.className='leader-position';pos.textContent=(Number(player.position)||0)+'º';
+   const details=document.createElement('div');details.className='leader-details';
+   const name=document.createElement('div');name.className='leader-name';name.textContent=player.name||'Slime';
+   const best=document.createElement('div');best.className='leader-stats';best.textContent='Melhor onda: '+(Number(player.best)||0)+' · Slime principal: '+(LEADER_CLASS_NAMES[player.selected]||'Guerreiro');
+   const slimes=document.createElement('div');slimes.className='leader-stats';slimes.textContent='Slimes: '+(Array.isArray(player.slimes)?player.slimes.map(k=>LEADER_CLASS_NAMES[k]||k).join(', '):'Guerreiro');
+   const items=document.createElement('div');items.className='leader-items';items.textContent='Itens: '+(Array.isArray(player.items)&&player.items.length?player.items.map(k=>LEADER_ITEM_NAMES[k]||k).join(', '):'Nenhum');
+   details.append(name,best,slimes,items);row.append(pos,details);list.append(row);
+  });
+ }catch(error){status.textContent=error.message||'Erro ao carregar o ranking. Verifique sua conexão.'}
+ finally{leaderboardLoading=false;button.disabled=false}
+}
+$('leaderboard-refresh').onclick=loadWorldLeaderboard;
 $('dl').onclick=claimDailyReward;
 $('mu').onclick=()=>{SV.mute=SV.mute?0:1;if(SV.mute)stopMusic();else startMusic();save();lobby()};
 

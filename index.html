@@ -1021,7 +1021,7 @@ async function refreshServerStatus(){
 }
 let presenceId='';
 function getPresenceId(){try{presenceId=localStorage.getItem('slimePresenceId')||'';if(!/^[a-zA-Z0-9_-]{12,64}$/.test(presenceId)){presenceId=(window.crypto&&crypto.randomUUID?crypto.randomUUID():'p'+Date.now().toString(36)+Math.random().toString(36).slice(2));localStorage.setItem('slimePresenceId',presenceId)}}catch(e){presenceId='p'+Date.now().toString(36)+Math.random().toString(36).slice(2)}return presenceId}
-async function pingPresence(){try{await fetch('/presence?id='+encodeURIComponent(getPresenceId()),{cache:'no-store',credentials:'same-origin'});await refreshServerStatus()}catch(e){}}
+async function pingPresence(){if(OFF||GAME_STATE!=='LOBBY')return;try{await fetch('/presence?id='+encodeURIComponent(getPresenceId()),{cache:'no-store',credentials:'same-origin'});await refreshServerStatus()}catch(e){}}
 
 function abortJoin(attempt,message){
  if(attempt!==joinAttempt)return;
@@ -1233,7 +1233,7 @@ async function refreshAccount(){
  catch(e){let hint='';try{hint=localStorage.getItem('slimeAccountHint')||''}catch(error){}if(hint)showAccount({authenticated:true,email:hint,offline:true});else showAccount({authenticated:false});}
 }
 let accountRefreshAt=0;
-async function refreshAccountWhenActive(){if(document.hidden||Date.now()-accountRefreshAt<30000)return;accountRefreshAt=Date.now();await refreshAccount()}
+async function refreshAccountWhenActive(){if(OFF||GAME_STATE==='PLAYING'||GAME_STATE==='LOADING'||document.hidden||Date.now()-accountRefreshAt<30000)return;accountRefreshAt=Date.now();await refreshAccount()}
 addEventListener('online',refreshAccountWhenActive);addEventListener('focus',refreshAccountWhenActive);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshAccountWhenActive()});
 $('account-open-login').onclick=()=>openAccount('login');
 $('account-open-register').onclick=()=>openAccount('register');

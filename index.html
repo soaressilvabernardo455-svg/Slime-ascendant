@@ -404,12 +404,12 @@ input,textarea,select{touch-action:auto;user-select:text}
 #difficulty-control button[data-difficulty="inferno"]{color:#fecaca;border-color:#9f343c}
 #difficulty-control button[data-difficulty="inferno"].s{background:linear-gradient(145deg,#8b252d,#3b151d);border-color:#ff8585;color:#fff}
 .difficulty-hint{grid-column:1/-1;text-align:left;color:#bddbc5;font-size:.61rem;line-height:1.25;padding:0 2px}
-#run-board{position:fixed;right:10px;top:calc(env(safe-area-inset-top,0px) + 158px);z-index:16;display:none;width:min(224px,calc(100vw - 20px));min-width:190px;padding:10px 12px;border:1px solid #c7f9d266;border-radius:14px;background:#06130ff2;box-shadow:0 7px 22px #000a;pointer-events:none}
+#run-board{position:fixed;left:10px;right:auto;top:calc(env(safe-area-inset-top,0px) + 62px);z-index:16;display:none;width:min(224px,calc(100vw - 20px));min-width:190px;padding:10px 12px;border:1px solid #c7f9d266;border-radius:14px;background:#06130ff2;box-shadow:0 7px 22px #000a;pointer-events:none}
 .run-board-top{display:flex;justify-content:space-between;align-items:center;gap:12px;color:#f2fff4;font-size:.82rem;white-space:nowrap}.run-board-top b:last-child{color:#a7f3b8;font-variant-numeric:tabular-nums}
 #run-board-boss{margin-top:5px;color:#c5e9ce;font-size:.68rem;text-align:left;white-space:nowrap}
 .run-board-stats{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:7px;padding-top:7px;border-top:1px solid #ffffff22;color:#d9f4df;font-size:.66rem;font-weight:750;font-variant-numeric:tabular-nums}
 .run-board-stats span:last-child{grid-column:1/-1;color:#a7f3b8}
-@media(max-width:420px){#run-board{top:calc(env(safe-area-inset-top,0px) + 158px);width:190px;padding:9px 10px}.run-board-top{font-size:.78rem}}
+@media(max-width:420px){#run-board{left:8px;top:calc(env(safe-area-inset-top,0px) + 62px);width:190px;padding:9px 10px}.run-board-top{font-size:.78rem}}
 .profile-card{max-height:86dvh;overflow:auto;touch-action:pan-y}
 #profile-content{display:flex;flex-direction:column;gap:10px;text-align:left}
 .profile-hero{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid #ffffff20;border-radius:15px;background:linear-gradient(120deg,#21452e,#101e15)}
@@ -426,12 +426,12 @@ input,textarea,select{touch-action:auto;user-select:text}
 #tl{display:flex;flex-direction:column;gap:10px;text-align:left}
 #tl .section-intro{margin-bottom:2px}
 #leaderboard-status{padding:8px 10px;border:1px solid #ffffff18;border-radius:10px;background:#ffffff08}
-#leaderboard-list{display:flex;flex-direction:column;gap:8px}
+#leaderboard-list{display:flex;flex-direction:column;gap:8px;min-width:0;width:100%}
 .leader-row{display:grid;grid-template-columns:42px minmax(0,1fr);gap:9px;align-items:center;padding:10px;border:1px solid #ffffff20;border-radius:13px;background:linear-gradient(120deg,#183322,#102018)}
 .leader-position{font-size:1.08rem;font-weight:950;text-align:center;color:#a7f3b8}
 .leader-row:nth-child(1) .leader-position{color:#facc15}.leader-row:nth-child(2) .leader-position{color:#d1d5db}.leader-row:nth-child(3) .leader-position{color:#d99a63}
 .leader-details{min-width:0;display:flex;flex-direction:column;gap:3px}
-.leader-name{font-weight:850;overflow-wrap:anywhere}
+.leader-name{font-weight:850;min-width:0;max-width:100%;white-space:normal;overflow-wrap:anywhere;word-break:break-word;line-height:1.3} .leader-row,.leader-details{min-width:0;max-width:100%;box-sizing:border-box}
 .leader-stats,.leader-items{font-size:.68rem;line-height:1.35;color:#c6dfcc}
 #leaderboard-refresh{width:100%;border-color:#8ce5a1;background:#1c4a2d;font-weight:800}
 @media(max-width:620px){#nav-tabs{grid-template-columns:repeat(7,minmax(0,1fr))}#nav-tabs button{font-size:.55rem;letter-spacing:-.025em}#nav-tabs .tab-icon{font-size:.9rem}}
@@ -1435,7 +1435,7 @@ function offlineStep(r,p){
  const sp=c.sp*(1+.1*(p.ps.vel||0))*(1+.04*p.u.vel)*(p.it.includes('botas')?1.08:1);
  p.x=oClamp(p.x+p.dx*sp);p.y=oClamp(p.y+p.dy*sp);if(r.arena){const ax=p.x-r.arena.x,ay=p.y-r.arena.y,ad=Math.hypot(ax,ay)||1,limit=r.arena.radius-22;if(ad>limit){p.x=r.arena.x+ax/ad*limit;p.y=r.arena.y+ay/ad*limit;if(r.t%30===0){p.hp=Math.max(0,p.hp-8);r.fx.push(['a',p.x|0,p.y|0,26,0,5]);if(p.hp<=0){p.d=1;p.ch=null}}}}
  if(p.stopAfterStep>0&&--p.stopAfterStep===0){p.dx=0;p.dy=0;p.stopRequested=0}
- const dm=c.dm*(1+.15*(p.ps.dano||0))*(1+.08*p.u.dano)*(p.it.includes('espada')?1.12:1),cd=Math.max(.35,1-.1*(p.ps.recarga||0)),hit=d=>d*(Math.random()<Math.min(.6,.05*(p.ps.crit||0))?2:1);
+ const dm=c.dm*(1+.08*(p.ps.dano||0))*(1+.08*p.u.dano)*(p.it.includes('espada')?1.12:1),cd=Math.max(.35,1-.1*(p.ps.recarga||0)),hit=d=>d*(Math.random()<Math.min(.6,.05*(p.ps.crit||0))?2:1);
  const near=g=>{let b=null;for(const e of r.es){const d=oDist(e,p);if(d<g){g=d;b=e}}return b};
  const nearChest=g=>{let b=null;for(const q of r.ch||[]){if(q.broken)continue;const d=oDist(q,p);if(d<g){g=d;b=q}}return b};
  const rdy=(k,t)=>{p.cd[k]=(p.cd[k]||0)-1;if(p.cd[k]<=0){p.cd[k]=t*cd;return 1}},l=p.pw;
@@ -1445,7 +1445,7 @@ function offlineStep(r,p){
  if(l.proj&&rdy('proj',18)){const e=near(420),ch=nearChest(420),target=ch&&(!e||oDist(ch,p)<oDist(e,p))?ch:e;if(target){const n=1+(l.proj>2)+(l.proj>4)+(l.proj>=5?2:0),signature=p.cls==='normal'&&l.proj>=5,archerMaster=p.cls==='arqueiro'&&l.proj>=5,shots=archerMaster?9:n,a0=Math.atan2(target.y-p.y,target.x-p.x);for(let i=0;i<shots;i++){const a=a0+(i-(shots-1)/2)*(archerMaster?.15:.2);r.sh.push({x:p.x,y:p.y,vx:Math.cos(a)*9,vy:Math.sin(a)*9,d:hit((7+3*l.proj)*(l.proj>=5?1.35:1)*dm),life:45,pr:(c.pr||0)+(l.proj>=5?5:0)+(archerMaster?4:0),targetChest:target===ch,tx:target.x,ty:target.y,burst:signature?58:0,burstDamage:hit((7+3*l.proj)*dm)*.55,special:signature?1:archerMaster?2:0})}}else p.cd.proj=0}
  if(p.cls==='cavaleiro'&&l.orb){const orbMax=l.orb>=5,n=orbMax?6:1+l.orb,radius=orbMax?82:65,spin=orbMax?.19:.1;for(let i=0;i<n;i++){const a=r.t*spin+i*6.283/n,o={x:p.x+Math.cos(a)*radius,y:p.y+Math.sin(a)*radius};r.ob.push([o.x|0,o.y|0,orbMax?1:0]);for(const e of r.es)if(oDist(e,o)<e.r+10)e.hp-=hit(.3*(1+l.orb*.3)*(orbMax?1.8:1)*dm)}}
  if(p.cls==='necromante'&&l.nova&&rdy('nova',90)){const rr=90+12*l.nova+(l.nova>=5?48:0);r.fx.push(['n',p.x|0,p.y|0,rr,0,6]);for(const e of r.es)if(oDist(e,p)<rr+e.r){e.hp-=hit((10+5*l.nova)*dm);if(l.nova>=5)r.fx.push(['sky',e.x|0,e.y|0,28,'shadow',18])}offlineDamageChests(r,p,p.x,p.y,rr,hit((10+5*l.nova)*dm))}
- if(p.cls==='mago'&&l.raio&&rdy('raio',45)){const master=l.raio>=5,range=master?520:380,limit=master?14:10,hits=offlineRandomSubset(r.es.filter(e=>oDist(e,p)<range),Math.min(limit,1+l.raio+(master?8:4))),hitSet=new Set(hits);hits.forEach(e=>{const bolt=hit((14+4*l.raio)*(master?1.5:1)*dm);e.hp-=bolt;r.fx.push(['r',p.x|0,p.y|0,e.x|0,e.y|0,5],['sky',e.x|0,e.y|0,25,'lightning',18]);offlineDamageChests(r,p,e.x,e.y,18,bolt);if(master){const chain=r.es.filter(q=>q!==e&&!hitSet.has(q)&&oDist(q,e)<105).sort((a,b)=>oDist(a,e)-oDist(b,e)).slice(0,2);for(const q of chain){hitSet.add(q);q.hp-=bolt*.55;r.fx.push(['r',e.x|0,e.y|0,q.x|0,q.y|0,5],['sky',q.x|0,q.y|0,20,'lightning',18]);offlineDamageChests(r,p,q.x,q.y,18,bolt*.55)}}})}
+ if(p.cls==='mago'&&l.raio&&rdy('raio',72)){const master=l.raio>=5,range=master?440:340,limit=master?5:Math.min(4,1+l.raio),hits=offlineRandomSubset(r.es.filter(e=>oDist(e,p)<range),Math.min(limit,r.es.length)),hitSet=new Set(hits);hits.forEach(e=>{const bolt=hit((8+2*l.raio)*(master?1.2:1)*dm);e.hp-=bolt;r.fx.push(['r',p.x|0,p.y|0,e.x|0,e.y|0,5],['sky',e.x|0,e.y|0,22,'lightning',18]);offlineDamageChests(r,p,e.x,e.y,18,bolt);if(master){const chain=r.es.filter(q=>q!==e&&!hitSet.has(q)&&oDist(q,e)<90).sort((a,b)=>oDist(a,e)-oDist(b,e)).slice(0,1);for(const q of chain){hitSet.add(q);q.hp-=bolt*.3;r.fx.push(['r',e.x|0,e.y|0,q.x|0,q.y|0,5],['sky',q.x|0,q.y|0,18,'lightning',18]);offlineDamageChests(r,p,q.x,q.y,18,bolt*.3)}}})}
  if(l.meteoro&&rdy('meteoro',120)){const e=near(450);if(e){const rr=60+6*l.meteoro;r.fx.push(['sky',e.x|0,e.y|0,rr,'meteor',18],['n',e.x|0,e.y|0,rr,0,8]);for(const q of r.es)if(oDist(q,e)<rr+q.r)q.hp-=hit((25+8*l.meteoro)*dm);offlineDamageChests(r,p,e.x,e.y,rr,hit((25+8*l.meteoro)*dm))}else p.cd.meteoro=0}
  if(p.cls==='curandeiro'&&l.aura){const master=l.aura>=5,rr=50+8*l.aura+(master?95:45);for(const e of r.es)if(oDist(e,p)<rr+e.r)e.hp-=hit((.3+.12*l.aura)*(master?1.5:1)*dm);if(r.t%18===0)offlineDamageChests(r,p,p.x,p.y,rr,hit((3+1.5*l.aura)*(master?1.5:1)*dm))}
  if(l.lanca&&rdy('lanca',58)){const e=near(520),ch=nearChest(520),target=ch&&(!e||oDist(ch,p)<oDist(e,p))?ch:e;if(target){const a=Math.atan2(target.y-p.y,target.x-p.x);r.sh.push({x:p.x,y:p.y,vx:Math.cos(a)*12,vy:Math.sin(a)*12,d:hit((20+7*l.lanca)*dm),life:48,pr:5,targetChest:target===ch,tx:target.x,ty:target.y})}else p.cd.lanca=0}

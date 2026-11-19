@@ -62,9 +62,11 @@ assert.match(app, /const PRICE=\{normal:\[0,0\],arqueiro:\[900,0\],cavaleiro:\[3
 assert.ok(app.includes("if(p.cls==='necromante')"), 'necromante precisa invocar esqueletos');
 assert.ok(app.includes('spawnEvery=Math.max(45,90-summonLevel*8)')&&server.includes('spawnEvery=Math.max(45,90-summonLevel*8)'), 'esqueletos devem invocar mais rápido conforme a habilidade evolui');
 assert.ok(app.includes('e.hp-=4+2*summonLevel')&&server.includes('e.hp-=4+2*summonLevel'), 'dano dos esqueletos deve evoluir com a habilidade');
-assert.ok(app.includes("classPower={normal:'proj',mago:'raio',cavaleiro:'orb',necromante:'nova',curandeiro:'aura',arqueiro:'proj'}")&&server.includes("classPower={normal:'proj',mago:'raio',cavaleiro:'orb',necromante:'nova',curandeiro:'aura',arqueiro:'proj'}"), 'melhoria especial da classe deve aparecer nas escolhas de XP');
-assert.ok(server.includes('p.lv===5&&(p.pw.meteoro||0)<5&&((p.pw.meteoro||0)>0||op.length<5)'), 'servidor não pode obrigar o Meteoro sem espaço para um novo poder');
-assert.ok(app.includes('p.lv===5&&(p.pw.meteoro||0)<5&&((p.pw.meteoro||0)>0||op.length<5)'), 'modo offline não pode obrigar o Meteoro sem espaço para um novo poder');
+assert.ok(!app.includes("classPower={normal:")&&!server.includes("classPower={normal:"), 'poder da classe não deve ser forçado em toda escolha de XP');
+assert.ok(server.includes('level===4&&maxedP>=3')&&app.includes('n===4&&maxed>=3'), 'limite de três poderes especiais 5/5 deve ser respeitado');
+assert.ok(server.includes('orbMax?6:1+l.orb')&&app.includes('orbMax?6:1+l.orb'), 'Orbes deve ter seis unidades no nível 5/5');
+assert.ok(server.includes('orbMax?.19:.1')&&app.includes('orbMax?.19:.1'), 'Orbes deve girar mais rápido no nível 5/5');
+assert.ok(server.includes('orbMax?1:0')&&app.includes('orbMax?1:0'), 'estado especial dos Orbes deve chegar ao cliente');
 const serverLevelStart = server.indexOf('function lv(p){');
 const serverLevelEnd = server.indexOf('function pick(p,i){', serverLevelStart);
 const offlineLevelStart = app.indexOf('function offlineLevel(p){');
@@ -278,3 +280,10 @@ assert.ok(app.includes('h.x+=(p.x-h.x)/d*9;h.y+=(p.y-h.y)/d*9'), 'corações dev
 assert.ok(app.includes('for(let i=0;i<16&&r.es.length<42;i++)offlineSpawn(r,p,7)'), 'hordas devem ter mais monstros fracos');
 assert.ok(server.includes('const stopGap=e.r+(isSkeleton?14:27)'), 'monstros devem conseguir alcançar e atacar esqueletos');
 assert.ok(server.includes('const magnetRange=p=>150*(1+.65*(p.ps.ima||0))'), 'servidor deve aplicar o ímã a corações e itens');
+
+
+// Regression checks: dead character visibility, non-special passives, rounded knight, and max Orbs.
+assert.ok(app.includes("x.globalAlpha=q.d?.92:1")&&app.includes('background:#0007;text-align:center'), 'personagem morto deve continuar visível na tela de fim');
+assert.ok(app.includes("special=o[0]==='p'&&n+1>=5")&&app.includes("MÁXIMO · NÍVEL 5/5"), 'passivas 5/5 não devem ser rotuladas como poder especial');
+assert.ok(app.includes('c.bezierCurveTo(-30,-5,-28,-20,-19,-29)'), 'Cavaleiro deve ter corpo arredondado');
+assert.ok(app.includes("special?'#ef4444':'#38bdf8'")&&app.includes('orbMax?6:1+l.orb'), 'Orbes especiais devem ser seis e vermelhos');

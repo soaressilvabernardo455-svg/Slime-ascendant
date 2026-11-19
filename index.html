@@ -1336,7 +1336,7 @@ function offlineStep(r,p){
  r.ch=(r.ch||[]).filter(q=>!q.broken&&--q.life>0);r.fx=r.fx.filter(f=>--f[5]>0);if(r.fx.length>160)r.fx.splice(0,r.fx.length-160);
  if(p.cls==='necromante'){
   p.sk=p.sk||[];p.skTimer=(p.skTimer||0)+1;
-  if(p.skTimer>=360){p.skTimer=0;for(let i=0;i<2&&p.sk.length<4;i++){const a=Math.random()*Math.PI*2;p.sk.push({x:p.x+Math.cos(a)*28,y:p.y+Math.sin(a)*28,hp:24,life:900,hit:0})}}
+  if(p.skTimer>=90){p.skTimer=0;for(let i=0;i<2&&p.sk.length<4;i++){const a=Math.random()*Math.PI*2;p.sk.push({x:p.x+Math.cos(a)*28,y:p.y+Math.sin(a)*28,hp:24,life:900,hit:0})}}
   p.sk=p.sk.filter(k=>{if(--k.life<=0||k.hp<=0)return false;let e=null,bd=1e9;for(const q of r.es){const d=oDist(k,q);if(d<bd){bd=d;e=q}}if(e){const d=Math.max(1,bd);if(d>24){k.x+=(e.x-k.x)/d*2.5;k.y+=(e.y-k.y)/d*2.5}else if(++k.hit>=30){k.hit=0;e.hp-=4}}return true});
  }else p.sk=[];
 }

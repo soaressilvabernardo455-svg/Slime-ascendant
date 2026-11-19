@@ -440,7 +440,7 @@ input,textarea,select{touch-action:auto;user-select:text}
 <div id="m" class="lobby-screen">
  <header class="lobby-top">
   <div class="brand-panel glass">
-   <div class="brand-line"><div class="brand-emblem">✦</div><div class="brand-copy"><div class="brand-title">SLIME ASCENDANT <span class="version-pill">v4.9</span></div><div id="sel" class="brand-subtitle">Slime • Aventureiro</div></div></div>
+   <div class="brand-line"><div class="brand-emblem">✦</div><div class="brand-copy"><div class="brand-title">SLIME ASCENDANT <span class="version-pill">v4.10</span></div><div id="sel" class="brand-subtitle">Slime • Aventureiro</div></div></div>
    <div class="player-chips"><span id="rec">🏆 Recorde: onda 0</span><span id="bal">🪙 0　💎 0</span></div>
   </div>
   <div class="account-top glass">
@@ -493,7 +493,7 @@ input,textarea,select{touch-action:auto;user-select:text}
 <div id="profile-modal" class="modal-backdrop h"><section class="modal-card glass profile-card" role="dialog" aria-modal="true" aria-labelledby="profile-title"><button id="profile-close" class="modal-close" aria-label="Fechar">×</button><div class="modal-kicker">PERFIL DO AVENTUREIRO</div><div id="profile-content"></div></section></div>
 <div id="room-wait" class="modal-backdrop h"><section class="room-wait-card glass" role="dialog" aria-modal="true" aria-labelledby="room-wait-title"><div class="room-kicker">SALA COOPERATIVA</div><h2 id="room-wait-title">Preparando a partida</h2><p id="room-wait-code"></p><div id="room-player-list"></div><p id="room-wait-status">Aguardando o anfitrião.</p><button id="room-start">Começar partida</button><button id="room-leave">Sair da sala</button></section></div>
 <div id="loading-overlay" class="modal-backdrop h">
- <section class="loading-card glass"><div class="loading-orb">✦</div><h2 id="loading-title">Acordando servidor...</h2><p id="loading-message">Preparando a conexão com o mundo.</p><div class="loading-track"><span></span></div><button id="cancel-loading">Cancelar</button></section>
+ <section class="loading-card glass"><div class="loading-orb">✦</div><h2 id="loading-title">Conectando ao mundo...</h2><p id="loading-message">Preparando a conexão com o mundo.</p><div class="loading-track"><span></span></div><button id="cancel-loading">Cancelar</button></section>
 </div>
 <div id="tt"></div><div id="fim"><h1>Fim de jogo</h1><div id="fr"></div><button id="vl">Voltar ao lobby</button></div>
 <div id="u"></div><button id="power-toggle" type="button" aria-label="Abrir habilidades" aria-expanded="false" onclick="togglePowerHUD()"><span class="power-toggle-icon">✦</span><span id="power-count" class="power-count">0</span></button><div id="powhud"></div>
@@ -658,7 +658,7 @@ function setGameState(next,title,message){
  const inLobby=next==='LOBBY',loading=next==='LOADING',playing=next==='PLAYING'||next==='GAMEOVER';
  $('m').style.display=inLobby?'block':'none';
  $('loading-overlay').classList.toggle('h',!loading);
- if(loading){$('loading-title').textContent=title||'Acordando servidor...';$('loading-message').textContent=message||'Preparando a conexão com o mundo.'}
+ if(loading){$('loading-title').textContent=title||'Conectando ao mundo...';$('loading-message').textContent=message||'Preparando a conexão com o mundo.'}
  $('fim').style.display=next==='GAMEOVER'?'flex':'none';
  if(!playing)powerHudOpen=false;
  $('ex').style.display=playing?'block':'none';$('run-board').style.display=playing?'block':'none';$('power-toggle').style.display=playing?'grid':'none';$('power-toggle').setAttribute('aria-expanded',String(powerHudOpen));$('power-toggle').setAttribute('aria-label',powerHudOpen?'Fechar habilidades':'Abrir habilidades');$('powhud').style.display=playing&&powerHudOpen?'flex':'none';$('item-hud').style.display='none';$('item-toggle').style.display='none';$('item-toggle').dataset.open='0';$('item-toggle').setAttribute('aria-expanded','false');
@@ -1112,7 +1112,7 @@ function joinOnline(roomCode,button){
  lw=0;gc=0;gk=0;
  SV.name=requestedName.slice(0,15);$('n').value=SV.name;save();
  startMusic();
- setGameState('LOADING','Acordando servidor...','O Render pode precisar iniciar o servidor antes de abrir a sala.');
+ setGameState('LOADING','Conectando ao mundo...','A primeira conexão pode levar alguns segundos enquanto o mundo é preparado.');
  clearConnectTimers();
  connectStatusTimer=setTimeout(()=>{if(attempt===joinAttempt&&GAME_STATE==='LOADING')setGameState('LOADING','Conectando à sala...','O servidor respondeu. Estamos entrando no mundo.')},6500);
  connectTimer=setTimeout(()=>abortJoin(attempt,'O servidor não respondeu após várias tentativas. Verifique sua internet e tente novamente.'),120000);

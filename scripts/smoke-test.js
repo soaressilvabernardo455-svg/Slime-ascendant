@@ -60,7 +60,9 @@ assert.ok(app.includes('const cx=pp.x-W/2,cy=pp.y-H/2'), 'a câmera deve seguir 
 assert.match(app, /const oClamp=v=>Math\.max\(-1000000000/);
 assert.match(app, /const PRICE=\{normal:\[0,0\],arqueiro:\[900,0\],cavaleiro:\[3000,0\],mago:\[5000,0\],curandeiro:\[0,600\],necromante:\[0,900\]\}/);
 assert.ok(app.includes("if(p.cls==='necromante')"), 'necromante precisa invocar esqueletos');
-assert.ok(app.includes('skTimer>=90')&&server.includes('skTimer>=90'), 'necromante deve invocar esqueletos mais cedo online e offline');
+assert.ok(app.includes('spawnEvery=Math.max(45,90-summonLevel*8)')&&server.includes('spawnEvery=Math.max(45,90-summonLevel*8)'), 'esqueletos devem invocar mais rápido conforme a habilidade evolui');
+assert.ok(app.includes('e.hp-=4+2*summonLevel')&&server.includes('e.hp-=4+2*summonLevel'), 'dano dos esqueletos deve evoluir com a habilidade');
+assert.ok(app.includes("const special='p:'+OCLS[p.cls].pw")&&server.includes("special='p:'+CLS[p.cls].pw"), 'melhoria especial da classe deve aparecer nas escolhas de XP');
 assert.ok(server.includes('p.lv===5&&(p.pw.meteoro||0)<5&&((p.pw.meteoro||0)>0||op.length<5)'), 'servidor não pode obrigar o Meteoro sem espaço para um novo poder');
 assert.ok(app.includes('p.lv===5&&(p.pw.meteoro||0)<5&&((p.pw.meteoro||0)>0||op.length<5)'), 'modo offline não pode obrigar o Meteoro sem espaço para um novo poder');
 const serverLevelStart = server.indexOf('function lv(p){');
@@ -133,7 +135,7 @@ assert.ok(app.includes("screen.orientation.unlock"), 'orientação do aparelho p
 assert.ok(!app.includes("screen.orientation.lock('landscape')"), 'o jogo não pode forçar paisagem');
 assert.ok(app.includes("credentials:'include'"), 'requisições de conta devem enviar cookies');
 assert.ok(app.includes("if(connectTimer)clearTimeout(connectTimer)"), 'watchdog de entrada precisa ser limpo depois de entrar na sala');
-assert.match(html, /version-pill">v4\.7</, 'a versão exibida no lobby precisa aumentar');
+assert.match(html, /version-pill">v4\.8</, 'a versão exibida no lobby precisa aumentar');
 
 assert.match(server, /MAX_PLAYERS=4/, 'limite de quatro jogadores ausente');
 assert.match(server, /MAX_CONNECTIONS=40/, 'limite de conexões simultâneas ausente');
@@ -243,7 +245,7 @@ assert.ok(itemHudSource.includes("panel.style.display=button.dataset.open==='1'?
 assert.ok(app.includes("if(q.shield>0){x.save()"), 'escudo ativo do Cavaleiro precisa de indicador visual contínuo');
 assert.ok(app.includes("p.dev?'🪙 ∞  💎 ∞'"), 'HUD do modo DEV precisa mostrar recursos ilimitados');
 assert.ok(!app.includes('x.fillRect(X-5,Y,Y+0,0)'), 'remover desenho inválido do esqueleto');
-assert.ok(serviceWorker.includes('shell-v24'), 'service worker precisa invalidar a versão antiga do shell');
+assert.ok(serviceWorker.includes('shell-v25'), 'service worker precisa invalidar a versão antiga do shell');
 
 assert.ok(app.includes("if(OFF&&offlineTimer){clearInterval(offlineTimer);offlineTimer=0}") && app.includes("if(OFF&&OR&&!offlineTimer){offlineTimer=setInterval(offlineTick,33);offlineTick()}"), 'timer offline precisa parar em segundo plano e retomar ao voltar');
 assert.ok(app.includes('let GAME_SAFE_TOP=28;') && app.includes('const gameSafeTop=GAME_SAFE_TOP;'), 'área segura do HUD deve ser calculada no resize e não em todos os frames');

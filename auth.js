@@ -158,7 +158,7 @@ async function currentAccount(req) {
   const token = cookieValue(req);
   if (!token || token.length !== 64) return null;
   const result = await pool.query(
-    'SELECT a.id, a.email FROM slime_account_sessions s JOIN slime_accounts a ON a.id = s.account_id WHERE s.token_hash = $1 AND s.expires_at > NOW() LIMIT 1',
+    'SELECT a.id, a.email, a.created_at FROM slime_account_sessions s JOIN slime_accounts a ON a.id = s.account_id WHERE s.token_hash = $1 AND s.expires_at > NOW() LIMIT 1',
     [hashToken(token)]
   );
   return result.rows[0] || null;
@@ -217,7 +217,7 @@ async function handleAuthRequest(req, res, pathname) {
 
     if (pathname === '/api/auth/me' && req.method === 'GET') {
       const account = await currentAccount(req);
-      send(res, 200, account ? { authenticated: true, email: account.email } : { authenticated: false });
+      send(res, 200, account ? { authenticated: true, email: account.email, createdAt: account.created_at } : { authenticated: false });
       return true;
     }
 
@@ -245,7 +245,9 @@ async function handleAuthRequest(req, res, pathname) {
       const salt = crypto.randomBytes(16).toString('hex');
       const passwordHash = await makePasswordHash(password, salt);
       try {
-        await pool.query('INSERT INTO slime_accounts(id, email, password_salt, password_hash) VALUES($1, $2, $3, $4)', [id, email, salt, passwordHash]);
+        var createdAt = new Date().toISOString();
+        const inserted = await pool.query('INSERT INTO slime_accounts(id, email, password_salt, password_hash) VALUES($1, $2, $3, $4) RETURNING created_at', [id, email, salt, passwordHash]);
+        createdAt = inserted.rows[0] && inserted.rows[0].created_at || createdAt;
       } catch (error) {
         if (error.code === '23505') {
           send(res, 409, { error: 'Já existe uma conta com esse email.' });
@@ -254,7 +256,7 @@ async function handleAuthRequest(req, res, pathname) {
         throw error;
       }
       const cookie = await createSession(id, res, req);
-      send(res, 201, { authenticated: true, email }, { 'Set-Cookie': cookie });
+      send(res, 201, { authenticated: true, email, createdAt }, { 'Set-Cookie': cookie });
       return true;
     }
 
@@ -274,7 +276,7 @@ async function handleAuthRequest(req, res, pathname) {
         send(res, 400, { error: 'Email ou senha inválidos.' });
         return true;
       }
-      const result = await pool.query('SELECT id, email, password_salt, password_hash FROM slime_accounts WHERE email = $1 LIMIT 1', [email]);
+      const result = await pool.query('SELECT id, email, password_salt, password_hash, created_at FROM slime_accounts WHERE email = $1 LIMIT 1', [email]);
       const account = result.rows[0];
       if (!account) {
         send(res, 401, { error: 'Email ou senha incorretos.' });
@@ -286,7 +288,7 @@ async function handleAuthRequest(req, res, pathname) {
         return true;
       }
       const cookie = await createSession(account.id, res, req);
-      send(res, 200, { authenticated: true, email: account.email }, { 'Set-Cookie': cookie });
+      send(res, 200, { authenticated: true, email: account.email, createdAt: account.created_at }, { 'Set-Cookie': cookie });
       return true;
     }
 

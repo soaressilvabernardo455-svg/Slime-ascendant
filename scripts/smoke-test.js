@@ -166,10 +166,10 @@ assert.match(server, /separateX/, 'separação de monstros ausente');
 assert.ok(server.includes('(ei-oi)*2.399963229728653')&&app.includes('(ei-oi)*2.399963229728653'), 'inimigos sobrepostos exatamente precisam ser separados');
 assert.ok(server.includes('separateX*3')&&app.includes('sx*3')&&server.includes('Math.min(3,(gap-d)/gap*4)')&&app.includes('Math.min(3,(gap-od)/gap*4)')&&server.includes('gap=e.r+other.r+28')&&app.includes('gap=e.r+other.r+28'), 'separação de inimigos precisa ter força suficiente');
 assert.ok(server.includes("['l',q.x|0,q.y|0,q.type,0,70]")&&app.includes("['l',q.x|0,q.y|0,q.type,0,70]")&&app.includes("labels={coin:"), 'baús precisam mostrar visualmente o tipo de recompensa');
-assert.ok(server.includes('i<n&&r.es.length<36'), 'spawn online precisa respeitar o limite de monstros durante cada lote');
-assert.ok(app.includes('i<n&&r.es.length<36'), 'spawn offline precisa respeitar o limite de monstros durante cada lote');
-assert.ok(server.includes('life:1800')&&server.includes('r.gm.length>30')&&server.includes('r.hr.length>20'), 'drops online precisam expirar e ter limites de quantidade');
-assert.ok(app.includes('life:1800')&&app.includes('r.gm.length>30')&&app.includes('r.hr.length>20'), 'drops offline precisam expirar e ter limites de quantidade');
+assert.ok(server.includes('i<n&&r.es.length<42'), 'spawn online precisa respeitar o limite de monstros durante cada lote');
+assert.ok(app.includes('i<n&&r.es.length<42'), 'spawn offline precisa respeitar o limite de monstros durante cada lote');
+assert.ok(server.includes('life:1800')&&server.includes('r.gm.length>42')&&server.includes('r.hr.length>28'), 'drops online precisam expirar e ter limites de quantidade');
+assert.ok(app.includes('life:1800')&&app.includes('r.gm.length>42')&&app.includes('r.hr.length>28'), 'drops offline precisam expirar e ter limites de quantidade');
 
 assert.match(auth, /SameSite=Lax/, 'cookie de sessão precisa usar SameSite=Lax');
 assert.match(auth, /Expires=/, 'cookie precisa ter expiração persistente');
@@ -253,13 +253,13 @@ const offlineXpMatch=app.match(/const OET=(\[[\s\S]*?\]);/);
 assert.ok(serverXpMatch&&offlineXpMatch, 'tabelas de XP dos monstros precisam existir');
 const serverMonsterXp=vm.runInNewContext(serverXpMatch[1]).map(enemy=>enemy.x);
 const offlineMonsterXp=vm.runInNewContext(offlineXpMatch[1]).map(enemy=>enemy.x);
-assert.deepEqual(serverMonsterXp,[5,3,20,100,6,9,14], 'XP online deve recompensar os monstros mais perigosos');
+assert.deepEqual(serverMonsterXp,[5,3,30,120,12,18,24,2], 'XP online deve recompensar os monstros mais perigosos');
 assert.deepEqual(offlineMonsterXp,serverMonsterXp, 'XP offline deve ser igual ao multiplayer');
 assert.ok(app.includes("stats.textContent='VIDA '+attr.hp+'  ·  DANO '+(attr.dm*10).toFixed(1).replace('.',',')+'  ·  VEL '+attr.sp.toFixed(1)")&&!app.includes("Math.round(attr.dm*100)+'%'"), 'dano nas cartas de classe deve ser numérico, não percentual');
 assert.ok(app.includes("x.arc(0,-9,5.2,0,Math.PI*2)")&&!app.includes("x.fillRect(X-4,Y-9,8,8)"), 'esqueletos devem usar desenho vetorial suave, não quadradinhos');
 assert.ok(server.includes("filter(q=>visible(q.x,q.y)).map(q=>[q.x|0,q.y|0])"), 'snapshots não devem enviar esqueletos fora do raio visível');
 
-assert.ok(serviceWorker.includes('slime-ascendant-shell-v28'), 'service worker precisa invalidar a versão antiga do shell');
+assert.ok(serviceWorker.includes('slime-ascendant-shell-v34'), 'service worker precisa invalidar a versão antiga do shell');
 
 assert.ok(app.includes("if(OFF&&offlineTimer){clearInterval(offlineTimer);offlineTimer=0}") && app.includes("if(OFF&&OR&&!offlineTimer){offlineTimer=setInterval(offlineTick,33);offlineTick()}"), 'timer offline precisa parar em segundo plano e retomar ao voltar');
 assert.ok(app.includes('let GAME_SAFE_TOP=28;') && app.includes('const gameSafeTop=GAME_SAFE_TOP;'), 'área segura do HUD deve ser calculada no resize e não em todos os frames');
@@ -275,11 +275,11 @@ assert.ok(server.includes('c.bufferedAmount>262144')&&server.includes('client.bu
 
 // Regression checks for progression pacing, pickup magnet and skeleton targeting.
 assert.ok(app.includes('p.nx=Math.ceil(p.nx*1.17+1.4)'), 'curva de XP deve evitar travar a progressão');
-assert.ok(app.includes('const magnetRange=150*(1+.65*(p.ps.ima||0))'), 'ímã deve alcançar corações e itens com alcance confortável');
-assert.ok(app.includes('h.x+=(p.x-h.x)/d*9;h.y+=(p.y-h.y)/d*9'), 'corações devem ser puxados com velocidade suficiente');
+assert.ok(app.includes('const magnetRange=260*(1+.8*(p.ps.ima||0))'), 'ímã deve alcançar corações e itens com alcance confortável');
+assert.ok(app.includes('const pullToward=(item,d)=>{const speed=Math.min(16,6+(magnetRange-d)*.055)'), 'corações devem ser puxados com velocidade suficiente');
 assert.ok(app.includes('for(let i=0;i<16&&r.es.length<42;i++)offlineSpawn(r,p,7)'), 'hordas devem ter mais monstros fracos');
 assert.ok(server.includes('const stopGap=e.r+(isSkeleton?14:27)'), 'monstros devem conseguir alcançar e atacar esqueletos');
-assert.ok(server.includes('const magnetRange=p=>150*(1+.65*(p.ps.ima||0))'), 'servidor deve aplicar o ímã a corações e itens');
+assert.ok(server.includes('const magnetRange=p=>260*(1+.8*(p.ps.ima||0))'), 'servidor deve aplicar o ímã a corações e itens');
 
 
 // Regression checks: dead character visibility, non-special passives, rounded knight, and max Orbs.
@@ -305,5 +305,5 @@ assert.ok(app.includes('lastPlayerSnapshot=p')&&app.includes('S.p.find(q=>q.id==
 // The horde contains monster type 7; every enemy type must have a generated sprite.
 assert.ok(app.includes('for(let i=0;i<8;i++)SPR[i]=mkS(i)'), 'todos os oito tipos de monstros, incluindo o monstro fraco de horda, precisam de sprite');
 assert.ok(app.includes("['#d4e85d','#547b1c','#f5ffb0','#c8ff72']"), 'o monstro fraco de horda precisa de paleta própria');
-assert.ok(sw.includes('slime-ascendant-shell-v28'), 'o navegador deve invalidar o shell e descarregar os sprites novos');
+assert.ok(sw.includes('slime-ascendant-shell-v34'), 'o navegador deve invalidar o shell e descarregar os sprites novos');
 assert.ok(app.includes('const counter=[784,698.46,659.25,587.33]'), 'a trilha deve ter camada harmônica e contraponto além da melodia básica');

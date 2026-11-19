@@ -62,7 +62,7 @@ assert.match(app, /const PRICE=\{normal:\[0,0\],arqueiro:\[900,0\],cavaleiro:\[3
 assert.ok(app.includes("if(p.cls==='necromante')"), 'necromante precisa invocar esqueletos');
 assert.ok(app.includes('spawnEvery=Math.max(45,90-summonLevel*8)')&&server.includes('spawnEvery=Math.max(45,90-summonLevel*8)'), 'esqueletos devem invocar mais rápido conforme a habilidade evolui');
 assert.ok(app.includes('e.hp-=4+2*summonLevel')&&server.includes('e.hp-=4+2*summonLevel'), 'dano dos esqueletos deve evoluir com a habilidade');
-assert.ok(app.includes("const special='p:'+OCLS[p.cls].pw")&&server.includes("special='p:'+CLS[p.cls].pw"), 'melhoria especial da classe deve aparecer nas escolhas de XP');
+assert.ok(app.includes("classPower={normal:'proj',mago:'raio',cavaleiro:'orb',necromante:'nova',curandeiro:'aura',arqueiro:'proj'}")&&server.includes("classPower={normal:'proj',mago:'raio',cavaleiro:'orb',necromante:'nova',curandeiro:'aura',arqueiro:'proj'}"), 'melhoria especial da classe deve aparecer nas escolhas de XP');
 assert.ok(server.includes('p.lv===5&&(p.pw.meteoro||0)<5&&((p.pw.meteoro||0)>0||op.length<5)'), 'servidor não pode obrigar o Meteoro sem espaço para um novo poder');
 assert.ok(app.includes('p.lv===5&&(p.pw.meteoro||0)<5&&((p.pw.meteoro||0)>0||op.length<5)'), 'modo offline não pode obrigar o Meteoro sem espaço para um novo poder');
 const serverLevelStart = server.indexOf('function lv(p){');

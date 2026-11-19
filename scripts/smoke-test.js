@@ -269,3 +269,12 @@ assert.ok(app.includes("key=items.join('|'),active=GAME_STATE==='PLAYING'||GAME_
 assert.ok(app.includes("try{ws.send(JSON.stringify({t:'pick',i}))}catch(e)"), 'envio de melhoria deve lidar com desconexões');
 assert.ok(app.includes("try{ws.send(JSON.stringify({t:'in',dx,dy}))}catch(e)"), 'envio de movimento deve lidar com desconexões');
 assert.ok(server.includes('c.bufferedAmount>262144')&&server.includes('client.bufferedAmount>524288'), 'servidor precisa limitar filas de WebSocket em conexões lentas');
+
+
+// Regression checks for progression pacing, pickup magnet and skeleton targeting.
+assert.ok(app.includes('p.nx=Math.ceil(p.nx*1.17+1.4)'), 'curva de XP deve evitar travar a progressão');
+assert.ok(app.includes('const magnetRange=150*(1+.65*(p.ps.ima||0))'), 'ímã deve alcançar corações e itens com alcance confortável');
+assert.ok(app.includes('h.x+=(p.x-h.x)/d*9;h.y+=(p.y-h.y)/d*9'), 'corações devem ser puxados com velocidade suficiente');
+assert.ok(app.includes('for(let i=0;i<16&&r.es.length<42;i++)offlineSpawn(r,p,7)'), 'hordas devem ter mais monstros fracos');
+assert.ok(server.includes('const stopGap=e.r+(isSkeleton?14:27)'), 'monstros devem conseguir alcançar e atacar esqueletos');
+assert.ok(server.includes('const magnetRange=p=>150*(1+.65*(p.ps.ima||0))'), 'servidor deve aplicar o ímã a corações e itens');

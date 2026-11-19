@@ -2,9 +2,10 @@ name: Code smoke tests
 
 on:
   push:
-    branches: [main]
+    branches: [main, slime-ascendant-apk]
     paths:
       - 'index.html'
+      - 'icon.svg'
       - 'manifest.webmanifest'
       - 'android-app/**'
       - 'server.js'

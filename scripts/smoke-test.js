@@ -198,7 +198,7 @@ assert.ok(html.includes("url('/cover.svg')")&&html.includes('#m::before'), 'capa
 assert.ok(app.includes('function resetGameCanvas()')&&app.includes("globalCompositeOperation='source-over'")&&app.includes("x.filter='none'"), 'canvas deve limpar estado visual entre quadros para evitar artefatos/estática');
 assert.ok(app.includes('const chunk=540')&&app.includes('h&7')&&app.includes('h&3'), 'mapas devem reduzir detalhes muito pequenos e densos');
 assert.ok(app.includes('bezierCurveTo(-25,-22,-16,-34,-4,-35)')&&app.includes('const aura=['), 'slimes e monstros devem ter acabamento visual melhor');
-assert.ok(app.includes('skill-special-card')&&app.includes('MELHORIA ESPECIAL · NÍVEL 5/5'), 'a quinta melhoria deve ter apresentação especial exclusiva');
+assert.ok(app.includes('skill-special-card')&&app.includes('HABILIDADE PRINCIPAL · ESPECIAL 5/5'), 'só a habilidade principal da classe deve ter especial 5/5');
 assert.ok(app.includes('class-stats')&&app.includes('data-biome')&&app.includes('--upgrade-color'), 'classes, mapas e melhorias precisam de apresentação visual distinta');
 assert.ok(app.includes('top:calc(env(safe-area-inset-top,0px) + 88px)'), 'indicador de FPS deve ficar abaixo da barra de vida');
 assert.ok(app.includes('c.bezierCurveTo(7,12,-7,12,-17,7)')&&!app.includes('c.bezierCurveTo(3,10,-3,10,-7,5)'), 'corpo do slime precisa ter uma base única e suave');
@@ -284,6 +284,19 @@ assert.ok(server.includes('const magnetRange=p=>150*(1+.65*(p.ps.ima||0))'), 'se
 
 // Regression checks: dead character visibility, non-special passives, rounded knight, and max Orbs.
 assert.ok(app.includes("x.globalAlpha=q.d?.92:1")&&app.includes('background:#0007;text-align:center'), 'personagem morto deve continuar visível na tela de fim');
-assert.ok(app.includes("special=o[0]==='p'&&n+1>=5")&&app.includes("MÁXIMO · NÍVEL 5/5"), 'passivas 5/5 não devem ser rotuladas como poder especial');
+assert.ok(app.includes('special=isMain&&n+1>=5')&&app.includes("MÁXIMO · NÍVEL 5/5"), 'passivas e poderes secundários 5/5 não devem ser rotulados como habilidade principal especial');
 assert.ok(app.includes('c.bezierCurveTo(-30,-5,-28,-20,-19,-29)'), 'Cavaleiro deve ter corpo arredondado');
-assert.ok(app.includes("special?'#ef4444':'#38bdf8'")&&app.includes('orbMax?6:1+l.orb'), 'Orbes especiais devem ser seis e vermelhos');
+assert.ok(app.includes("orb.addColorStop(1,special?'#7f1d1d':'#0c4a6e')")&&app.includes('orbMax?6:1+l.orb'), 'Orbes especiais devem ser seis, com cor vermelha e giro acelerado');
+
+
+// Regressions from the latest gameplay/UI repair batch.
+assert.ok(server.includes("CLASS_MAIN_POWER={normal:'proj',mago:'raio',cavaleiro:'orb',necromante:'nova',curandeiro:'aura',arqueiro:'proj'}")&&app.includes("CLASS_MAIN_POWER={normal:'proj',mago:'raio',cavaleiro:'orb',necromante:'nova',curandeiro:'aura',arqueiro:'proj'}"), 'cada classe deve ter sua habilidade principal declarada');
+assert.ok(server.includes("CLASS_POWER_OWNER={orb:'cavaleiro',nova:'necromante',raio:'mago',aura:'curandeiro'}")&&app.includes("CLASS_POWER_OWNER={orb:'cavaleiro',nova:'necromante',raio:'mago',aura:'curandeiro'}"), 'habilidades principais não devem aparecer para a classe errada');
+assert.ok(server.includes("if(p.cls==='mago'&&l.raio")&&server.includes("if(p.cls==='cavaleiro'&&l.orb"), 'Cavaleiro não deve disparar o raio principal do Mago');
+assert.ok(server.includes("['sky',e.x|0,e.y|0,rr,'meteor',18]")&&server.includes("'lightning',18")&&app.includes("else if(k==='sky')"), 'efeitos aéreos devem cair visualmente até o alvo');
+assert.ok(app.includes("function updateRunBoard(snapshot)")&&app.includes("$('run-board').style.display=playing?'block':'none'"), 'placar de onda e tempo deve aparecer na partida');
+assert.ok(app.includes('function openProfile()')&&auf.includes('createdAt: account.created_at'), 'perfil deve apresentar o início da conta e os colecionáveis');
+assert.ok(!app.includes('const patch=x.createRadialGradient')&&!app.includes("c.fillStyle='#fb9da9';c.beginPath();c.ellipse(-13"), 'remover manchas circulares do chão e manchas duplas do slime');
+assert.ok(app.includes('permanentUpgradeTotal(k,l)')&&app.includes("(n+1)*15)+'% de XP no total"), 'melhorias permanentes e XP devem exibir bônus acumulados');
+assert.ok(server.includes('(180-Math.min(w,18)*2)')&&app.includes('(180-Math.min(w,18)*2)'), 'intervalo de spawn deve ser consistente no online e offline');
+assert.ok(app.includes('lastPlayerSnapshot=p')&&app.includes('S.p.find(q=>q.id==me)||S.p[0]||lastPlayerSnapshot'), 'o personagem local deve usar snapshot de recuperação se um frame vier sem jogador');

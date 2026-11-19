@@ -402,7 +402,7 @@ input,textarea,select{touch-action:auto;user-select:text}
 <div id="m" class="lobby-screen">
  <header class="lobby-top">
   <div class="brand-panel glass">
-   <div class="brand-line"><div class="brand-emblem">✦</div><div class="brand-copy"><div class="brand-title">SLIME ASCENDANT <span class="version-pill">v4.8</span></div><div id="sel" class="brand-subtitle">Slime • Aventureiro</div></div></div>
+   <div class="brand-line"><div class="brand-emblem">✦</div><div class="brand-copy"><div class="brand-title">SLIME ASCENDANT <span class="version-pill">v4.9</span></div><div id="sel" class="brand-subtitle">Slime • Aventureiro</div></div></div>
    <div class="player-chips"><span id="rec">🏆 Recorde: onda 0</span><span id="bal">🪙 0　💎 0</span></div>
   </div>
   <div class="account-top glass">
@@ -697,6 +697,7 @@ function slime(c,px,py,k,t,moving=false,lookX=0,lookY=0,ascended=false){
  }
  c.restore();
 }
+function bobSkeleton(t,seed){return Math.sin(t/160+seed*.013)*1.1};
 const SPR=[];
 function mkS(ty){
  const c=document.createElement('canvas');c.width=c.height=96;
@@ -958,7 +959,7 @@ function lobby(){
  CL.forEach(k=>{const own=developerModeEnabled||SV.cls.includes(k),[pc,pk]=PRICE[k],b=document.createElement('button'),art=document.createElement('span'),copy=document.createElement('span'),title=document.createElement('b'),desc=document.createElement('small'),stats=document.createElement('small'),sub=document.createElement('em'),c=document.createElement('canvas');
   b.className='class-card'+(own&&SV.sel===k?' s':'');b.style.setProperty('--class-color',CO[k]||'#4ade80');art.className='class-art';copy.className='class-copy';c.width=80;c.height=80;
   const g=c.getContext('2d');if(g){g.globalAlpha=own?1:.68;try{slime(g,40,64,k,0)}catch(error){console.warn('Prévia da classe indisponível:',k,error)}}
-  art.append(c);title.textContent=LB[k];desc.textContent=CLASS_INFO[k];const attr=OCLS[k]||{hp:100,dm:1,sp:4.8};stats.className='class-stats';stats.textContent='VIDA '+attr.hp+'  ·  DANO '+Math.round(attr.dm*100)+'%  ·  VEL '+attr.sp.toFixed(1);sub.textContent=own?(developerModeEnabled?'DISPONÍVEL · TESTE DEV':SV.sel===k?'SELECIONADO':'DESBLOQUEADO'):(pc?pc+' moedas':pk+' cristais');copy.append(title,desc,stats,sub);b.append(art,copy);
+  art.append(c);title.textContent=LB[k];desc.textContent=CLASS_INFO[k];const attr=OCLS[k]||{hp:100,dm:1,sp:4.8};stats.className='class-stats';stats.textContent='VIDA '+attr.hp+'  ·  DANO '+(attr.dm*10).toFixed(1).replace('.',',')+'  ·  VEL '+attr.sp.toFixed(1);sub.textContent=own?(developerModeEnabled?'DISPONÍVEL · TESTE DEV':SV.sel===k?'SELECIONADO':'DESBLOQUEADO'):(pc?pc+' moedas':pk+' cristais');copy.append(title,desc,stats,sub);b.append(art,copy);
   b.onclick=()=>{if(developerModeEnabled){SV.sel=k;lobby();return}if(own)SV.sel=k;else if(pc?SV.co>=pc:SV.cr>=pk){if(pc)SV.co-=pc;else SV.cr-=pk;SV.cls.push(k);SV.sel=k}else{toast('Saldo insuficiente para desbloquear essa classe.');return}save();lobby()};cs.append(b)});
  $('tu').innerHTML='<div class="section-intro"><span>PROGRESSÃO</span><h2>Melhorias permanentes</h2><p>Fortaleça seu slime em combate. Cada atributo pode chegar ao nível 10.</p></div>'+Object.keys(UPG).map(k=>{const l=SV.up[k],cost=ucost(l),max=l>=10;
   return '<div class="upgrade-card" style="--upgrade-color:'+(upgradeColors[k]||'#86efac')+'"><span class="upgrade-icon">'+svgIcon(k,'item-svg')+'</span><div class="upgrade-copy"><b>'+UPG[k][0]+'</b><small>'+UPG[k][1]+'</small><em>NÍVEL '+l+'/10</em><span class="upgrade-track"><i style="width:'+(l*10)+'%"></i></span></div><button '+(max||(!developerModeEnabled&&SV.co<cost)?'disabled':'')+' onclick="buy(\''+k+'\')">'+(max?'MAX':developerModeEnabled?'GRÁTIS · TESTE':cost+' moedas')+'</button></div>'}).join('');
@@ -1257,7 +1258,7 @@ function ui(p){
 }
 let OFF=false,OR=null,offlineTimer=0;
 const OCLS={normal:{hp:100,sp:4.8,dm:.8,pw:'proj'},mago:{hp:70,sp:4.8,dm:.92,pw:'raio'},cavaleiro:{hp:150,sp:4.2,dm:1.05,pw:'orb'},necromante:{hp:85,sp:4.8,dm:1,pw:'nova'},curandeiro:{hp:110,sp:4.8,dm:.7,pw:'aura',heal:1},arqueiro:{hp:80,sp:5.2,dm:.9,pw:'proj',pr:2}};
-const OET=[{h:w=>18+w*9,r:10,v:1.4,d:7,c:1,x:1},{h:w=>10+w*5,r:8,v:2.4,d:5,c:2,x:2},{h:w=>55+w*15,r:16,v:.9,d:14,c:6,x:5},{h:w=>300+w*55,r:26,v:.8,d:20,c:18,x:40},{h:w=>14+w*6,r:11,v:1.9,d:6,c:1,x:3},{h:w=>30+w*8,r:12,v:1.6,d:9,c:2,x:3},{h:w=>70+w*14,r:13,v:.7,d:10,c:2,x:4}];
+const OET=[{h:w=>18+w*9,r:10,v:1.4,d:7,c:1,x:5},{h:w=>10+w*5,r:8,v:2.4,d:5,c:2,x:3},{h:w=>55+w*15,r:16,v:.9,d:14,c:6,x:20},{h:w=>300+w*55,r:26,v:.8,d:20,c:18,x:100},{h:w=>14+w*6,r:11,v:1.9,d:6,c:1,x:6},{h:w=>30+w*8,r:12,v:1.6,d:9,c:2,x:9},{h:w=>70+w*14,r:13,v:.7,d:10,c:2,x:14}];
 const oClamp=v=>Math.max(-1000000000,Math.min(1000000000,v)),oDist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y),offlineRandomSubset=(items,count)=>{const copy=items.slice(),take=Math.min(copy.length,Math.max(0,count|0));for(let i=0;i<take;i++){const j=i+Math.floor(Math.random()*(copy.length-i));[copy[i],copy[j]]=[copy[j],copy[i]]}return copy.slice(0,take)};
 function offlinePlayer(){
  const cls=OCLS[SV.sel]?SV.sel:'normal',c=OCLS[cls],u={};
@@ -1437,7 +1438,22 @@ function draw(t){requestAnimationFrame(draw);
  (S.hr||[]).forEach(([a,b])=>{const X=a-cx,Y=b-cy+Math.sin(t/150+a)*2;x.save();x.shadowColor='#fb7185';x.shadowBlur=7;x.fillStyle='#f43f5e';x.beginPath();x.moveTo(X,Y+6);x.bezierCurveTo(X-3,Y+3,X-9,Y-2,X-7,Y-7);x.bezierCurveTo(X-5,Y-12,X,Y-10,X,Y-6);x.bezierCurveTo(X,Y-10,X+5,Y-12,X+7,Y-7);x.bezierCurveTo(X+9,Y-2,X+3,Y+3,X,Y+6);x.closePath();x.fill();x.shadowBlur=0;x.fillStyle='#fecdd3';x.beginPath();x.arc(X-3,Y-6,1.5,0,Math.PI*2);x.fill();x.restore()});
  S.e.forEach(([a,b,ty,h])=>{if(a<cx-90||a>cx+W+90||b<cy-90||b>cy+H+90)return;const X=a-cx,Y=b-cy,s=ER[ty];mon(x,X,Y,ty,t);
   if(h<1||ty==3){const oy=ty==3?s*2+6:s+8;x.fillStyle='#000';x.fillRect(X-s,Y-oy,s*2,4);x.fillStyle=ty==3?'#fbbf24':'#f43f5e';x.fillRect(X-s,Y-oy,s*2*h,4)}});
- (S.k||[]).forEach(([a,b])=>{if(a<cx-35||a>cx+W+35||b<cy-35||b>cy+H+35)return;const X=a-cx,Y=b-cy;x.fillStyle='#111827';x.fillRect(X-4,Y-9,8,8);x.fillStyle='#cbd5e1';x.fillRect(X-3,Y-8,6,6);x.fillStyle='#e5e7eb';x.fillRect(X-4,Y+1,3,8);x.fillRect(X+1,Y+1,3,8);x.fillRect(X-7,Y+1,3,6);x.fillRect(X+4,Y+1,3,6);x.fillStyle='#a78bfa';x.fillRect(X-2,Y-6,1,1);x.fillRect(X+1,Y-6,1,1)});
+ (S.k||[]).forEach(([a,b])=>{
+  if(a<cx-35||a>cx+W+35||b<cy-35||b>cy+H+35)return;
+  const X=a-cx,Y=b-cy+bobSkeleton(t,a);
+  x.save();x.translate(X,Y);
+  x.fillStyle='#0007';x.beginPath();x.ellipse(0,13,7,2.5,0,0,Math.PI*2);x.fill();
+  x.strokeStyle='#cbd5e1';x.lineWidth=2.2;x.lineCap='round';x.lineJoin='round';x.shadowColor='#a78bfa';x.shadowBlur=4;
+  x.beginPath();
+  x.moveTo(0,-2);x.lineTo(0,5);x.moveTo(-4,-1);x.quadraticCurveTo(-7,1,-4,3);x.moveTo(4,-1);x.quadraticCurveTo(7,1,4,3);
+  x.moveTo(-4,0);x.lineTo(-8,-4);x.moveTo(4,0);x.lineTo(8,-4);
+  x.moveTo(0,5);x.lineTo(-4,12);x.moveTo(0,5);x.lineTo(5,12);x.stroke();
+  x.shadowBlur=0;x.fillStyle='#e5e7eb';x.strokeStyle='#64748b';x.lineWidth=1.3;
+  x.beginPath();x.arc(0,-9,5.2,0,Math.PI*2);x.fill();x.stroke();
+  x.fillStyle='#312e81';x.beginPath();x.arc(-1.9,-9.5,1.15,0,Math.PI*2);x.arc(1.9,-9.5,1.15,0,Math.PI*2);x.fill();
+  x.fillStyle='#a78bfa';x.beginPath();x.arc(0,-5.4,1.1,0,Math.PI*2);x.fill();
+  x.restore();
+ });
  S.s.forEach(([a,b])=>{if(a<cx-24||a>cx+W+24||b<cy-24||b>cy+H+24)return;const X=a-cx,Y=b-cy;x.save();x.shadowColor='#fde047';x.shadowBlur=4;x.fillStyle='#facc15';x.beginPath();x.arc(X,Y,3,0,Math.PI*2);x.fill();x.shadowBlur=0;x.fillStyle='#fff8c5';x.beginPath();x.arc(X-1,Y-1,1.15,0,Math.PI*2);x.fill();x.restore()});
  S.b.forEach(([a,b])=>{if(a<cx-24||a>cx+W+24||b<cy-24||b>cy+H+24)return;const X=a-cx,Y=b-cy;x.fillStyle='#bae6fd';x.beginPath();x.arc(X,Y,6,0,7);x.fill();x.fillStyle='#fff';x.fillRect(X-3,Y-3,3,3)});
  (S.ch||[]).forEach(([a,b,type,hp=1])=>{if(a<cx-35||a>cx+W+35||b<cy-35||b>cy+H+35)return;const X=a-cx,Y=b-cy+Math.sin(t/240+a)*1.1;x.fillStyle='#0008';x.beginPath();x.ellipse(X,Y+11,18,5,0,0,Math.PI*2);x.fill();const wood=x.createLinearGradient(X-13,Y-10,X+13,Y+12);wood.addColorStop(0,'#b9783b');wood.addColorStop(.5,'#8b4b24');wood.addColorStop(1,'#5b301d');x.fillStyle=wood;x.strokeStyle='#492919';x.lineWidth=1.5;x.fillRect(X-14,Y-5,28,16);x.strokeRect(X-14,Y-5,28,16);x.fillStyle='#c98949';x.fillRect(X-14,Y-10,28,7);x.strokeStyle='#63391f';x.lineWidth=1.5;x.strokeRect(X-14,Y-10,28,7);x.strokeStyle='#e7b56d';x.lineWidth=1;x.beginPath();x.moveTo(X-11,Y-7);x.lineTo(X+11,Y-7);x.moveTo(X-10,Y+3);x.lineTo(X+10,Y+3);x.stroke();x.fillStyle='#d6ad64';x.fillRect(X-2,Y-3,4,7);x.fillStyle='#5b371f';x.fillRect(X-1,Y-1,2,3);if(hp<.72){x.strokeStyle='#3b1e19';x.lineWidth=1.5;x.beginPath();x.moveTo(X-9,Y-2);x.lineTo(X-4,Y+2);x.lineTo(X-7,Y+6);x.stroke()}if(hp<.38){x.beginPath();x.moveTo(X+8,Y-4);x.lineTo(X+4,Y);x.lineTo(X+7,Y+5);x.stroke()}});

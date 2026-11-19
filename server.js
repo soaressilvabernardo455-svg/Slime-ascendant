@@ -1,7 +1,7 @@
 const http=require('http'),fs=require('fs'),crypto=require('crypto'),{WebSocketServer}=require('ws');
 const R=Math.random,PW=['proj','orb','nova','raio','aura','meteoro','lanca','corrente','espinhos','furacao'],PS=['vida','dano','vel','recarga','ima','regen','xp','armadura','crit','sorte'];
 const CLS={normal:{hp:100,sp:4.8,dm:.8,pw:'proj'},mago:{hp:70,sp:4.8,dm:.92,pw:'raio'},cavaleiro:{hp:150,sp:4.2,dm:1.05,pw:'orb'},necromante:{hp:85,sp:4.8,dm:1,pw:'nova'},curandeiro:{hp:110,sp:4.8,dm:.7,pw:'aura',heal:1},arqueiro:{hp:80,sp:5.2,dm:.9,pw:'proj',pr:2}};
-const ET=[{h:w=>18+w*9,r:10,v:1.4,d:7,c:1,x:1},{h:w=>10+w*5,r:8,v:2.4,d:5,c:2,x:2},{h:w=>55+w*15,r:16,v:.9,d:14,c:6,x:5},{h:w=>300+w*55,r:26,v:.8,d:20,c:18,x:40},{h:w=>14+w*6,r:11,v:1.9,d:6,c:1,x:3},{h:w=>30+w*8,r:12,v:1.6,d:9,c:2,x:3},{h:w=>70+w*14,r:13,v:.7,d:10,c:2,x:4}];
+const ET=[{h:w=>18+w*9,r:10,v:1.4,d:7,c:1,x:5},{h:w=>10+w*5,r:8,v:2.4,d:5,c:2,x:3},{h:w=>55+w*15,r:16,v:.9,d:14,c:6,x:20},{h:w=>300+w*55,r:26,v:.8,d:20,c:18,x:100},{h:w=>14+w*6,r:11,v:1.9,d:6,c:1,x:6},{h:w=>30+w*8,r:12,v:1.6,d:9,c:2,x:9},{h:w=>70+w*14,r:13,v:.7,d:10,c:2,x:14}];
 const rooms=Object.create(null);let N=1,roomSequence=1;const ITEMS=['espada','escudo','botas','amuleto','anel','coracao'];const presence=new Map(),PRESENCE_TTL_MS=45000;
 const DEV_ACCESS_CODE=String(process.env.SLIME_DEV_ACCESS_CODE||'6767');const devTokens=new Map(),devAttempts=new Map();
 function pruneDevState(now=Date.now()){for(const [token,expiry] of devTokens)if(expiry<=now)devTokens.delete(token);for(const [ip,item] of devAttempts)if(now-item.startedAt>10*60*1000)devAttempts.delete(ip);if(devTokens.size>500){for(const token of devTokens.keys()){devTokens.delete(token);if(devTokens.size<=400)break}}if(devAttempts.size>2000){for(const ip of devAttempts.keys()){devAttempts.delete(ip);if(devAttempts.size<=1500)break}}}
@@ -141,7 +141,7 @@ function snapshot(r,own){
  const visible=(x,y)=>Math.hypot(x-own.x,y-own.y)<=VIEW_RADIUS;
  const effects=r.fx.filter(f=>(f[0]==='n'||f[0]==='a')?visible(f[1],f[2]):visible(f[1],f[2])||visible(f[3],f[4]));
  return JSON.stringify({w:r.wave,mp:r.map|0,pa:!!own.ch,o:P.length>0&&!L.length?1:0,
-  k:P.flatMap(p=>(p.sk||[]).map(q=>[q.x|0,q.y|0])),p:P.map(p=>({id:p.id,n:p.name,c:p.cls,x:p.x|0,y:p.y|0,h:p.hp|0,m:p.mh|0,l:p.lv,xp:p.xp,nx:p.nx,d:p.d,pw:p.pw,ps:p.ps,ch:p.ch,chType:p.chType,it:p.it,shield:p.shieldUntil>r.t?p.shieldUntil-r.t:0,co:p.devMode?999999999:p.co,cr:p.devMode?999999999:p.cr,dev:!!p.devMode,sp:+(CLS[p.cls].sp*(1+.1*(p.ps.vel||0))*(1+.04*p.u.vel)*(p.it.includes('botas')?1.08:1)).toFixed(2)})),
+  k:P.flatMap(p=>(p.sk||[]).filter(q=>visible(q.x,q.y)).map(q=>[q.x|0,q.y|0])),p:P.map(p=>({id:p.id,n:p.name,c:p.cls,x:p.x|0,y:p.y|0,h:p.hp|0,m:p.mh|0,l:p.lv,xp:p.xp,nx:p.nx,d:p.d,pw:p.pw,ps:p.ps,ch:p.ch,chType:p.chType,it:p.it,shield:p.shieldUntil>r.t?p.shieldUntil-r.t:0,co:p.devMode?999999999:p.co,cr:p.devMode?999999999:p.cr,dev:!!p.devMode,sp:+(CLS[p.cls].sp*(1+.1*(p.ps.vel||0))*(1+.04*p.u.vel)*(p.it.includes('botas')?1.08:1)).toFixed(2)})),
   e:r.es.filter(e=>visible(e.x,e.y)).map(e=>[e.x|0,e.y|0,e.ty,Math.max(0,e.hp/e.mh)]),
   s:r.sh.filter(q=>visible(q.x,q.y)).slice(-80).map(q=>[q.x|0,q.y|0]),
   b:r.ob.filter(q=>visible(q[0],q[1])),

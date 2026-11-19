@@ -135,7 +135,7 @@ assert.ok(app.includes("screen.orientation.unlock"), 'orientação do aparelho p
 assert.ok(!app.includes("screen.orientation.lock('landscape')"), 'o jogo não pode forçar paisagem');
 assert.ok(app.includes("credentials:'include'"), 'requisições de conta devem enviar cookies');
 assert.ok(app.includes("if(connectTimer)clearTimeout(connectTimer)"), 'watchdog de entrada precisa ser limpo depois de entrar na sala');
-assert.match(html, /version-pill">v4\.8</, 'a versão exibida no lobby precisa aumentar');
+assert.match(html, /version-pill">v4\.9</, 'a versão exibida no lobby precisa aumentar');
 
 assert.match(server, /MAX_PLAYERS=4/, 'limite de quatro jogadores ausente');
 assert.match(server, /MAX_CONNECTIONS=40/, 'limite de conexões simultâneas ausente');
@@ -245,7 +245,19 @@ assert.ok(itemHudSource.includes("panel.style.display=button.dataset.open==='1'?
 assert.ok(app.includes("if(q.shield>0){x.save()"), 'escudo ativo do Cavaleiro precisa de indicador visual contínuo');
 assert.ok(app.includes("p.dev?'🪙 ∞  💎 ∞'"), 'HUD do modo DEV precisa mostrar recursos ilimitados');
 assert.ok(!app.includes('x.fillRect(X-5,Y,Y+0,0)'), 'remover desenho inválido do esqueleto');
-assert.ok(serviceWorker.includes('shell-v25'), 'service worker precisa invalidar a versão antiga do shell');
+
+const serverXpMatch=server.match(/const ET=(\[[\s\S]*?\]);/);
+const offlineXpMatch=app.match(/const OET=(\[[\s\S]*?\]);/);
+assert.ok(serverXpMatch&&offlineXpMatch, 'tabelas de XP dos monstros precisam existir');
+const serverMonsterXp=vm.runInNewContext(serverXpMatch[1]).map(enemy=>enemy.x);
+const offlineMonsterXp=vm.runInNewContext(offlineXpMatch[1]).map(enemy=>enemy.x);
+assert.deepEqual(serverMonsterXp,[5,3,20,100,6,9,14], 'XP online deve recompensar os monstros mais perigosos');
+assert.deepEqual(offlineMonsterXp,serverMonsterXp, 'XP offline deve ser igual ao multiplayer');
+assert.ok(app.includes("stats.textContent='VIDA '+attr.hp+'  ·  DANO '+(attr.dm*10).toFixed(1).replace('.',',')+'  ·  VEL '+attr.sp.toFixed(1)")&&!app.includes("Math.round(attr.dm*100)+'%'"), 'dano nas cartas de classe deve ser numérico, não percentual');
+assert.ok(app.includes("x.arc(0,-9,5.2,0,Math.PI*2)")&&!app.includes("x.fillRect(X-4,Y-9,8,8)"), 'esqueletos devem usar desenho vetorial suave, não quadradinhos');
+assert.ok(server.includes("filter(q=>visible(q.x,q.y)).map(q=>[q.x|0,q.y|0])"), 'snapshots não devem enviar esqueletos fora do raio visível');
+
+assert.ok(serviceWorker.includes('shell-v26'), 'service worker precisa invalidar a versão antiga do shell');
 
 assert.ok(app.includes("if(OFF&&offlineTimer){clearInterval(offlineTimer);offlineTimer=0}") && app.includes("if(OFF&&OR&&!offlineTimer){offlineTimer=setInterval(offlineTick,33);offlineTick()}"), 'timer offline precisa parar em segundo plano e retomar ao voltar');
 assert.ok(app.includes('let GAME_SAFE_TOP=28;') && app.includes('const gameSafeTop=GAME_SAFE_TOP;'), 'área segura do HUD deve ser calculada no resize e não em todos os frames');

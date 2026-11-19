@@ -607,9 +607,10 @@ function buildMusicBuffer(){
  const chords=[[130.81,164.81,196],[110,130.81,164.81],[87.31,110,130.81],[98,123.47,146.83]];
  const roots=[65.41,55,43.65,49],melody=[392,440,523.25,587.33,659.25,587.33,523.25,440,392,523.25,587.33,659.25,587.33,523.25,440,392];
  for(let bar=0;bar<4;bar++){
-  for(const freq of chords[bar])note(freq,bar*2,1.92,.025,true);
-  for(let beat=0;beat<4;beat++)note(roots[bar],bar*2+beat*.5,.46,.055,false);
+  for(const freq of chords[bar]){note(freq,bar*2,1.92,.025,true);note(freq*1.5,bar*2,.95,.008,true)}
+  for(let beat=0;beat<4;beat++){const at=bar*2+beat*.5;note(roots[bar],at,.46,.055,false);note(roots[bar]*.5,at,.42,.024,false);note(1500+beat*90,at+.24,.035,.004,true)}
   for(let step=0;step<8;step++){const freq=melody[(bar*4+step)%melody.length];note(freq,bar*2+step*.25,.22,step%4===0?.042:.028,true);if(step%2===0)note(freq*2,bar*2+step*.25,.13,.012,true)}
+  const counter=[784,698.46,659.25,587.33];for(let beat=0;beat<4;beat++)note(counter[(beat+bar)%4],bar*2+beat*.5+.24,.27,.012,true)
  }
  let peak=0;for(let i=0;i<data.length;i++)peak=Math.max(peak,Math.abs(data[i]));
  if(peak>.72){const scale=.72/peak;for(let i=0;i<data.length;i++)data[i]*=scale}
@@ -742,7 +743,8 @@ function mkS(ty){
   ['#fb594f','#941c3b','#ffc1a5','#ffe16a'],
   ['#9be8ff','#398ab9','#e3fbff','#ffffff'],
   ['#e9e5d7','#8e8a83','#ffffff','#d94b61'],
-  ['#7ee35d','#328b3e','#d7ff9b','#ffcf69']
+  ['#7ee35d','#328b3e','#d7ff9b','#ffcf69'],
+  ['#d4e85d','#547b1c','#f5ffb0','#c8ff72']
  ];
  const p=palettes[ty]||palettes[0],dark=p[1],base=p[0],light=p[2],accent=p[3];
  g.save();g.translate(48,51);
@@ -781,6 +783,7 @@ function mkS(ty){
   g.strokeStyle=dark;g.lineWidth=5;g.lineCap='round';g.fillStyle=accent;
   for(const side of [-1,1]){g.beginPath();g.moveTo(side*20,2);g.quadraticCurveTo(side*39,-4,side*37,-25);g.stroke();g.beginPath();g.ellipse(side*37,-25,7,12,side*.55,0,Math.PI*2);g.fill();g.beginPath();g.moveTo(side*8,27);g.lineTo(side*14,38);g.lineTo(side*25,39);g.stroke()}
  }
+ if(ty===7){g.fillStyle=accent;g.strokeStyle=dark;g.lineWidth=3;for(const side of [-1,1]){g.beginPath();g.moveTo(side*12,-25);g.lineTo(side*23,-39);g.lineTo(side*26,-17);g.closePath();g.fill();g.stroke()}g.fillStyle='#fef08a';g.fillRect(-18,17,36,5);g.fillStyle=dark;g.fillRect(-12,18,5,3);g.fillRect(7,18,5,3)}
  const body=g.createLinearGradient(-24,-40,22,35);body.addColorStop(0,light);body.addColorStop(.38,base);body.addColorStop(1,dark);
  g.fillStyle=body;g.strokeStyle=dark;g.lineWidth=5;
  g.beginPath();
@@ -814,7 +817,7 @@ function mkS(ty){
  }
  g.restore();return c
 }
-for(let i=0;i<7;i++)SPR[i]=mkS(i);
+for(let i=0;i<8;i++)SPR[i]=mkS(i);
 function mon(c,X,Y,ty,t){const k=KS[ty],Z=16*k,s=ER[ty],bob=ty==4?Math.sin(t/360+X*.025)*2:0,h=Z*(1+Math.sin(t/520+X*.025)*.018);
  c.fillStyle='#0004';c.beginPath();c.ellipse(X,Y+s,s*.9,s*.3,0,0,7);c.fill();
  const aura=['#fb7185','#c4b5fd','#cbd5e1','#fb7185','#7dd3fc','#e5e7eb','#86efac'][ty]||'#ffffff';c.save();c.globalAlpha=ty===3?.22:.12;c.fillStyle=aura;c.beginPath();c.ellipse(X,Y-2,s*1.12,s*1.22,0,0,Math.PI*2);c.fill();c.restore();

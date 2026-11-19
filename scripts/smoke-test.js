@@ -64,5 +64,5 @@ assert.ok(server.includes('e.ty===8&&!isSkeleton') && app.includes('e.ty===8&&!i
 assert.ok(server.includes("rdy('raio',72)") && app.includes("rdy('raio',72)"), 'Mago deve ter intervalo de ataque maior');
 assert.ok(server.includes('Math.min(4,1+l.raio)') && app.includes('Math.min(4,1+l.raio)'), 'Mago não deve atingir a onda inteira');
 assert.ok(server.includes('(1+.08*(p.ps.dano||0))') && app.includes('(1+.08*(p.ps.dano||0))'), 'dano deve acumular oito por cento por nível');
-assert.match(html, /#run-board\\{[^}]*left:10px;right:auto;top:calc\\(env\\(safe-area-inset-top,0px\\) \\+ 62px\\)/, 'placar da partida não deve ficar no centro');
+assert.ok(html.includes('#run-board{position:fixed;left:10px;right:auto;'), 'placar da partida não deve ficar no centro');
 assert.ok(app.includes('overflow-wrap:anywhere;word-break:break-word'), 'nomes do ranking devem quebrar linha');

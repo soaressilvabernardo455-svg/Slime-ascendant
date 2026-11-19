@@ -136,7 +136,7 @@ function snapshot(r,own){
  const visible=(x,y)=>Math.hypot(x-own.x,y-own.y)<=VIEW_RADIUS;
  const effects=r.fx.filter(f=>(f[0]==='n'||f[0]==='a')?visible(f[1],f[2]):visible(f[1],f[2])||visible(f[3],f[4]));
  return JSON.stringify({w:r.wave,mp:r.map|0,pa:!!own.ch,o:P.length>0&&!L.length?1:0,win:!!r.completed,time:r.t||0,difficulty:r.difficulty||'medium',bossTier:r.activeBossTier||r.bossIndex||0,bossActive:!!r.bossActive,arena:r.arena?[r.arena.x|0,r.arena.y|0,r.arena.radius|0]:null,
-  k:P.flatMap(p=>(p.sk||[]).filter(q=>visible(q.x,q.y)).map(q=>[q.x|0,q.y|0])),p:P.map(p=>({id:p.id,n:p.name,c:p.cls,x:p.x|0,y:p.y|0,h:p.hp|0,m:p.mh|0,l:p.lv,xp:p.xp,nx:p.nx,d:p.d,pw:p.pw,ps:p.ps,ch:p.ch,chType:p.chType,it:p.it,shield:p.shieldUntil>r.t?p.shieldUntil-r.t:0,co:p.devMode?999999999:p.co,cr:p.devMode?999999999:p.cr,dev:!!p.devMode,sp:+(CLS[p.cls].sp*(1+.1*(p.ps.vel||0))*(1+.04*p.u.vel)*(p.it.includes('botas')?1.08:1)).toFixed(2)})),
+  k:P.flatMap(p=>(p.sk||[]).filter(q=>visible(q.x,q.y)).map(q=>[q.x|0,q.y|0])),p:P.map(p=>({id:p.id,n:p.name,c:p.cls,x:p.x|0,y:p.y|0,h:p.hp|0,m:p.mh|0,l:p.lv,xp:p.xp,nx:p.nx,d:p.d,pw:p.pw,ps:p.ps,ch:p.ch,chType:p.chType,it:p.it,shield:p.shieldUntil>r.t?p.shieldUntil-r.t:0,co:p.devFlags&&p.devFlags.coins?999999999:p.co,cr:p.devFlags&&p.devFlags.crystals?999999999:p.cr,dev:!!p.devMode,sp:+(CLS[p.cls].sp*(1+.1*(p.ps.vel||0))*(1+.04*p.u.vel)*(p.it.includes('botas')?1.08:1)).toFixed(2)})),
   e:r.es.filter(e=>visible(e.x,e.y)).map(e=>[e.x|0,e.y|0,e.ty,Math.max(0,e.hp/e.mh),e.bossTier||0]),
   s:r.sh.filter(q=>visible(q.x,q.y)).slice(-80).map(q=>[q.x|0,q.y|0]),
   b:r.ob.filter(q=>visible(q[0],q[1])),

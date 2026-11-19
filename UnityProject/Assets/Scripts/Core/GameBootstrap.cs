@@ -66,13 +66,13 @@ namespace SlimeAscendant {
      break;
     case PlayerClass.Mage:
      Part(root,PrimitiveType.Cylinder,"MageHatBrim",new Vector3(0,2.4f,0),new Vector3(.62f,.07f,.62f),new Color(.22f,.12f,.42f));
-     Part(root,PrimitiveType.Cone,"MageHat",new Vector3(0,2.72f,0),new Vector3(.42f,.68f,.42f),new Color(.3f,.16f,.58f));
+     Part(root,PrimitiveType.Capsule,"MageHat",new Vector3(0,2.72f,0),new Vector3(.34f,.55f,.34f),new Color(.3f,.16f,.58f));
      Part(root,PrimitiveType.Cube,"MageCape",new Vector3(0,1.22f,-.29f),new Vector3(.78f,.95f,.12f),new Color(.22f,.12f,.4f));
      Part(root,PrimitiveType.Cylinder,"MageStaff",new Vector3(.88f,1.34f,.02f),new Vector3(.07f,1.22f,.07f),new Color(.36f,.2f,.1f));
      Part(root,PrimitiveType.Sphere,"MageCrystal",new Vector3(.88f,2.02f,.02f),Vector3.one*.25f,new Color(.2f,.78f,1f));
      break;
     case PlayerClass.Necromancer:
-     Part(root,PrimitiveType.Cone,"NecroHood",new Vector3(0,2.42f,-.02f),new Vector3(.76f,.48f,.68f),new Color(.12f,.08f,.19f));
+     Part(root,PrimitiveType.Sphere,"NecroHood",new Vector3(0,2.42f,-.02f),new Vector3(.76f,.48f,.68f),new Color(.12f,.08f,.19f));
      Part(root,PrimitiveType.Cube,"NecroRobe",new Vector3(0,.98f,-.29f),new Vector3(.88f,1.25f,.14f),new Color(.16f,.1f,.23f));
      Part(root,PrimitiveType.Cylinder,"NecroStaff",new Vector3(.9f,1.32f,0),new Vector3(.065f,1.32f,.065f),new Color(.2f,.13f,.12f));
      Part(root,PrimitiveType.Sphere,"NecroSkull",new Vector3(.9f,2.08f,0),Vector3.one*.27f,new Color(.83f,.82f,.72f));
@@ -80,14 +80,14 @@ namespace SlimeAscendant {
      Part(root,PrimitiveType.Sphere,"NecroEyeR",new Vector3(.98f,2.1f,.22f),Vector3.one*.055f,new Color(.7f,.08f,.9f));
      break;
     case PlayerClass.Healer:
-     Part(root,PrimitiveType.Torus,"HealerHalo",new Vector3(0,2.55f,0),new Vector3(.72f,.12f,.72f),new Color(1f,.78f,.2f));
+     Part(root,PrimitiveType.Cylinder,"HealerHalo",new Vector3(0,2.55f,0),new Vector3(.55f,.035f,.55f),new Color(1f,.78f,.2f));
      Part(root,PrimitiveType.Sphere,"HealerWingL",new Vector3(-.73f,1.55f,-.12f),new Vector3(.25f,.52f,.14f),Color.white);
      Part(root,PrimitiveType.Sphere,"HealerWingR",new Vector3(.73f,1.55f,-.12f),new Vector3(.25f,.52f,.14f),Color.white);
      Part(root,PrimitiveType.Cube,"HealerCrossV",new Vector3(.88f,1.3f,.05f),new Vector3(.12f,.62f,.12f),new Color(1f,.82f,.24f));
      Part(root,PrimitiveType.Cube,"HealerCrossH",new Vector3(.88f,1.4f,.05f),new Vector3(.38f,.12f,.12f),new Color(1f,.82f,.24f));
      break;
     case PlayerClass.Archer:
-     Part(root,PrimitiveType.Cone,"ArcherHood",new Vector3(0,2.42f,0),new Vector3(.72f,.4f,.62f),new Color(.12f,.32f,.16f));
+     Part(root,PrimitiveType.Sphere,"ArcherHood",new Vector3(0,2.42f,0),new Vector3(.72f,.4f,.62f),new Color(.12f,.32f,.16f));
      Part(root,PrimitiveType.Cube,"ArcherCape",new Vector3(0,1.15f,-.3f),new Vector3(.72f,1.05f,.12f),new Color(.12f,.28f,.15f));
      Part(root,PrimitiveType.Cylinder,"ArcherBow",new Vector3(.88f,1.35f,0),new Vector3(.045f,.76f,.045f),new Color(.55f,.29f,.1f));
      Part(root,PrimitiveType.Cube,"ArcherQuiver",new Vector3(-.48f,1.52f,-.28f),new Vector3(.2f,.62f,.2f),new Color(.42f,.22f,.09f));
@@ -133,7 +133,6 @@ namespace SlimeAscendant {
    var cam=go.AddComponent<Camera>();cam.fieldOfView=55;go.AddComponent<AudioListener>();go.AddComponent<FollowCamera>();
   }
   private static void Part(Transform parent,PrimitiveType shape,string n,Vector3 pos,Vector3 scale,Color color){
-   if(shape==PrimitiveType.Torus)return; // Torus is not a built-in primitive on all Unity versions.
    var o=GameObject.CreatePrimitive(shape);o.name=n;o.transform.SetParent(parent,false);
    o.transform.localPosition=pos;o.transform.localScale=scale;o.GetComponent<Renderer>().material=Mat(color);
    var col=o.GetComponent<Collider>();if(col!=null)Destroy(col);

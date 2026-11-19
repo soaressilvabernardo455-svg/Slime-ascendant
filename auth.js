@@ -181,7 +181,7 @@ function cleanProgress(raw) {
 }
 
 async function handleAuthRequest(req, res, pathname) {
-  if (pathname !== '/api/progress' && !pathname.startsWith('/api/auth/')) return false;
+  if (pathname !== '/api/progress' && pathname !== '/api/leaderboard' && !pathname.startsWith('/api/auth/')) return false;
   if (!sameOrigin(req)) {
     send(res, 403, { error: 'Origem da solicitação não permitida.' });
     return true;
@@ -189,6 +189,33 @@ async function handleAuthRequest(req, res, pathname) {
 
   try {
     await ensureSchema();
+
+    if (pathname === '/api/leaderboard' && req.method === 'GET') {
+      const result = await pool.query(`
+        SELECT
+          COALESCE(NULLIF(BTRIM(progress_json->>'name'), ''), 'Slime') AS name,
+          GREATEST(0, COALESCE((progress_json->>'best')::int, 0)) AS best,
+          COALESCE(progress_json->'cls', '["normal"]'::jsonb) AS slimes,
+          COALESCE(progress_json->>'sel', 'normal') AS selected,
+          COALESCE(progress_json->'items', '[]'::jsonb) AS items,
+          progress_updated_at AS updated_at
+        FROM slime_accounts
+        WHERE COALESCE((progress_json->>'best')::int, 0) > 0
+        ORDER BY (progress_json->>'best')::int DESC, progress_updated_at ASC NULLS LAST, created_at ASC
+        LIMIT 100
+      `);
+      const players = result.rows.map((row, index) => ({
+        position: index + 1,
+        name: String(row.name || 'Slime').slice(0, 15),
+        best: Number(row.best) || 0,
+        slimes: Array.isArray(row.slimes) ? row.slimes : ['normal'],
+        selected: String(row.selected || 'normal'),
+        items: Array.isArray(row.items) ? row.items : [],
+        updatedAt: row.updated_at || null
+      }));
+      send(res, 200, { players, total: players.length });
+      return true;
+    }
 
     if (pathname === '/api/progress' && req.method === 'GET') {
       const account = await currentAccount(req);

@@ -1271,7 +1271,7 @@ function offlineLevel(p){
  const op=Object.keys(p.pw).filter(k=>p.pw[k]>0),os=Object.keys(p.ps).filter(k=>p.ps[k]>0);
  const pool=[...['proj','orb','nova','raio','aura','meteoro','lanca','corrente','espinhos','furacao'].filter(k=>(p.pw[k]||0)>0?p.pw[k]<5:op.length<5).map(k=>'p:'+k),...['vida','dano','vel','recarga','ima','regen','xp','armadura','crit','sorte'].filter(k=>(p.ps[k]||0)>0?p.ps[k]<5:os.length<5).map(k=>'s:'+k)];
  for(let i=pool.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[pool[i],pool[j]]=[pool[j],pool[i]]}
- const special='p:'+OCLS[p.cls].pw,hasSpecial=pool.includes(special),choices=pool.slice(0,3);
+ const classPower={normal:'proj',mago:'raio',cavaleiro:'orb',necromante:'nova',curandeiro:'aura',arqueiro:'proj'},special='p:'+classPower[p.cls],hasSpecial=pool.includes(special),choices=pool.slice(0,3);
  if(hasSpecial&&!choices.includes(special))choices[2]=special;
  if(p.lv===5&&(p.pw.meteoro||0)<5&&((p.pw.meteoro||0)>0||op.length<5)){choices[0]='p:meteoro';if(hasSpecial)choices[1]=special}
  p.ch=choices.slice(0,3);

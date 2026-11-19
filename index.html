@@ -25,7 +25,7 @@ button:disabled{opacity:.4}button:not(:disabled){transition:transform .08s,filte
 #ex{position:fixed;top:8px;right:8px;display:none;z-index:5;padding:6px 12px}
 #fps-indicator{position:fixed;left:12px;right:auto;top:calc(env(safe-area-inset-top,0px) + 88px);bottom:auto;display:none;z-index:20;pointer-events:none;padding:6px 9px;border:1px solid #8ce5a188;border-radius:10px;background:#06130de8;color:#a7f3b8;font:800 12px/1 system-ui;letter-spacing:.04em;box-shadow:0 3px 12px #0008}
 small{opacity:.7}
-#fim{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#000c;text-align:center;padding:16px;z-index:6}#fr{font-size:1.2rem}
+#fim{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#0007;text-align:center;padding:16px;z-index:6}#fr{font-size:1.2rem}
 #tt{position:fixed;top:140px;left:50%;transform:translateX(-50%);background:#1f4128;border:2px solid #5eea8a;border-radius:10px;padding:8px 14px;z-index:9;display:none}
 .tabs{grid-template-columns:repeat(5,1fr)}.tabs button{padding:8px 2px;font-size:.72rem}
 #pv{width:128px;height:128px;image-rendering:pixelated;margin:0 auto}#rec{opacity:.85}
@@ -657,7 +657,7 @@ function slime(c,px,py,k,t,moving=false,lookX=0,lookY=0,ascended=false){
  c.beginPath();
  // Silhuetas diferentes por classe na versão principal (main).
  if(k==='cavaleiro'){
-  c.moveTo(-24,7);c.lineTo(-27,-17);c.lineTo(-19,-29);c.lineTo(-8,-34);c.lineTo(0,-30);c.lineTo(8,-34);c.lineTo(19,-29);c.lineTo(27,-17);c.lineTo(24,7);c.lineTo(13,12);c.lineTo(-13,12);c.closePath();
+  c.moveTo(-25,6);c.bezierCurveTo(-30,-5,-28,-20,-19,-29);c.quadraticCurveTo(-10,-38,0,-33);c.quadraticCurveTo(10,-38,19,-29);c.bezierCurveTo(28,-20,30,-5,25,6);c.quadraticCurveTo(13,15,0,11);c.quadraticCurveTo(-14,15,-25,6);c.closePath();
  }else if(k==='mago'){
   c.moveTo(-24,7);c.quadraticCurveTo(-31,-7,-23,-23);c.lineTo(-12,-31);c.lineTo(-5,-29);c.lineTo(0,-38);c.lineTo(6,-29);c.lineTo(14,-32);c.quadraticCurveTo(29,-20,24,1);c.quadraticCurveTo(13,13,-2,11);c.quadraticCurveTo(-17,14,-24,7);
  }else if(k==='necromante'){
@@ -1280,14 +1280,15 @@ function showSkillInfo(id){
  if(id==='ascensao'){toast('✦ Explosão de Ascensão · ativa automaticamente a cada 18 segundos: causa dano em área e recupera 8% da vida máxima.');return}
  const pass=id.slice(0,2)==='s:',meta=NM[id],p=S&&Array.isArray(S.p)?S.p.find(q=>q.id==me):null;
  if(!meta)return;const level=p?((pass?p.ps:p.pw)||{})[id.slice(2)]||0:0;
+ if(id==='p:orb'&&level>=5){toast('🟥 Orbes 5/5 · 6 orbes vermelhos giram mais rápido e causam dano aumentado.');return}
  toast(meta[0]+' · Nível '+level+': '+meta[1]);
 }
 function pick(i){if(OFF){offlinePick(i);return}if(ws&&ws.readyState===1){try{ws.send(JSON.stringify({t:'pick',i}))}catch(e){clearGameInput();toast('A conexão caiu. Tente entrar novamente.')}}}
 function ui(p){
  const u=$('u'),ch=p&&p.ch;if(!ch){u.style.display='none';return}u.style.display='flex';
  u.innerHTML='<h2>'+(p.chType==='boss'?'Baú do chefe · escolha 1 melhoria':'Subiu de nível! Escolha uma habilidade')+'</h2>'+ch.map((o,i)=>{
-  const label=NM[o][0],desc=NM[o][1],k=o.slice(2),n=((o[0]=='p'?p.pw:p.ps)[k]||0),title=label.replace(/^\S+\s/,'');const special=n+1>=5;
-  return '<button class="cd '+(o[0]=='p'?'p':'v')+(special?' skill-special-card':'')+'" onclick="pick('+i+')"><span class="skill-icon" style="--skill-color:'+(SKCOLOR[k]||'#38bdf8')+'">'+svgIcon(k,'skill-svg')+'</span><span class="skill-copy"><b>'+title+'</b><small>'+desc+'</small><small>'+(special?'✦ MELHORIA ESPECIAL · NÍVEL 5/5':(o[0]=='p'?'PODER':'PASSIVA')+' · NÍVEL '+(n+1))+'</small></span><span class="skill-level '+(special?'skill-max':'')+'">'+(special?'✦ 5':'+'+(n+1))+'</span></button>';
+  const label=NM[o][0],k=o.slice(2),n=((o[0]=='p'?p.pw:p.ps)[k]||0),title=label.replace(/^\S+\s/,''),special=o[0]==='p'&&n+1>=5,maxed=n+1>=5,desc=special&&k==='orb'?'Ao chegar a 5/5, ganha 6 orbes vermelhos que giram mais rápido.':NM[o][1],status=special?'✦ PODER ESPECIAL · NÍVEL 5/5':maxed?'MÁXIMO · NÍVEL 5/5':(o[0]=='p'?'PODER':'PASSIVA')+' · NÍVEL '+(n+1);
+  return '<button class="cd '+(o[0]=='p'?'p':'v')+(special?' skill-special-card':'')+'" onclick="pick('+i+')"><span class="skill-icon" style="--skill-color:'+(special&&k==='orb'?'#ef4444':(SKCOLOR[k]||'#38bdf8'))+'">'+svgIcon(k,'skill-svg')+'</span><span class="skill-copy"><b>'+title+'</b><small>'+desc+'</small><small>'+status+'</small></span><span class="skill-level '+(special?'skill-max':'')+'">'+(special?'✦ 5':maxed?'5/5':'+'+(n+1))+'</span></button>';
  }).join('');
 }
 let OFF=false,OR=null,offlineTimer=0;
@@ -1311,8 +1312,7 @@ function offlineProgressionPool(p){
 function offlineMaybeBuildReward(p){if(p.buildRewardClaimed||offlineMaxedCount(p.pw)<3||offlineMaxedCount(p.ps)<5)return false;p.ch=['r:coins','r:crystals'];p.chType='reward';return true}
 function offlineLevel(p){
  p.lv++;p.xp-=p.nx;p.nx=Math.ceil(p.nx*1.17+1.4);
- const pool=offlineRandomSubset(offlineProgressionPool(p),offlineProgressionPool(p).length),classPower={normal:'proj',mago:'raio',cavaleiro:'orb',necromante:'nova',curandeiro:'aura',arqueiro:'proj'},special='p:'+classPower[p.cls],choices=pool.slice(0,3);
- if(pool.includes(special)&&!choices.includes(special))choices[2]=special;
+ const pool=offlineRandomSubset(offlineProgressionPool(p),offlineProgressionPool(p).length),choices=pool.slice(0,3);
  p.ch=choices.slice(0,3);p.chType=p.ch.length?'level':'';if(!p.ch.length)p.ch=null;offlineMaybeBuildReward(p);
 }
 function offlinePick(i){
@@ -1358,7 +1358,7 @@ function offlineStep(r,p){
  if(p.cls==='cavaleiro'){p.shieldTimer=(p.shieldTimer||0)+1;if(p.shieldTimer>=210){p.shieldTimer=0;p.shieldUntil=r.t+42;r.fx.push(['n',p.x|0,p.y|0,66,0,7])}}
  
  if(l.proj&&rdy('proj',18)){const e=near(420),ch=nearChest(420),target=ch&&(!e||oDist(ch,p)<oDist(e,p))?ch:e;if(target){const n=1+(l.proj>2)+(l.proj>4)+(l.proj>=5?2:0),a0=Math.atan2(target.y-p.y,target.x-p.x);for(let i=0;i<n;i++){const a=a0+(i-(n-1)/2)*.2;r.sh.push({x:p.x,y:p.y,vx:Math.cos(a)*9,vy:Math.sin(a)*9,d:hit((7+3*l.proj)*(l.proj>=5?1.35:1)*dm),life:45,pr:(c.pr||0)+(l.proj>=5?5:0),targetChest:target===ch,tx:target.x,ty:target.y})}}else p.cd.proj=0}
- if(l.orb){const n=1+l.orb+(l.orb>=5?2:0),radius=l.orb>=5?82:65;for(let i=0;i<n;i++){const a=r.t*.1+i*6.283/n,o={x:p.x+Math.cos(a)*radius,y:p.y+Math.sin(a)*radius};r.ob.push([o.x|0,o.y|0]);for(const e of r.es)if(oDist(e,o)<e.r+10)e.hp-=hit(.3*(1+l.orb*.3)*(l.orb>=5?1.5:1)*dm)}}
+ if(l.orb){const orbMax=l.orb>=5,n=orbMax?6:1+l.orb,radius=orbMax?82:65,spin=orbMax?.19:.1;for(let i=0;i<n;i++){const a=r.t*spin+i*6.283/n,o={x:p.x+Math.cos(a)*radius,y:p.y+Math.sin(a)*radius};r.ob.push([o.x|0,o.y|0,orbMax?1:0]);for(const e of r.es)if(oDist(e,o)<e.r+10)e.hp-=hit(.3*(1+l.orb*.3)*(orbMax?1.8:1)*dm)}}
  if(l.nova&&rdy('nova',90)){const rr=90+12*l.nova+(l.nova>=5?48:0);r.fx.push(['n',p.x|0,p.y|0,rr,0,6]);for(const e of r.es)if(oDist(e,p)<rr+e.r)e.hp-=hit((10+5*l.nova)*dm);offlineDamageChests(r,p,p.x,p.y,rr,hit((10+5*l.nova)*dm))}
  if(l.raio&&rdy('raio',45)){const hits=offlineRandomSubset(r.es.filter(e=>oDist(e,p)<380),Math.min(10,1+l.raio+(l.raio>=5?4:0)));hits.forEach(e=>{e.hp-=hit((14+4*l.raio)*dm);r.fx.push(['r',p.x|0,p.y|0,e.x|0,e.y|0,5]);offlineDamageChests(r,p,e.x,e.y,18,hit((14+4*l.raio)*dm))})}
  if(l.meteoro&&rdy('meteoro',120)){const e=near(450);if(e){const rr=60+6*l.meteoro;r.fx.push(['n',e.x|0,e.y|0,rr,0,8]);for(const q of r.es)if(oDist(q,e)<rr+q.r)q.hp-=hit((25+8*l.meteoro)*dm);offlineDamageChests(r,p,e.x,e.y,rr,hit((25+8*l.meteoro)*dm))}else p.cd.meteoro=0}
@@ -1496,7 +1496,7 @@ function draw(t){requestAnimationFrame(draw);
   x.restore();
  });
  S.s.forEach(([a,b])=>{if(a<cx-24||a>cx+W+24||b<cy-24||b>cy+H+24)return;const X=a-cx,Y=b-cy;x.save();x.shadowColor='#fde047';x.shadowBlur=4;x.fillStyle='#facc15';x.beginPath();x.arc(X,Y,3,0,Math.PI*2);x.fill();x.shadowBlur=0;x.fillStyle='#fff8c5';x.beginPath();x.arc(X-1,Y-1,1.15,0,Math.PI*2);x.fill();x.restore()});
- S.b.forEach(([a,b])=>{if(a<cx-24||a>cx+W+24||b<cy-24||b>cy+H+24)return;const X=a-cx,Y=b-cy;x.fillStyle='#bae6fd';x.beginPath();x.arc(X,Y,6,0,7);x.fill();x.fillStyle='#fff';x.fillRect(X-3,Y-3,3,3)});
+ S.b.forEach(([a,b,special])=>{if(a<cx-24||a>cx+W+24||b<cy-24||b>cy+H+24)return;const X=a-cx,Y=b-cy;x.save();x.shadowColor=special?'#ef4444':'#38bdf8';x.shadowBlur=special?13:5;x.fillStyle=special?'#dc2626':'#bae6fd';x.beginPath();x.arc(X,Y,special?7:6,0,7);x.fill();x.shadowBlur=0;x.fillStyle=special?'#fecaca':'#fff';x.beginPath();x.arc(X-1.7,Y-2,2,0,7);x.fill();x.restore()});
  (S.ch||[]).forEach(([a,b,type,hp=1])=>{if(a<cx-35||a>cx+W+35||b<cy-35||b>cy+H+35)return;const X=a-cx,Y=b-cy+Math.sin(t/240+a)*1.1;x.fillStyle='#0008';x.beginPath();x.ellipse(X,Y+11,18,5,0,0,Math.PI*2);x.fill();const wood=x.createLinearGradient(X-13,Y-10,X+13,Y+12);wood.addColorStop(0,'#b9783b');wood.addColorStop(.5,'#8b4b24');wood.addColorStop(1,'#5b301d');x.fillStyle=wood;x.strokeStyle='#492919';x.lineWidth=1.5;x.fillRect(X-14,Y-5,28,16);x.strokeRect(X-14,Y-5,28,16);x.fillStyle='#c98949';x.fillRect(X-14,Y-10,28,7);x.strokeStyle='#63391f';x.lineWidth=1.5;x.strokeRect(X-14,Y-10,28,7);x.strokeStyle='#e7b56d';x.lineWidth=1;x.beginPath();x.moveTo(X-11,Y-7);x.lineTo(X+11,Y-7);x.moveTo(X-10,Y+3);x.lineTo(X+10,Y+3);x.stroke();x.fillStyle='#d6ad64';x.fillRect(X-2,Y-3,4,7);x.fillStyle='#5b371f';x.fillRect(X-1,Y-1,2,3);if(hp<.72){x.strokeStyle='#3b1e19';x.lineWidth=1.5;x.beginPath();x.moveTo(X-9,Y-2);x.lineTo(X-4,Y+2);x.lineTo(X-7,Y+6);x.stroke()}if(hp<.38){x.beginPath();x.moveTo(X+8,Y-4);x.lineTo(X+4,Y);x.lineTo(X+7,Y+5);x.stroke()}});
  x.lineWidth=3;S.f.forEach(([k,a,b,c,d,life])=>{if(k==='n'||k==='a'){if(a+c<cx-100||a-c>cx+W+100||b+c<cy-100||b-c>cy+H+100)return}else if(k==='l'){if(a<cx-100||a>cx+W+100||b<cy-100||b>cy+H+100)return}else if(Math.max(a,c)<cx-100||Math.min(a,c)>cx+W+100||Math.max(b,d)<cy-100||Math.min(b,d)>cy+H+100)return;x.beginPath();
   if(k==='a'){x.arc(a-cx,b-cy,c,0,7);x.fillStyle='#fbbf2428';x.fill();x.strokeStyle='#fbbf24';x.lineWidth=5}
@@ -1505,7 +1505,7 @@ function draw(t){requestAnimationFrame(draw);
   else if(k==='s'){x.strokeStyle='#f8fafc';x.lineWidth=5;x.lineCap='round';x.moveTo(a-cx-7,b-cy+8);x.lineTo(c-cx+7,d-cy-8);x.moveTo(a-cx+5,b-cy-8);x.lineTo(c-cx-5,d-cy+8)}
   else{x.strokeStyle='#fde047';x.moveTo(a-cx,b-cy);for(let i=1;i<5;i++){const u=i/5;x.lineTo(a+(c-a)*u-cx+Math.sin((a+b+c+d+i*97)*.013)*7,b+(d-b)*u-cy+Math.cos((a+b+c+d+i*97)*.017)*7)}x.lineTo(c-cx,d-cy)}x.stroke()});
  x.textAlign='center';x.font='11px sans-serif';
- S.p.forEach(q=>{const m2=q.id==me,worldX=m2?pp.x:q.x,worldY=m2?pp.y:q.y;if(!m2&&(worldX<cx-100||worldX>cx+W+100||worldY<cy-100||worldY>cy+H+100))return;const X=worldX-cx,Y=worldY-cy;x.globalAlpha=q.d?.4:1;
+ S.p.forEach(q=>{const m2=q.id==me,worldX=m2?pp.x:q.x,worldY=m2?pp.y:q.y;if(!m2&&(worldX<cx-100||worldX>cx+W+100||worldY<cy-100||worldY>cy+H+100))return;const X=worldX-cx,Y=worldY-cy;x.globalAlpha=q.d?.92:1;
   if(q.shield>0){x.save();x.globalAlpha=.35+Math.min(.4,q.shield/42)*.6;x.strokeStyle='#93c5fd';x.fillStyle='#60a5fa12';x.lineWidth=3;x.beginPath();x.arc(X,Y,45+Math.sin(t/80)*3,0,7);x.fill();x.stroke();x.restore()}
   if(q.pw.aura){x.fillStyle='#4ade8018';x.strokeStyle='#4ade8088';x.lineWidth=2;x.beginPath();x.arc(X,Y,50+8*q.pw.aura,0,7);x.fill();x.stroke()}
   const[lookX,lookY]=m2?getDir():[0,0],moving=m2&&!p.d&&!S.pa&&Math.hypot(lookX,lookY)>.12;slime(x,X,Y+12,q.c,t,moving,lookX,lookY,q.l>=5);if(q.l>=5){x.save();x.globalAlpha=.78+Math.sin(t/130)*.18;x.strokeStyle='#fbbf24';x.shadowColor='#f59e0b';x.shadowBlur=15;x.lineWidth=3;x.beginPath();x.arc(X,Y+5,48+Math.sin(t/180)*3,0,7);x.stroke();x.shadowBlur=0;x.fillStyle='#fff0a6';x.font='bold 13px system-ui';x.textAlign='center';x.fillText('✦',X,Y-43);x.restore()}x.fillStyle='#fff';if(!m2){x.font='bold 11px system-ui';x.lineWidth=3;x.strokeStyle='#07140dcc';x.strokeText(q.n,X,Y-35);x.fillText(q.n,X,Y-35)}
@@ -1526,5 +1526,5 @@ function draw(t){requestAnimationFrame(draw);
  else if(S.pa&&!p.ch)x.fillText('Jogo pausado: alguém escolhe uma melhoria',W/2,128);
  const key=p.ch?p.ch.join():'';if(key!=last){last=key;ui(p)}}
 $('n').value=SV.name;setGameState('LOBBY');lobby();requestAnimationFrame(draw);
-if('serviceWorker' in navigator && location.protocol==='https:'){addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}))}
+if('serviceWorker' in navigator && location.protocol==='https:'){addEventListener('load',()=>navigator.serviceWorker.register('/sw.js',{updateViaCache:'none'}).then(reg=>reg.update().catch(()=>{})).catch(()=>{}))}
 </script></body></html>

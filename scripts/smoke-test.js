@@ -65,4 +65,4 @@ assert.ok(server.includes("rdy('raio',72)") && app.includes("rdy('raio',72)"), '
 assert.ok(server.includes('Math.min(4,1+l.raio)') && app.includes('Math.min(4,1+l.raio)'), 'Mago não deve atingir a onda inteira');
 assert.ok(server.includes('(1+.08*(p.ps.dano||0))') && app.includes('(1+.08*(p.ps.dano||0))'), 'dano deve acumular oito por cento por nível');
 assert.ok(html.includes('#run-board{position:fixed;left:10px;right:auto;'), 'placar da partida não deve ficar no centro');
-assert.ok(app.includes('overflow-wrap:anywhere;word-break:break-word'), 'nomes do ranking devem quebrar linha');
+assert.ok(html.includes('overflow-wrap:anywhere;word-break:break-word'), 'nomes do ranking devem quebrar linha');

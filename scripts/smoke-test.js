@@ -70,7 +70,7 @@ assert.ok(html.includes('overflow-wrap:anywhere;word-break:break-word'), 'nomes 
 
 assert.ok(app.includes('for(let i=0;i<9;i++)SPR[i]=mkS(i)'), 'sprite do Katiga precisa ser inicializado');
 
-assert.ok(html.includes('version-pill\">v4.15</span>'), 'versão exibida precisa ser 4.14');
+assert.ok(html.includes('version-pill\">v4.15</span>'), 'versão exibida precisa ser 4.15');
 assert.ok(!html.includes('O Render pode precisar iniciar'), 'a tela de carregamento não deve expor mensagem de provedor');
 assert.ok(server.includes('enemyShot(r,e,b,kind') && app.includes('offlineEnemyShot(r,e,target,kind'), 'Katiga deve disparar projéteis reais');
 assert.ok(server.includes('z:(r.eb||[])') && app.includes('z:(r.eb||[])') && app.includes('(S.z||[]).forEach'), 'orbes e flechas do Katiga precisam ser renderizadas');

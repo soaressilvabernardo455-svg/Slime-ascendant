@@ -54,7 +54,7 @@ assert.ok(serviceWorker.includes('slime-ascendant-shell-v40'));
 assert.ok(serviceWorker.includes("url.pathname.startsWith('/api/')") && serviceWorker.includes("url.pathname==='/health'"));
 console.log('Smoke tests aprovados: HTML/JS, salas, Boss, reroll, XP, ranking e ícone do APK.');
 
-assert.ok(server.includes('2.4*scale'), 'Boss deve ter vida maior');
+assert.ok(server.includes('3*scale'), 'Boss deve ter vida maior');
 assert.ok(server.includes('bossSkillIndex=(skill+1)%9'), 'Boss deve alternar nove habilidades');
 assert.ok(server.includes('case 3:{const vx=attack.x-e.x'), 'Boss precisa ter ataques em formatos diferentes');
 assert.ok(server.includes('bossSkillTimer=270'), 'habilidades do Boss devem ter intervalo de nove segundos');
@@ -62,8 +62,8 @@ assert.ok(server.includes('r.gm.push({x:enemy.x,y:enemy.y,v:xp,life:2400})'), 'm
 assert.ok(app.includes('r.gm.push({x:enemy.x,y:enemy.y,v:xp,life:2400})'), 'modo offline deve manter XP ao surgir Boss');
 assert.ok(server.includes('w>5&&q<.12?8') && app.includes('w>5&&q<.12?8'), 'Katiga deve aparecer nas ondas');
 assert.ok(server.includes('e.ty===8&&!isSkeleton') && app.includes('e.ty===8&&!isSkeleton'), 'Katiga deve atacar de longe');
-assert.ok(server.includes("rdy('raio',72)") && app.includes("rdy('raio',72)"), 'Mago deve ter intervalo de ataque maior');
-assert.ok(server.includes('Math.min(4,1+l.raio)') && app.includes('Math.min(4,1+l.raio)'), 'Mago não deve atingir a onda inteira');
+assert.ok(server.includes("rdy('raio',l.raio===1?120:105)") && app.includes("rdy('raio',l.raio===1?120:105)"), 'Mago deve ter intervalo de ataque maior');
+assert.ok(server.includes('Math.min(3,1+Math.floor(l.raio/2))') && app.includes('Math.min(3,1+Math.floor(l.raio/2))'), 'Mago não deve atingir a onda inteira');
 assert.ok(server.includes('(1+.08*(p.ps.dano||0))') && app.includes('(1+.08*(p.ps.dano||0))'), 'dano deve acumular oito por cento por nível');
 assert.ok(html.includes('#run-board{position:fixed;left:10px;right:auto;'), 'placar da partida não deve ficar no centro');
 assert.ok(html.includes('overflow-wrap:anywhere;word-break:break-word'), 'nomes do ranking devem quebrar linha');
@@ -72,3 +72,12 @@ assert.ok(app.includes('for(let i=0;i<9;i++)SPR[i]=mkS(i)'), 'sprite do Katiga p
 
 assert.ok(html.includes('version-pill\">v4.10</span>'), 'versão exibida precisa ser 4.10');
 assert.ok(!html.includes('O Render pode precisar iniciar'), 'a tela de carregamento não deve expor mensagem de provedor');
+assert.ok(server.includes('enemyShot(r,e,b,kind') && app.includes('offlineEnemyShot(r,e,target,kind'), 'Katiga deve disparar projéteis reais');
+assert.ok(server.includes('z:(r.eb||[])') && app.includes('z:(r.eb||[])') && app.includes('(S.z||[]).forEach'), 'orbes e flechas do Katiga precisam ser renderizadas');
+assert.ok(server.includes('pickupDelay:42') && app.includes('pickupDelay:42'), 'itens dos baús precisam permanecer no chão antes da coleta');
+assert.ok(server.includes('if(q.pickupDelay>0)') && app.includes('if(q.pickupDelay>0)'), 'itens não devem sumir no instante da quebra do baú');
+assert.ok(app.includes('passiveSummary') && app.includes('function powerSummary'), 'descrições de upgrades devem mostrar acúmulo por nível');
+assert.ok(!app.includes('for(let grain=0;grain<4;grain++)') && app.includes('texX='), 'texturas do terreno não devem gerar pontos de estática');
+assert.ok(!app.includes("x.fillText('ONDA '+S.w"), 'placar da partida não deve ocupar o centro');
+assert.ok(app.includes('rerolls:Number.isInteger(p.rerolls)?p.rerolls:3') && app.includes('const freeRerolls=Number.isInteger(p.rerolls)'), '3 giros grátis devem aparecer no modo offline');
+assert.ok(app.includes('name:String(raw.name||\'\').slice(0,15)'), 'nome local precisa preservar 15 caracteres');

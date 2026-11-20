@@ -70,7 +70,7 @@ assert.ok(html.includes('overflow-wrap:anywhere;word-break:break-word'), 'nomes 
 
 assert.ok(app.includes('for(let i=0;i<9;i++)SPR[i]=mkS(i)'), 'sprite do Katiga precisa ser inicializado');
 
-assert.ok(html.includes('version-pill\">v4.14</span>'), 'versão exibida precisa ser 4.14');
+assert.ok(html.includes('version-pill\">v4.15</span>'), 'versão exibida precisa ser 4.14');
 assert.ok(!html.includes('O Render pode precisar iniciar'), 'a tela de carregamento não deve expor mensagem de provedor');
 assert.ok(server.includes('enemyShot(r,e,b,kind') && app.includes('offlineEnemyShot(r,e,target,kind'), 'Katiga deve disparar projéteis reais');
 assert.ok(server.includes('z:(r.eb||[])') && app.includes('z:(r.eb||[])') && app.includes('(S.z||[]).forEach'), 'orbes e flechas do Katiga precisam ser renderizadas');
@@ -94,5 +94,7 @@ assert.ok(server.includes('(1+.15*(p.ps.xp||0))') && app.includes('(1+.15*(p.ps.
 
 assert.ok(html.includes('id="tb"') && html.includes('data-t="b"'), 'aba da loja precisa existir');
 assert.ok(app.includes('STORE_COIN_PACKS') && app.includes('STORE_CRYSTAL_PACKS'), 'loja deve ter pacotes de moedas e cristais');
+assert.ok(app.includes("['Arca',20000,'R$ 5,99']") && app.includes("['Tesouro',50000,'R$ 7,99']"), 'pacotes grandes de moedas devem exibir os preços definidos');
+assert.ok(app.includes("['Arca mística',2000,'R$ 5,99']") && app.includes("['Tesouro celestial',5000,'R$ 7,99']"), 'pacotes grandes de cristais devem exibir os preços definidos');
 assert.ok(app.includes('1,7× moedas e 1,5× cristais') && app.includes('Manto Celestial') && app.includes('Guardião Astral'), 'VIP deve exibir todos os benefícios');
 assert.ok(app.includes('Devorador do Vazio') && app.includes('Preço premium II · mais caro que a classe I'), 'duas classes premium devem ter tiers de preço diferentes');

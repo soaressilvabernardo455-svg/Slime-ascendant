@@ -138,15 +138,22 @@ body{background:#0b1710;color:var(--text)}
 .panel-footer{display:flex;justify-content:space-between;gap:8px}
 .panel-footer button{font-size:.68rem;padding:6px 8px;border:1px solid #ffffff1d;background:#ffffff09}#ts{display:flex;flex-direction:column;gap:10px}#ts .settings-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px;border:1px solid #ffffff20;border-radius:12px;background:#ffffff09;text-align:left}#ts .settings-row small{display:block;color:#bed8c4;font-size:.68rem;margin-top:3px}#ts .settings-row button{min-width:96px;font-size:.75rem}#reset-game{background:#57262b;border-color:#d77a82;color:#ffe8e9}
 .panel-note{font-size:.66rem;line-height:1.35;color:#b8d3be}
-#nav-tabs{grid-template-columns:repeat(7,minmax(0,1fr));position:absolute;left:50%;bottom:13px;transform:translateX(-50%);width:min(650px,calc(100vw - 18px));display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;padding:6px;border-radius:18px;pointer-events:auto}
+#nav-tabs{grid-template-columns:repeat(8,minmax(0,1fr));position:absolute;left:50%;bottom:13px;transform:translateX(-50%);width:min(760px,calc(100vw - 18px));display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:4px;padding:6px;border-radius:18px;pointer-events:auto}
 #nav-tabs button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:1px solid transparent;border-radius:12px;background:transparent;padding:7px 2px;font-size:.67rem;color:#c8dfce}
 #nav-tabs button.s{background:linear-gradient(145deg,#2a6842,#173c28);border-color:#6fcb8a;color:#fff;box-shadow:inset 0 1px #ffffff24}
 #nav-tabs .tab-icon{font-size:1.1rem;margin:0}
-#tc,#tu,#tm,#ti{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+#tc,#tu,#tm,#ti,#tb{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
 #tc{grid-template-columns:repeat(2,minmax(0,1fr))}
 #tu{grid-template-columns:1fr}
 #tm{grid-template-columns:repeat(2,minmax(0,1fr))}
 #ti{grid-template-columns:1fr}
+#tb{grid-template-columns:repeat(2,minmax(0,1fr));align-content:start}
+#tb .section-intro,#tb .store-section-title,#tb .store-wide{grid-column:1/-1}
+#tb .store-section-title{font-size:.72rem;font-weight:950;letter-spacing:.1em;color:#9aefb0;padding:7px 3px 2px;border-bottom:1px solid #ffffff1d}
+.store-card{display:flex;flex-direction:column;justify-content:space-between;gap:8px;min-width:0;padding:11px;border-radius:14px;border:1px solid #ffffff24;background:linear-gradient(145deg,#203b2a,#101e16);box-shadow:0 4px 12px #0004}
+.store-card.store-class{border-color:#9a78ee77;background:linear-gradient(145deg,#33264f,#171b28)}
+.store-card.store-vip{border-color:#f5ca5d99;background:linear-gradient(145deg,#574018,#211a10);box-shadow:0 0 18px #f4c65b18}
+.store-card b{font-size:.8rem;color:#f8fff9}.store-card small{font-size:.66rem;line-height:1.35;color:#c5dfcb}.store-card em{font-style:normal;font-size:.62rem;font-weight:850;color:#f5d88e}.store-card button{font-size:.66rem;padding:8px 5px;border:1px solid #ffffff20;background:#ffffff0c}.store-card button:disabled{opacity:.72}.store-symbol{font-size:1.5rem}.store-note{grid-column:1/-1;padding:9px;border:1px solid #ffffff1d;border-radius:11px;background:#ffffff08;color:#c9dfce;font-size:.67rem;line-height:1.4}
 #tc button{min-width:0}
 #m>#pv{display:block!important;position:absolute;left:50%;top:clamp(155px,25vh,340px);transform:translateX(-50%);width:156px;height:156px;z-index:1;pointer-events:none;image-rendering:auto;filter:drop-shadow(0 12px 18px #0008)}
 .modal-backdrop{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:18px;background:#020a05bd;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);pointer-events:auto}
@@ -187,11 +194,11 @@ body{background:#0b1710;color:var(--text)}
  .account-guest button{font-size:.67rem;padding:8px 7px}
  .account-user{font-size:.7rem;padding:8px 7px}
  .lobby-tagline{top:94px;font-size:.56rem}
- #tab-panels{left:10px;bottom:82px;width:min(345px,calc(100vw - 20px));max-height:43vh}
- .tab-panel{max-height:43vh;padding:12px}
+ #tab-panels{left:10px;bottom:132px;width:min(430px,calc(100vw - 20px));max-height:38vh}
+ .tab-panel{max-height:38vh;padding:12px}
  #tj{gap:7px}#tj h2{font-size:1rem}
  .public-play{padding:11px 12px;font-size:.86rem}
- #nav-tabs{bottom:8px;width:calc(100vw - 18px);padding:5px}
+ #nav-tabs{bottom:8px;width:calc(100vw - 18px);padding:5px;grid-template-columns:repeat(4,minmax(0,1fr))}
  #nav-tabs button{font-size:.61rem;padding:6px 1px}
  #nav-tabs .tab-icon{font-size:1rem}
 }
@@ -208,7 +215,7 @@ body{background:#0b1710;color:var(--text)}
  .brand-panel{max-width:58vw}.brand-title{font-size:.72rem}
  .account-guest{gap:4px}.account-guest button{font-size:.6rem;padding:7px 5px}
  .player-chips span{font-size:.54rem}
- #tab-panels{bottom:78px}
+ #tab-panels{bottom:132px}
 }
 
 
@@ -440,7 +447,7 @@ input,textarea,select{touch-action:auto;user-select:text}
 <div id="m" class="lobby-screen">
  <header class="lobby-top">
   <div class="brand-panel glass">
-   <div class="brand-line"><div class="brand-emblem">✦</div><div class="brand-copy"><div class="brand-title">SLIME ASCENDANT <span class="version-pill">v4.13</span></div><div id="sel" class="brand-subtitle">Slime • Aventureiro</div></div></div>
+   <div class="brand-line"><div class="brand-emblem">✦</div><div class="brand-copy"><div class="brand-title">SLIME ASCENDANT <span class="version-pill">v4.14</span></div><div id="sel" class="brand-subtitle">Slime • Aventureiro</div></div></div>
    <div class="player-chips"><span id="rec">🏆 Recorde: onda 0</span><span id="bal">🪙 0　💎 0</span></div>
   </div>
   <div class="account-top glass">
@@ -463,11 +470,11 @@ input,textarea,select{touch-action:auto;user-select:text}
   <div id="tc" class="cs tab-panel glass h"></div>
   <div id="tu" class="tab-panel glass h"></div>
   <div id="tm" class="cs tab-panel glass h" style="grid-template-columns:repeat(2,1fr)"></div>
-  <div id="ti" class="cs tab-panel glass h" style="grid-template-columns:1fr"></div><div id="ts" class="tab-panel glass h"></div>
+  <div id="ti" class="cs tab-panel glass h" style="grid-template-columns:1fr"></div><div id="tb" class="tab-panel glass h"></div><div id="ts" class="tab-panel glass h"></div>
   <div id="tl" class="tab-panel glass h"><div class="section-intro"><span>CLASSIFICAÇÃO GLOBAL</span><h2>Ranking mundial</h2><p>Jogadores ordenados pela melhor onda registrada.</p></div><div id="leaderboard-status" class="panel-note">Carregue o ranking para ver os melhores jogadores.</div><div id="leaderboard-list"></div><button id="leaderboard-refresh" type="button">Atualizar ranking</button></div>
  </section>
  <nav id="nav-tabs" class="tabs glass">
-  <button data-t="j" class="s"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8h10a4 4 0 0 1 3.8 5l-1 3a2 2 0 0 1-3.3.9L14 14H10l-2.5 2.9a2 2 0 0 1-3.3-.9l-1-3A4 4 0 0 1 7 8Z"/><path d="M7 10v4m-2-2h4m7-1h.01M18 13h.01"/></svg></span>Jogar</button><button data-t="c"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8m0-12.8L5.6 18.4"/><circle cx="12" cy="12" r="8.5"/></svg></span>Classes</button><button data-t="u"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-9 12h7l-1 8 10-13h-7z"/></svg></span>Melhorias</button><button data-t="m"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></span>Mapas</button><button data-t="i"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l1 13H4L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></span>Itens</button><button data-t="l"><span class="tab-icon">🏆</span>Mundial</button><button data-t="s"><span class="tab-icon">⚙</span>Config.</button>
+  <button data-t="j" class="s"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 8h10a4 4 0 0 1 3.8 5l-1 3a2 2 0 0 1-3.3.9L14 14H10l-2.5 2.9a2 2 0 0 1-3.3-.9l-1-3A4 4 0 0 1 7 8Z"/><path d="M7 10v4m-2-2h4m7-1h.01M18 13h.01"/></svg></span>Jogar</button><button data-t="c"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8m0-12.8L5.6 18.4"/><circle cx="12" cy="12" r="8.5"/></svg></span>Classes</button><button data-t="u"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-9 12h7l-1 8 10-13h-7z"/></svg></span>Melhorias</button><button data-t="m"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></span>Mapas</button><button data-t="i"><span class="tab-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l1 13H4L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></span>Itens</button><button data-t="b"><span class="tab-icon">◆</span>Loja</button><button data-t="l"><span class="tab-icon">🏆</span>Mundial</button><button data-t="s"><span class="tab-icon">⚙</span>Config.</button>
  </nav>
  <canvas id="pv" width="64" height="64" aria-hidden="true"></canvas>
 </div>
@@ -571,6 +578,9 @@ function svgIcon(key,className='ui-svg'){
 }
 
 const PRICE={normal:[0,0],arqueiro:[900,0],cavaleiro:[3000,0],mago:[5000,0],curandeiro:[0,600],necromante:[0,900]};
+const STORE_COIN_PACKS=[['Punhado',500],['Bolsa',1200],['Baú',3000],['Cofre',7500],['Arca',20000],['Tesouro',50000]];
+const STORE_CRYSTAL_PACKS=[['Fragmentos',50],['Bolsa de cristais',125],['Baú cristalino',300],['Cofre arcano',750],['Arca mística',2000],['Tesouro celestial',5000]];
+const STORE_CLASSES=[['Colosso Solar','Classe premium I · força e resistência elevadas','Vida 200 · Dano 1,50 · Vel. 5,4','Preço premium I'],['Devorador do Vazio','Classe premium II · a mais poderosa da loja','Vida 240 · Dano 1,90 · Vel. 5,6','Preço premium II · mais caro que a classe I']];
 const UPG={vida:['Vida','+10% de vida máxima por nível'],dano:['Dano','+8% de dano por nível'],vel:['Velocidade','+4% de velocidade por nível'],moeda:['Moedas','+10% de moedas por nível']};
 function permanentUpgradeTotal(k,level){const total={vida:level*10,dano:level*8,vel:level*4,moeda:level*10}[k]||0;const unit={vida:'vida máxima',dano:'dano',vel:'velocidade',moeda:'moedas'}[k]||k;return '+'+total+'% de '+unit+' no total ('+({vida:10,dano:8,vel:4,moeda:10}[k]||0)+'% por compra)'}
 const CLASS_INFO={normal:'Equilibrado e fácil de dominar',mago:'Magia e dano à distância',cavaleiro:'Resistente e feito para a linha de frente',necromante:'Energia sombria e explosões',curandeiro:'Suporte e recuperação de vida',arqueiro:'Ataques rápidos e perfurantes'};
@@ -1002,6 +1012,16 @@ function lobby(){
   b.onclick=()=>{if(own)return;if(pc?SV.co<pc:SV.cr<pk){toast('Saldo insuficiente.');return}if(pc)SV.co-=pc;else SV.cr-=pk;SV.items.push(k);save();lobby()};
   r.append(art,copy,b);ti.append(r)});
 
+ const store=$('tb');
+ const packCards=(items,kind)=>items.map(([name,amount])=>'<article class="store-card"><span class="store-symbol">'+(kind==='coin'?'🪙':'💎')+'</span><b>'+name+'</b><small>'+amount.toLocaleString('pt-BR')+' '+(kind==='coin'?'moedas':'cristais')+'</small><em>Preço a definir</em><button type="button" disabled>Pagamentos em preparação</button></article>').join('');
+ const specialCards=STORE_CLASSES.map(([name,desc,stats,tier])=>'<article class="store-card store-class"><span class="store-symbol">✦</span><b>'+name+'</b><small>'+desc+'</small><small>'+stats+'</small><em>'+tier+' · valor a definir</em><button type="button" disabled>Compra indisponível</button></article>').join('');
+ store.innerHTML='<div class="section-intro"><span>LOJA PREMIUM</span><h2>Itens especiais e pacotes</h2><p>Catálogo da loja. Nenhuma cobrança está ativa.</p></div>'+
+ '<div class="store-note">As compras com dinheiro real ainda não foram conectadas. Os botões ficam bloqueados até a integração de pagamento e a confirmação segura pelo servidor, com configuração de um responsável.</div>'+
+ '<div class="store-section-title">CLASSES EXCLUSIVAS</div>'+specialCards+
+ '<article class="store-card store-vip store-wide"><span class="store-symbol">👑 VIP</span><b>VIP Slime Ascendant</b><small>1,7× moedas e 1,5× cristais ganhos em jogo; skin exclusiva Manto Celestial; classe VIP Guardião Astral; nome dourado no lobby e no ranking.</small><em>Preço e duração a definir</em><button type="button" disabled>VIP indisponível</button></article>'+
+ '<div class="store-section-title">PACOTES DE MOEDAS · 6 OPÇÕES</div>'+packCards(STORE_COIN_PACKS,'coin')+
+ '<div class="store-section-title">PACOTES DE CRISTAIS · 6 OPÇÕES</div>'+packCards(STORE_CRYSTAL_PACKS,'crystal')+
+ '<div class="store-note">Os bônus VIP e os produtos premium só serão ativados após validação de pagamento no servidor. Não compre nem compartilhe dados de cartão por enquanto.</div>';
  const upgradeColors={vida:'#fb7185',dano:'#fb923c',vel:'#60a5fa',moeda:'#facc15'};
  const daily=dailyClaimed();$('dl').innerHTML=svgIcon('daily','button-svg')+(daily?'Recompensa coletada':'Recompensa diária · +25 moedas / +2 cristais');$('dl').disabled=daily;
  $('mu').innerHTML=svgIcon(SV.mute?'mute':'sound','button-svg')+(SV.mute?'Música desligada':'Música ligada');
@@ -1029,7 +1049,7 @@ function lobby(){
 }
 function buy(k){if(!Object.prototype.hasOwnProperty.call(UPG,k))return;const l=SV.up[k],cost=ucost(l);if(l>=10)return;if(!developerModeEnabled&&SV.co<cost){toast('Moedas insuficientes.');return}if(!developerModeEnabled)SV.co-=cost;SV.up[k]++;save();lobby();}
 document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{startMusic();document.querySelectorAll('[data-t]').forEach(e=>e.className='');b.className='s';
- ['j','c','u','m','i','s','l'].forEach(t=>{const panel=$('t'+t);panel.classList.toggle('h',t!=b.dataset.t);if(t===b.dataset.t)panel.scrollTop=0});if(b.dataset.t==='l')loadWorldLeaderboard()});
+ ['j','c','u','m','i','b','s','l'].forEach(t=>{const panel=$('t'+t);panel.classList.toggle('h',t!=b.dataset.t);if(t===b.dataset.t)panel.scrollTop=0});if(b.dataset.t==='l')loadWorldLeaderboard()});
 
 
 const LEADER_CLASS_NAMES={normal:'Guerreiro',mago:'Mago',cavaleiro:'Cavaleiro',necromante:'Necromante',curandeiro:'Curandeiro',arqueiro:'Arqueiro'};

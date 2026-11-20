@@ -50,7 +50,7 @@ assert.equal(capacitor.server.errorPath, 'offline.html');
 const offlineScript = offlinePage.split('<script>')[1]?.split('</script>')[0];
 assert.ok(offlineScript);
 new vm.Script(offlineScript, { filename: 'android-app/www/offline.html' });
-assert.ok(serviceWorker.includes('slime-ascendant-shell-v45'));
+assert.ok(serviceWorker.includes('slime-ascendant-shell-v46'));
 assert.ok(serviceWorker.includes("url.pathname.startsWith('/api/')") && serviceWorker.includes("url.pathname==='/health'"));
 console.log('Smoke tests aprovados: HTML/JS, salas, Boss, reroll, XP, ranking e ícone do APK.');
 
@@ -70,7 +70,7 @@ assert.ok(html.includes('overflow-wrap:anywhere;word-break:break-word'), 'nomes 
 
 assert.ok(app.includes('for(let i=0;i<9;i++)SPR[i]=mkS(i)'), 'sprite do Katiga precisa ser inicializado');
 
-assert.ok(html.includes('version-pill\">v4.15</span>'), 'versão exibida precisa ser 4.15');
+assert.ok(html.includes('version-pill\">v5.0</span>'), 'versão exibida precisa ser 4.15');
 assert.ok(!html.includes('O Render pode precisar iniciar'), 'a tela de carregamento não deve expor mensagem de provedor');
 assert.ok(server.includes('enemyShot(r,e,b,kind') && app.includes('offlineEnemyShot(r,e,target,kind'), 'Katiga deve disparar projéteis reais');
 assert.ok(server.includes('z:(r.eb||[])') && app.includes('z:(r.eb||[])') && app.includes('(S.z||[]).forEach'), 'orbes e flechas do Katiga precisam ser renderizadas');
@@ -98,3 +98,6 @@ assert.ok(app.includes("['Arca',20000,'R$ 5,99']") && app.includes("['Tesouro',5
 assert.ok(app.includes("['Arca mística',2000,'R$ 5,99']") && app.includes("['Tesouro celestial',5000,'R$ 7,99']"), 'pacotes grandes de cristais devem exibir os preços definidos');
 assert.ok(app.includes('1,7× moedas e 1,5× cristais') && app.includes('Manto Celestial') && app.includes('Guardião Astral'), 'VIP deve exibir todos os benefícios');
 assert.ok(app.includes('Devorador do Vazio') && app.includes('Preço premium II · mais caro que a classe I'), 'duas classes premium devem ter tiers de preço diferentes');
+
+assert.ok(html.includes('version-pill\">v5.0</span>'), 'versão 5.0 precisa aparecer no lobby');
+assert.ok(app.includes('data-store-test') && app.includes('checkout ainda não conectado'), 'loja deve deixar claro que os botões são apenas preparação de teste');

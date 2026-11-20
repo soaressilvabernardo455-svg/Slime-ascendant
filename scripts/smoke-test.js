@@ -92,7 +92,7 @@ assert.ok(server.includes('const rr=34+3*l.meteoro') && server.includes('.slice(
 assert.ok(app.includes('x.globalAlpha=.3;x.strokeStyle=textureColor') && app.includes('x.globalAlpha=.2;x.lineWidth=2.2') && app.includes('x.globalAlpha=.14;x.lineWidth=1.6'), 'texturas devem ter camadas adicionais sem pontos de estática');
 assert.ok(server.includes('(1+.15*(p.ps.xp||0))') && app.includes('(1+.15*(p.ps.xp||0))'), 'XP deve acumular 15% por nível online e offline');
 
-assert.ok(app.includes('id="tb"') && app.includes('data-t="b"'), 'aba da loja precisa existir');
+assert.ok(html.includes('id="tb"') && html.includes('data-t="b"'), 'aba da loja precisa existir');
 assert.ok(app.includes('STORE_COIN_PACKS') && app.includes('STORE_CRYSTAL_PACKS'), 'loja deve ter pacotes de moedas e cristais');
 assert.ok(app.includes('1,7× moedas e 1,5× cristais') && app.includes('Manto Celestial') && app.includes('Guardião Astral'), 'VIP deve exibir todos os benefícios');
 assert.ok(app.includes('Devorador do Vazio') && app.includes('Preço premium II · mais caro que a classe I'), 'duas classes premium devem ter tiers de preço diferentes');

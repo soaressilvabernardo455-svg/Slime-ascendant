@@ -404,7 +404,7 @@ input,textarea,select{touch-action:auto;user-select:text}
 #difficulty-control button[data-difficulty="inferno"]{color:#fecaca;border-color:#9f343c}
 #difficulty-control button[data-difficulty="inferno"].s{background:linear-gradient(145deg,#8b252d,#3b151d);border-color:#ff8585;color:#fff}
 .difficulty-hint{grid-column:1/-1;text-align:left;color:#bddbc5;font-size:.61rem;line-height:1.25;padding:0 2px}
-#run-board{position:fixed;left:10px;right:auto;top:calc(env(safe-area-inset-top,0px) + 62px);z-index:16;display:none;width:min(224px,calc(100vw - 20px));min-width:190px;padding:10px 12px;border:1px solid #c7f9d266;border-radius:14px;background:#06130ff2;box-shadow:0 7px 22px #000a;pointer-events:none}
+#run-board{position:fixed;left:auto;right:10px;top:calc(env(safe-area-inset-top,0px) + 112px);z-index:16;display:none;width:min(224px,calc(100vw - 20px));min-width:190px;padding:10px 12px;border:1px solid #c7f9d266;border-radius:14px;background:#06130ff2;box-shadow:0 7px 22px #000a;pointer-events:none}
 .run-board-top{display:flex;justify-content:space-between;align-items:center;gap:12px;color:#f2fff4;font-size:.82rem;white-space:nowrap}.run-board-top b:last-child{color:#a7f3b8;font-variant-numeric:tabular-nums}
 #run-board-boss{margin-top:5px;color:#c5e9ce;font-size:.68rem;text-align:left;white-space:nowrap}
 .run-board-stats{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:7px;padding-top:7px;border-top:1px solid #ffffff22;color:#d9f4df;font-size:.66rem;font-weight:750;font-variant-numeric:tabular-nums}
@@ -421,7 +421,7 @@ input,textarea,select{touch-action:auto;user-select:text}
 .profile-section h3{font-size:.78rem;margin:0 0 8px;color:#a7f3b8}.profile-tags{display:flex;flex-wrap:wrap;gap:6px}.profile-tag{padding:5px 8px;border-radius:20px;background:#21432d;border:1px solid #639b6d;color:#e6f8e9;font-size:.65rem}.profile-tag.empty{background:#252d28;border-color:#4e5b51;color:#b9c8bc}
 .dev-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:9px;border:1px solid #c4b5fd55;border-radius:13px;background:#20163d66}
 .dev-options button{font-size:.7rem;padding:8px 5px;border:1px solid #ffffff20;background:#ffffff0a;border-radius:9px}.dev-options button.s{background:#51358a;border-color:#d6bcff;color:#fff}
-@media(max-width:620px){#run-board{top:calc(env(safe-area-inset-top,0px) + 220px);right:8px;width:190px;min-width:190px;padding:9px 10px;z-index:30}.run-board-top{font-size:.78rem}#difficulty-control button{font-size:.62rem;padding:6px 1px}}
+@media(max-width:620px){#run-board{left:auto;top:calc(env(safe-area-inset-top,0px) + 112px);right:8px;width:190px;min-width:190px;padding:9px 10px;z-index:30}.run-board-top{font-size:.78rem}#difficulty-control button{font-size:.62rem;padding:6px 1px}}
 
 #tl{display:flex;flex-direction:column;gap:10px;text-align:left}
 #tl .section-intro{margin-bottom:2px}
@@ -440,7 +440,7 @@ input,textarea,select{touch-action:auto;user-select:text}
 <div id="m" class="lobby-screen">
  <header class="lobby-top">
   <div class="brand-panel glass">
-   <div class="brand-line"><div class="brand-emblem">✦</div><div class="brand-copy"><div class="brand-title">SLIME ASCENDANT <span class="version-pill">v4.10</span></div><div id="sel" class="brand-subtitle">Slime • Aventureiro</div></div></div>
+   <div class="brand-line"><div class="brand-emblem">✦</div><div class="brand-copy"><div class="brand-title">SLIME ASCENDANT <span class="version-pill">v4.11</span></div><div id="sel" class="brand-subtitle">Slime • Aventureiro</div></div></div>
    <div class="player-chips"><span id="rec">🏆 Recorde: onda 0</span><span id="bal">🪙 0　💎 0</span></div>
   </div>
   <div class="account-top glass">
@@ -1380,7 +1380,7 @@ function ui(p){
 let OFF=false,OR=null,offlineTimer=0;
 const CLASS_MAIN_POWER={normal:'proj',mago:'raio',cavaleiro:'orb',necromante:'nova',curandeiro:'aura',arqueiro:'proj'};
 const CLASS_POWER_OWNER={orb:'cavaleiro',nova:'necromante',raio:'mago',aura:'curandeiro'};
-const CLASS_MAIN_INFO={normal:['Gosma Dividida','Projéteis explodem e espalham dano ao redor do alvo.'],mago:['Tempestade Arcana','Raios caem do céu e saltam entre inimigos próximos.'],cavaleiro:['Orbes Rubros','Seis orbes vermelhos giram mais rápido ao redor do Cavaleiro.'],necromante:['Legião Espectral','Invoca até dez esqueletos especiais, mais resistentes e fortes.'],curandeiro:['Aura da Vida','Aura maior, com mais dano e pulsos de cura mais fortes.'],arqueiro:['Chuva de Flechas','Dispara nove flechas perfurantes que caem sobre os inimigos.']};
+const CLASS_MAIN_INFO={normal:['Gosma Dividida','Projéteis explodem e espalham dano ao redor do alvo.'],mago:['Tempestade Arcana','Aumenta o dano do relâmpago e desbloqueia uma explosão de fogo em área a cada 4 segundos no 5/5.'],cavaleiro:['Orbes Rubros','Seis orbes vermelhos giram mais rápido ao redor do Cavaleiro.'],necromante:['Legião Espectral','Invoca até dez esqueletos especiais, mais resistentes e fortes.'],curandeiro:['Aura da Vida','Aura maior, com mais dano e pulsos de cura mais fortes.'],arqueiro:['Chuva de Flechas','Dispara nove flechas perfurantes que caem sobre os inimigos.']};
 const OCLS={normal:{hp:100,sp:4.8,dm:.8,pw:'proj'},mago:{hp:70,sp:4.8,dm:.92,pw:'raio'},cavaleiro:{hp:150,sp:4.2,dm:1.05,pw:'orb'},necromante:{hp:85,sp:4.8,dm:1,pw:'nova'},curandeiro:{hp:110,sp:4.8,dm:.7,pw:'aura',heal:1},arqueiro:{hp:80,sp:5.2,dm:.9,pw:'proj',pr:2}};
 const OET=[{h:w=>18+w*9,r:10,v:1.4,d:7,c:1,x:5},{h:w=>10+w*5,r:8,v:2.4,d:5,c:2,x:3},{h:w=>55+w*15,r:16,v:.9,d:14,c:6,x:30},{h:w=>300+w*55,r:26,v:.8,d:20,c:18,x:120},{h:w=>14+w*6,r:11,v:1.9,d:6,c:1,x:12},{h:w=>30+w*8,r:12,v:1.6,d:9,c:2,x:18},{h:w=>70+w*14,r:13,v:.7,d:10,c:2,x:24},{h:w=>5+w*1.2,r:7,v:2.25,d:1.5,c:1,x:2},{h:w=>48+w*9,r:14,v:.48,d:12,c:5,x:18}];
 const oClamp=v=>Math.max(-1000000000000,Math.min(1000000000000,v)),oDist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y),offlineRandomSubset=(items,count)=>{const copy=items.slice(),take=Math.min(copy.length,Math.max(0,count|0));for(let i=0;i<take;i++){const j=i+Math.floor(Math.random()*(copy.length-i));[copy[i],copy[j]]=[copy[j],copy[i]]}return copy.slice(0,take)};

@@ -447,7 +447,7 @@ input,textarea,select{touch-action:auto;user-select:text}
 <div id="m" class="lobby-screen">
  <header class="lobby-top">
   <div class="brand-panel glass">
-   <div class="brand-line"><div class="brand-emblem">✦</div><div class="brand-copy"><div class="brand-title">SLIME ASCENDANT <span class="version-pill">v4.15</span></div><div id="sel" class="brand-subtitle">Slime • Aventureiro</div></div></div>
+   <div class="brand-line"><div class="brand-emblem">✦</div><div class="brand-copy"><div class="brand-title">SLIME ASCENDANT <span class="version-pill">v5.0</span></div><div id="sel" class="brand-subtitle">Slime • Aventureiro</div></div></div>
    <div class="player-chips"><span id="rec">🏆 Recorde: onda 0</span><span id="bal">🪙 0　💎 0</span></div>
   </div>
   <div class="account-top glass">
@@ -1013,15 +1013,16 @@ function lobby(){
   r.append(art,copy,b);ti.append(r)});
 
  const store=$('tb');
- const packCards=(items,kind)=>items.map(([name,amount,price])=>'<article class="store-card"><span class="store-symbol">'+(kind==='coin'?'🪙':'💎')+'</span><b>'+name+'</b><small>'+amount.toLocaleString('pt-BR')+' '+(kind==='coin'?'moedas':'cristais')+'</small><em>'+price+'</em><button type="button" disabled>Pagamentos em preparação</button></article>').join('');
+ const packCards=(items,kind)=>items.map(([name,amount,price])=>'<article class="store-card"><span class="store-symbol">'+(kind==='coin'?'🪙':'💎')+'</span><b>'+name+'</b><small>'+amount.toLocaleString('pt-BR')+' '+(kind==='coin'?'moedas':'cristais')+'</small><em>'+price+'</em><button type="button" data-store-test="'+kind+'" data-product="'+name+'">Preparar teste</button></article>').join('');
  const specialCards=STORE_CLASSES.map(([name,desc,stats,tier])=>'<article class="store-card store-class"><span class="store-symbol">✦</span><b>'+name+'</b><small>'+desc+'</small><small>'+stats+'</small><em>'+tier+' · valor a definir</em><button type="button" disabled>Compra indisponível</button></article>').join('');
  store.innerHTML='<div class="section-intro"><span>LOJA PREMIUM</span><h2>Itens especiais e pacotes</h2><p>Catálogo da loja. Nenhuma cobrança está ativa.</p></div>'+
- '<div class="store-note">As compras com dinheiro real ainda não foram conectadas. Os botões ficam bloqueados até a integração de pagamento e a confirmação segura pelo servidor, com configuração de um responsável.</div>'+
+ '<div class="store-note">V5.0 · Catálogo e preços organizados. O checkout do Mercado Pago ainda não está conectado: estes botões apenas verificam a etapa de configuração e não cobram nem entregam moedas ou cristais.</div>'+
  '<div class="store-section-title">CLASSES EXCLUSIVAS</div>'+specialCards+
  '<article class="store-card store-vip store-wide"><span class="store-symbol">👑 VIP</span><b>VIP Slime Ascendant</b><small>1,7× moedas e 1,5× cristais ganhos em jogo; skin exclusiva Manto Celestial; classe VIP Guardião Astral; nome dourado no lobby e no ranking.</small><em>Preço e duração a definir</em><button type="button" disabled>VIP indisponível</button></article>'+
  '<div class="store-section-title">PACOTES DE MOEDAS · 6 OPÇÕES</div>'+packCards(STORE_COIN_PACKS,'coin')+
  '<div class="store-section-title">PACOTES DE CRISTAIS · 6 OPÇÕES</div>'+packCards(STORE_CRYSTAL_PACKS,'crystal')+
- '<div class="store-note">Os bônus VIP e os produtos premium só serão ativados após validação de pagamento no servidor. Não compre nem compartilhe dados de cartão por enquanto.</div>';
+ '<div class="store-note">Próxima etapa: conectar as credenciais de teste do Mercado Pago no servidor e validar o retorno antes de liberar qualquer produto. A conta e as credenciais devem ser configuradas pela sua mãe. Não envie senhas, tokens ou dados de cartão no chat.</div>';
+ store.querySelectorAll('[data-store-test]').forEach(button=>button.onclick=()=>toast('Teste de '+button.dataset.product+': checkout ainda não conectado. Precisamos configurar as credenciais de teste do Mercado Pago no servidor com sua mãe. Nenhuma cobrança foi feita.'));
  const upgradeColors={vida:'#fb7185',dano:'#fb923c',vel:'#60a5fa',moeda:'#facc15'};
  const daily=dailyClaimed();$('dl').innerHTML=svgIcon('daily','button-svg')+(daily?'Recompensa coletada':'Recompensa diária · +25 moedas / +2 cristais');$('dl').disabled=daily;
  $('mu').innerHTML=svgIcon(SV.mute?'mute':'sound','button-svg')+(SV.mute?'Música desligada':'Música ligada');

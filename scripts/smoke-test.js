@@ -50,11 +50,11 @@ assert.equal(capacitor.server.errorPath, 'offline.html');
 const offlineScript = offlinePage.split('<script>')[1]?.split('</script>')[0];
 assert.ok(offlineScript);
 new vm.Script(offlineScript, { filename: 'android-app/www/offline.html' });
-assert.ok(serviceWorker.includes('slime-ascendant-shell-v42'));
+assert.ok(serviceWorker.includes('slime-ascendant-shell-v43'));
 assert.ok(serviceWorker.includes("url.pathname.startsWith('/api/')") && serviceWorker.includes("url.pathname==='/health'"));
 console.log('Smoke tests aprovados: HTML/JS, salas, Boss, reroll, XP, ranking e ícone do APK.');
 
-assert.ok(server.includes('4*scale'), 'Boss deve ter vida maior');
+assert.ok(server.includes('5*scale'), 'Boss deve ter vida maior');
 assert.ok(server.includes('bossSkillIndex=(skill+1)%9'), 'Boss deve alternar nove habilidades');
 assert.ok(server.includes('case 3:{const vx=attack.x-e.x'), 'Boss precisa ter ataques em formatos diferentes');
 assert.ok(server.includes('bossSkillTimer=270'), 'habilidades do Boss devem ter intervalo de nove segundos');
@@ -70,7 +70,7 @@ assert.ok(html.includes('overflow-wrap:anywhere;word-break:break-word'), 'nomes 
 
 assert.ok(app.includes('for(let i=0;i<9;i++)SPR[i]=mkS(i)'), 'sprite do Katiga precisa ser inicializado');
 
-assert.ok(html.includes('version-pill\">v4.12</span>'), 'versão exibida precisa ser 4.11');
+assert.ok(html.includes('version-pill\">v4.13</span>'), 'versão exibida precisa ser 4.11');
 assert.ok(!html.includes('O Render pode precisar iniciar'), 'a tela de carregamento não deve expor mensagem de provedor');
 assert.ok(server.includes('enemyShot(r,e,b,kind') && app.includes('offlineEnemyShot(r,e,target,kind'), 'Katiga deve disparar projéteis reais');
 assert.ok(server.includes('z:(r.eb||[])') && app.includes('z:(r.eb||[])') && app.includes('(S.z||[]).forEach'), 'orbes e flechas do Katiga precisam ser renderizadas');
@@ -84,10 +84,10 @@ assert.ok(app.includes('name:String(raw.name||\'\').slice(0,15)'), 'nome local p
 assert.ok(html.includes('#run-board{position:fixed;left:auto;right:10px;top:calc(env(safe-area-inset-top,0px) + 112px)'), 'placar da partida deve ficar no canto, fora do centro');
 assert.ok(html.includes("@media(max-width:620px){#run-board{left:auto;top:calc(env(safe-area-inset-top,0px) + 112px);right:8px;"), 'placar mobile não deve descer para o meio da tela');
 
-assert.ok(server.includes('hp=base.h(r.wave)*4*scale') && app.includes('hp=base.h(r.wave)*4*scale'), 'Boss deve ter 4x a vida-base');
+assert.ok(server.includes('hp=base.h(r.wave)*5*scale') && app.includes('hp=base.h(r.wave)*5*scale'), 'Boss deve ter 4x a vida-base');
 assert.ok(server.includes('damage:e.d*(1.65+skill*.12)') && app.includes('damage:e.d*(1.65+skill*.12)'), 'nove habilidades do Boss devem ter impacto reforçado');
 assert.ok(server.includes('e.d*.48,7.8,volley*.18);e.shootCooldown=105') && app.includes('e.d*.48,7.8,volley*.18);e.shootCooldown=105'), 'Katiga deve disparar rajadas consistentes online e offline');
 assert.ok(server.includes('const rr=68') && server.includes('.slice(0,3),fireDamage=hit((7+1.2*l.raio)*dm)') && app.includes('const rr=68') && app.includes('.slice(0,3),fireDamage=hit((7+1.2*l.raio)*dm)'), 'explosão de fogo do Mago deve ter limite de alvos');
-assert.ok(server.includes('const rr=34+3*l.meteoro') && server.includes('.slice(0,2),meteorDamage=hit((8+2*l.meteoro)*dm)') && app.includes('const rr=34+3*l.meteoro') && app.includes('.slice(0,2),meteorDamage=hit((8+2*l.meteoro)*dm)'), 'meteoro deve ser menos dominante');
-assert.ok(app.includes('x.globalAlpha=.2;x.strokeStyle=textureColor') && app.includes('x.globalAlpha=.12;x.lineWidth=2.2'), 'texturas devem ter camadas adicionais sem pontos de estática');
+assert.ok(server.includes('const rr=34+3*l.meteoro') && server.includes('.slice(0,3),meteorDamage=hit((8+2*l.meteoro)*dm)') && app.includes('const rr=34+3*l.meteoro') && app.includes('.slice(0,3),meteorDamage=hit((8+2*l.meteoro)*dm)'), 'meteoro deve atingir até três alvos');
+assert.ok(app.includes('x.globalAlpha=.3;x.strokeStyle=textureColor') && app.includes('x.globalAlpha=.2;x.lineWidth=2.2') && app.includes('x.globalAlpha=.14;x.lineWidth=1.6'), 'texturas devem ter camadas adicionais sem pontos de estática');
 assert.ok(server.includes('(1+.15*(p.ps.xp||0))') && app.includes('(1+.15*(p.ps.xp||0))'), 'XP deve acumular 15% por nível online e offline');

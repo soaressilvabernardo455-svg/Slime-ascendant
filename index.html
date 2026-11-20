@@ -1002,6 +1002,26 @@ function drawGround(cx,cy,W,H,map){
   x.restore();
  }
 }
+function askDeveloperCode(){
+ return new Promise(resolve=>{
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;z-index:10000;background:#000c;display:grid;place-items:center;padding:18px';
+  const panel=document.createElement('form');
+  panel.style.cssText='width:min(100%,360px);background:#10251d;border:1px solid #78dca0;border-radius:18px;padding:20px;display:grid;gap:12px;color:#effff4;box-shadow:0 16px 50px #0009';
+  const title=document.createElement('b');title.textContent='Código de desenvolvedor';title.style.fontSize='18px';
+  const input=document.createElement('input');input.type='password';input.inputMode='numeric';input.autocomplete='off';input.placeholder='Digite o código';input.maxLength=32;input.style.cssText='width:100%;box-sizing:border-box;padding:14px;border-radius:12px;border:1px solid #78dca0;background:#07150f;color:white;font-size:18px';
+  const actions=document.createElement('div');actions.style.cssText='display:flex;gap:10px';
+  const cancel=document.createElement('button');cancel.type='button';cancel.textContent='Cancelar';cancel.style.cssText='flex:1;padding:12px;border-radius:10px;background:#18392a;color:white;border:1px solid #78dca0';
+  const submit=document.createElement('button');submit.type='submit';submit.textContent='Confirmar';submit.style.cssText='flex:1;padding:12px;border-radius:10px;background:#38c878;color:#062012;border:0;font-weight:700';
+  actions.append(cancel,submit);panel.append(title,input,actions);overlay.append(panel);document.body.append(overlay);
+  let finished=false;
+  const finish=value=>{if(finished)return;finished=true;input.blur();if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();overlay.remove();resolve(value)};
+  cancel.addEventListener('click',()=>finish(null));
+  overlay.addEventListener('click',e=>{if(e.target===overlay)finish(null)});
+  panel.addEventListener('submit',e=>{e.preventDefault();const value=input.value.trim();finish(value||null)});
+  setTimeout(()=>input.focus(),80);
+ });
+}
 async function toggleDeveloperMode(){
  if(GAME_STATE!=='LOBBY'){toast('Volte ao lobby para alterar o modo de desenvolvedor.');return}
  if(developerModeEnabled){
@@ -1011,8 +1031,7 @@ async function toggleDeveloperMode(){
   if(developerBackup){try{SV=JSON.parse(developerBackup)}catch(e){}}
   developerBackup='';try{localStorage.slimeSave=JSON.stringify(SV)}catch(e){}scheduleCloudSave();lobby();toast('Modo de teste desativado. Seu progresso normal foi restaurado.');return;
  }
- const code=window.prompt('Digite o código de desenvolvedor. Ele não altera seu progresso normal.');
- setTimeout(()=>{const active=document.activeElement;if(active&&typeof active.blur==='function')active.blur();if(document.body)document.body.focus()},120);
+ const code=await askDeveloperCode();
  if(!code)return;
  try{
   const response=await fetch('/api/dev/unlock',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({code})});

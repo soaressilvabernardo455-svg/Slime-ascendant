@@ -1,4 +1,4 @@
-const CACHE='slime-ascendant-shell-v43';
+const CACHE='slime-ascendant-shell-v44';
 const SHELL=['/','/manifest.webmanifest','/icon.svg','/cover.svg'];
 const STATIC_ASSETS=new Set(['/manifest.webmanifest','/icon.svg','/cover.svg']);
 

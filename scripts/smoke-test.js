@@ -65,12 +65,12 @@ assert.ok(server.includes('e.ty===8&&!isSkeleton') && app.includes('e.ty===8&&!i
 assert.ok(server.includes("rdy('raio',l.raio===1?120:105)") && app.includes("rdy('raio',l.raio===1?120:105)"), 'Mago deve ter intervalo de ataque maior');
 assert.ok(server.includes('Math.min(3,1+Math.floor(l.raio/2))') && app.includes('Math.min(3,1+Math.floor(l.raio/2))'), 'Mago não deve atingir a onda inteira');
 assert.ok(server.includes('(1+.08*(p.ps.dano||0))') && app.includes('(1+.08*(p.ps.dano||0))'), 'dano deve acumular oito por cento por nível');
-assert.ok(html.includes('#run-board{position:fixed;left:10px;right:auto;'), 'placar da partida não deve ficar no centro');
+assert.ok(html.includes('#run-board{position:fixed;left:auto;right:10px;top:calc(env(safe-area-inset-top,0px) + 112px)'), 'placar da partida não deve ficar no centro');
 assert.ok(html.includes('overflow-wrap:anywhere;word-break:break-word'), 'nomes do ranking devem quebrar linha');
 
 assert.ok(app.includes('for(let i=0;i<9;i++)SPR[i]=mkS(i)'), 'sprite do Katiga precisa ser inicializado');
 
-assert.ok(html.includes('version-pill\">v4.11</span>'), 'versão exibida precisa ser 4.10');
+assert.ok(html.includes('version-pill\">v4.11</span>'), 'versão exibida precisa ser 4.11');
 assert.ok(!html.includes('O Render pode precisar iniciar'), 'a tela de carregamento não deve expor mensagem de provedor');
 assert.ok(server.includes('enemyShot(r,e,b,kind') && app.includes('offlineEnemyShot(r,e,target,kind'), 'Katiga deve disparar projéteis reais');
 assert.ok(server.includes('z:(r.eb||[])') && app.includes('z:(r.eb||[])') && app.includes('(S.z||[]).forEach'), 'orbes e flechas do Katiga precisam ser renderizadas');

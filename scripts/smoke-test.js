@@ -50,7 +50,7 @@ assert.equal(capacitor.server.errorPath, 'offline.html');
 const offlineScript = offlinePage.split('<script>')[1]?.split('</script>')[0];
 assert.ok(offlineScript);
 new vm.Script(offlineScript, { filename: 'android-app/www/offline.html' });
-assert.ok(serviceWorker.includes('slime-ascendant-shell-v39'));
+assert.ok(serviceWorker.includes('slime-ascendant-shell-v40'));
 assert.ok(serviceWorker.includes("url.pathname.startsWith('/api/')") && serviceWorker.includes("url.pathname==='/health'"));
 console.log('Smoke tests aprovados: HTML/JS, salas, Boss, reroll, XP, ranking e ícone do APK.');
 
@@ -69,3 +69,6 @@ assert.ok(html.includes('#run-board{position:fixed;left:10px;right:auto;'), 'pla
 assert.ok(html.includes('overflow-wrap:anywhere;word-break:break-word'), 'nomes do ranking devem quebrar linha');
 
 assert.ok(app.includes('for(let i=0;i<9;i++)SPR[i]=mkS(i)'), 'sprite do Katiga precisa ser inicializado');
+
+assert.ok(html.includes('version-pill\">v4.10</span>'), 'versão exibida precisa ser 4.10');
+assert.ok(!html.includes('O Render pode precisar iniciar'), 'a tela de carregamento não deve expor mensagem de provedor');

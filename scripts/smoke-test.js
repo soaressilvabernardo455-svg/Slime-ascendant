@@ -50,7 +50,7 @@ assert.equal(capacitor.server.errorPath, 'offline.html');
 const offlineScript = offlinePage.split('<script>')[1]?.split('</script>')[0];
 assert.ok(offlineScript);
 new vm.Script(offlineScript, { filename: 'android-app/www/offline.html' });
-assert.ok(serviceWorker.includes('slime-ascendant-shell-v46'));
+assert.ok(serviceWorker.includes('slime-ascendant-shell-v47'));
 assert.ok(serviceWorker.includes("url.pathname.startsWith('/api/')") && serviceWorker.includes("url.pathname==='/health'"));
 console.log('Smoke tests aprovados: HTML/JS, salas, Boss, reroll, XP, ranking e ícone do APK.');
 
@@ -97,7 +97,15 @@ assert.ok(app.includes('STORE_COIN_PACKS') && app.includes('STORE_CRYSTAL_PACKS'
 assert.ok(app.includes("['Arca',20000,'R$ 5,99']") && app.includes("['Tesouro',50000,'R$ 7,99']"), 'pacotes grandes de moedas devem exibir os preços definidos');
 assert.ok(app.includes("['Arca mística',2000,'R$ 5,99']") && app.includes("['Tesouro celestial',5000,'R$ 7,99']"), 'pacotes grandes de cristais devem exibir os preços definidos');
 assert.ok(app.includes('1,7× moedas e 1,5× cristais') && app.includes('Manto Celestial') && app.includes('Guardião Astral'), 'VIP deve exibir todos os benefícios');
-assert.ok(app.includes('Devorador do Vazio') && app.includes('Preço premium II · mais caro que a classe I'), 'duas classes premium devem ter tiers de preço diferentes');
+assert.ok(app.includes('Devorador do Vazio') && app.includes('Dano +90%') && app.includes('Dano +50%'), 'classes devem mostrar bônus de dano claros sem textos de preço premium');
 
 assert.ok(html.includes('version-pill\">v5.0</span>'), 'versão 5.0 precisa aparecer no lobby');
 assert.ok(app.includes('data-store-test') && app.includes('checkout ainda não conectado'), 'loja deve deixar claro que os botões são apenas preparação de teste');
+
+assert.ok(server.includes("'chuva'") && app.includes("'chuva'"), 'Arqueiro precisa ter poder exclusivo');
+assert.ok(server.includes("chuva:'arqueiro'") && app.includes("chuva:'arqueiro'"), 'Chuva de Flechas deve ser exclusiva do Arqueiro');
+assert.ok(server.includes("proj:'normal'") && app.includes("proj:'normal'"), 'Gosma Dividida deve ser exclusiva da classe normal');
+assert.ok(server.includes("if(o[0]==='p'&&CLASS_POWER_OWNER[k]&&CLASS_POWER_OWNER[k]!==p.cls)return") && app.includes("if(o[0]==='p'&&CLASS_POWER_OWNER[k]&&CLASS_POWER_OWNER[k]!==p.cls)return"), 'poderes de outras classes devem ser bloqueados online e offline');
+assert.ok(app.includes('PODER EXCLUSIVO DA CLASSE') && app.includes('Amuleto Celestial (+15% de XP)'), 'UI deve mostrar progressão exclusiva e item bônus VIP');
+assert.ok(!app.includes('Preço premium II') && !app.includes('Preço premium I'), 'loja não deve exibir mensagens de preço premium');
+assert.ok(app.includes('repeat(8,minmax(0,1fr))') && app.includes('slice(-10).map(q=>[q.x|0,q.y|0])'), 'navegação deve ficar em uma linha e reduzir pontos no mapa');

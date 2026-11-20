@@ -50,7 +50,7 @@ assert.equal(capacitor.server.errorPath, 'offline.html');
 const offlineScript = offlinePage.split('<script>')[1]?.split('</script>')[0];
 assert.ok(offlineScript);
 new vm.Script(offlineScript, { filename: 'android-app/www/offline.html' });
-assert.ok(serviceWorker.includes('slime-ascendant-shell-v40'));
+assert.ok(serviceWorker.includes('slime-ascendant-shell-v41'));
 assert.ok(serviceWorker.includes("url.pathname.startsWith('/api/')") && serviceWorker.includes("url.pathname==='/health'"));
 console.log('Smoke tests aprovados: HTML/JS, salas, Boss, reroll, XP, ranking e ícone do APK.');
 
@@ -70,7 +70,7 @@ assert.ok(html.includes('overflow-wrap:anywhere;word-break:break-word'), 'nomes 
 
 assert.ok(app.includes('for(let i=0;i<9;i++)SPR[i]=mkS(i)'), 'sprite do Katiga precisa ser inicializado');
 
-assert.ok(html.includes('version-pill\">v4.10</span>'), 'versão exibida precisa ser 4.10');
+assert.ok(html.includes('version-pill\">v4.11</span>'), 'versão exibida precisa ser 4.10');
 assert.ok(!html.includes('O Render pode precisar iniciar'), 'a tela de carregamento não deve expor mensagem de provedor');
 assert.ok(server.includes('enemyShot(r,e,b,kind') && app.includes('offlineEnemyShot(r,e,target,kind'), 'Katiga deve disparar projéteis reais');
 assert.ok(server.includes('z:(r.eb||[])') && app.includes('z:(r.eb||[])') && app.includes('(S.z||[]).forEach'), 'orbes e flechas do Katiga precisam ser renderizadas');
@@ -81,3 +81,5 @@ assert.ok(!app.includes('for(let grain=0;grain<4;grain++)') && app.includes('tex
 assert.ok(!app.includes("x.fillText('ONDA '+S.w"), 'placar da partida não deve ocupar o centro');
 assert.ok(app.includes('rerolls:Number.isInteger(p.rerolls)?p.rerolls:3') && app.includes('const freeRerolls=Number.isInteger(p.rerolls)'), '3 giros grátis devem aparecer no modo offline');
 assert.ok(app.includes('name:String(raw.name||\'\').slice(0,15)'), 'nome local precisa preservar 15 caracteres');
+assert.ok(html.includes('#run-board{position:fixed;left:auto;right:10px;top:calc(env(safe-area-inset-top,0px) + 112px)'), 'placar da partida deve ficar no canto, fora do centro');
+assert.ok(html.includes("@media(max-width:620px){#run-board{left:auto;top:calc(env(safe-area-inset-top,0px) + 112px);right:8px;"), 'placar mobile não deve descer para o meio da tela');

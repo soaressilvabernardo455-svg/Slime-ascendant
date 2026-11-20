@@ -108,4 +108,4 @@ assert.ok(server.includes("proj:'normal'") && app.includes("proj:'normal'"), 'Go
 assert.ok(server.includes("if(o[0]==='p'&&CLASS_POWER_OWNER[k]&&CLASS_POWER_OWNER[k]!==p.cls)return") && app.includes("if(o[0]==='p'&&CLASS_POWER_OWNER[k]&&CLASS_POWER_OWNER[k]!==p.cls)return"), 'poderes de outras classes devem ser bloqueados online e offline');
 assert.ok(app.includes('PODER EXCLUSIVO DA CLASSE') && app.includes('Amuleto Celestial (+15% de XP)'), 'UI deve mostrar progressão exclusiva e item bônus VIP');
 assert.ok(!app.includes('Preço premium II') && !app.includes('Preço premium I'), 'loja não deve exibir mensagens de preço premium');
-assert.ok(app.includes('repeat(8,minmax(0,1fr))') && app.includes('slice(-10).map(q=>[q.x|0,q.y|0])'), 'navegação deve ficar em uma linha e reduzir pontos no mapa');
+assert.ok(html.includes('repeat(8,minmax(0,1fr))') && app.includes('slice(-10).map(q=>[q.x|0,q.y|0])'), 'navegação deve ficar em uma linha e reduzir pontos no mapa');

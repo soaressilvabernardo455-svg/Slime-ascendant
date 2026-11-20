@@ -578,8 +578,8 @@ function svgIcon(key,className='ui-svg'){
 }
 
 const PRICE={normal:[0,0],arqueiro:[900,0],cavaleiro:[3000,0],mago:[5000,0],curandeiro:[0,600],necromante:[0,900]};
-const STORE_COIN_PACKS=[['Punhado',500],['Bolsa',1200],['Baú',3000],['Cofre',7500],['Arca',20000],['Tesouro',50000]];
-const STORE_CRYSTAL_PACKS=[['Fragmentos',50],['Bolsa de cristais',125],['Baú cristalino',300],['Cofre arcano',750],['Arca mística',2000],['Tesouro celestial',5000]];
+const STORE_COIN_PACKS=[['Punhado',500,'R$ 0,99'],['Bolsa',1200,'R$ 1,49'],['Baú',3000,'R$ 2,49'],['Cofre',7500,'R$ 3,49'],['Arca',20000,'R$ 5,99'],['Tesouro',50000,'R$ 7,99']];
+const STORE_CRYSTAL_PACKS=[['Fragmentos',50,'R$ 0,99'],['Bolsa de cristais',125,'R$ 1,49'],['Baú cristalino',300,'R$ 2,49'],['Cofre arcano',750,'R$ 3,49'],['Arca mística',2000,'R$ 5,99'],['Tesouro celestial',5000,'R$ 7,99']];
 const STORE_CLASSES=[['Colosso Solar','Classe premium I · força e resistência elevadas','Vida 200 · Dano 1,50 · Vel. 5,4','Preço premium I'],['Devorador do Vazio','Classe premium II · a mais poderosa da loja','Vida 240 · Dano 1,90 · Vel. 5,6','Preço premium II · mais caro que a classe I']];
 const UPG={vida:['Vida','+10% de vida máxima por nível'],dano:['Dano','+8% de dano por nível'],vel:['Velocidade','+4% de velocidade por nível'],moeda:['Moedas','+10% de moedas por nível']};
 function permanentUpgradeTotal(k,level){const total={vida:level*10,dano:level*8,vel:level*4,moeda:level*10}[k]||0;const unit={vida:'vida máxima',dano:'dano',vel:'velocidade',moeda:'moedas'}[k]||k;return '+'+total+'% de '+unit+' no total ('+({vida:10,dano:8,vel:4,moeda:10}[k]||0)+'% por compra)'}
@@ -1013,7 +1013,7 @@ function lobby(){
   r.append(art,copy,b);ti.append(r)});
 
  const store=$('tb');
- const packCards=(items,kind)=>items.map(([name,amount])=>'<article class="store-card"><span class="store-symbol">'+(kind==='coin'?'🪙':'💎')+'</span><b>'+name+'</b><small>'+amount.toLocaleString('pt-BR')+' '+(kind==='coin'?'moedas':'cristais')+'</small><em>Preço a definir</em><button type="button" disabled>Pagamentos em preparação</button></article>').join('');
+ const packCards=(items,kind)=>items.map(([name,amount,price])=>'<article class="store-card"><span class="store-symbol">'+(kind==='coin'?'🪙':'💎')+'</span><b>'+name+'</b><small>'+amount.toLocaleString('pt-BR')+' '+(kind==='coin'?'moedas':'cristais')+'</small><em>'+price+'</em><button type="button" disabled>Pagamentos em preparação</button></article>').join('');
  const specialCards=STORE_CLASSES.map(([name,desc,stats,tier])=>'<article class="store-card store-class"><span class="store-symbol">✦</span><b>'+name+'</b><small>'+desc+'</small><small>'+stats+'</small><em>'+tier+' · valor a definir</em><button type="button" disabled>Compra indisponível</button></article>').join('');
  store.innerHTML='<div class="section-intro"><span>LOJA PREMIUM</span><h2>Itens especiais e pacotes</h2><p>Catálogo da loja. Nenhuma cobrança está ativa.</p></div>'+
  '<div class="store-note">As compras com dinheiro real ainda não foram conectadas. Os botões ficam bloqueados até a integração de pagamento e a confirmação segura pelo servidor, com configuração de um responsável.</div>'+

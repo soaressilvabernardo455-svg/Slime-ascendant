@@ -472,6 +472,22 @@ input,textarea,select{touch-action:auto;user-select:text}
 
 .pix-modal{display:none;position:fixed;inset:0;z-index:1000;place-items:start center;padding:calc(env(safe-area-inset-top,0px) + 14px) 12px calc(env(safe-area-inset-bottom,0px) + 14px);background:#020a05e8;backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);overflow:auto}.pix-card{position:relative;width:min(100%,390px);max-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 28px);overflow:auto;padding:22px;margin:auto 0;border:1px solid #8ce5a166;border-radius:20px;background:linear-gradient(150deg,#173323,#0b1710);box-shadow:0 20px 60px #000b;text-align:left}.pix-close{position:absolute;right:12px;top:10px;width:36px;height:36px;padding:0;border-radius:10px;font-size:1.5rem}.pix-kicker{font-size:.65rem;font-weight:900;letter-spacing:.15em;color:#8ce5a1}.pix-card h2{margin:7px 40px 8px 0;font-size:1.25rem}.pix-product{margin:0;color:#d7eadb}.pix-price{margin:12px 0;padding:11px;border:1px solid #8ce5a155;border-radius:12px;background:#071b10;font-size:1.5rem;font-weight:950;color:#9cf5b1}.pix-help,.pix-warning{font-size:.76rem;line-height:1.45;color:#c5dfcb}.pix-label{display:block;margin:12px 0 5px;font-size:.72rem;font-weight:850;color:#a7f3b8}.pix-card textarea{width:100%;min-height:105px;resize:vertical;padding:10px;border:1px solid #557d5c;border-radius:10px;background:#06120b;color:#e6f4e6;font: .7rem/1.4 ui-monospace,monospace;user-select:text;overflow-wrap:anywhere}.pix-card button{width:100%;margin-top:8px;padding:11px;font-size:.82rem;font-weight:850}.pix-primary{background:linear-gradient(135deg,#75ee9b,#23a85a);border-color:#b8ffca;color:#062510}.pix-secondary{background:#193725;border-color:#6eaa7c}.pix-warning{margin:12px 0 0;padding:10px;border:1px solid #fbbf2455;border-radius:10px;background:#4a35131c;color:#f8df9b}
 .pix-qr-wrap{display:grid;justify-items:center;gap:7px;margin:12px auto;padding:12px;border-radius:14px;background:#fff;width:min(100%,230px)}.pix-qr{display:block;width:100%;height:auto;image-rendering:pixelated}.pix-qr-caption{font-size:.68rem;line-height:1.35;text-align:center;color:#173323;font-weight:750}
+
+/* VISUAL UPGRADE 2D — acabamento e adaptação mobile */
+#m.lobby-screen{isolation:isolate;background:radial-gradient(ellipse at 78% 52%,#65d98520 0%,transparent 42%),linear-gradient(145deg,#07150d88,#0b1c1288 52%,#06100caa)}
+#m.lobby-screen:before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;background:radial-gradient(circle at 82% 48%,#b8ff9b16,transparent 28%),linear-gradient(90deg,#06130b55,transparent 62%);mix-blend-mode:screen}
+#m.lobby-screen .lobby-top,#m.lobby-screen .glass,#m.lobby-screen .brand-panel,#m.lobby-screen .account-top{position:relative;z-index:4}
+#m.lobby-screen .glass,.brand-panel,.account-top{border-color:#b4f5c044;box-shadow:0 16px 42px #0008,inset 0 1px #ffffff20;background:linear-gradient(145deg,#173b29d9,#0b2018e8)}
+#m.lobby-screen button,.tabs button{transition:transform .16s ease,filter .16s ease,box-shadow .16s ease;border-color:#b8f5c455}
+#m.lobby-screen button:active,.tabs button:active{transform:translateY(1px) scale(.975);filter:brightness(1.15)}
+#pv.preview-visible{left:auto;right:clamp(10px,6vw,88px);top:53%;transform:translateY(-50%);width:clamp(92px,17vw,142px);height:clamp(92px,17vw,142px);z-index:1;opacity:.94;filter:drop-shadow(0 10px 18px #5be78b55) drop-shadow(0 0 12px #8cff9a55);image-rendering:auto}
+#c{image-rendering:auto}
+@media(max-width:650px){
+ #m.lobby-screen{background:linear-gradient(180deg,#07130b55,#07130b22 44%,#07130b77)}
+ #pv.preview-visible{right:4vw;top:56%;width:clamp(86px,25vw,112px);height:clamp(86px,25vw,112px);opacity:.82}
+ #m.lobby-screen .glass,.brand-panel,.account-top{backdrop-filter:blur(12px) saturate(1.2);-webkit-backdrop-filter:blur(12px) saturate(1.2)}
+}
+@media(prefers-reduced-motion:reduce){#m.lobby-screen button,.tabs button{transition:none!important}}
 </style></head><body>
 <canvas id="c"></canvas><div id="item-hud" aria-label="Itens equipados"></div><button id="item-toggle" type="button" aria-label="Abrir inventário" aria-expanded="false" onclick="toggleItemInventory()"><span class="item-toggle-icon">🎒</span><span id="item-count" class="item-count">0</span></button><div id="fps-indicator" aria-live="off">FPS …</div><div id="run-board" aria-live="off"><div class="run-board-top"><b id="run-board-wave">ONDA 1</b><b id="run-board-time">TEMPO 00:00</b></div><div id="run-board-boss">Próximo chefe em 02:30</div><div class="run-board-stats"><span id="run-board-level">NÍVEL 1</span><span id="run-board-health">VIDA 100/100</span><span id="run-board-enemies">INIMIGOS PRÓXIMOS 0</span></div></div><button id="ex" aria-label="Voltar ao lobby"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Lobby</span></button>
 <div id="m" class="lobby-screen">
@@ -886,6 +902,21 @@ function mkS(ty){
  g.restore();return c
 }
 for(let i=0;i<9;i++)SPR[i]=mkS(i);
+/* Polimento gráfico leve dos sprites: brilho de borda, reflexos e detalhes de superfície. */
+for(let si=0;si<SPR.length;si++){
+ const sc=SPR[si].getContext('2d');
+ sc.save();
+ sc.globalCompositeOperation='screen';
+ sc.globalAlpha=.32;
+ const sheen=sc.createLinearGradient(13,12,76,78);
+ sheen.addColorStop(0,'#ffffff');sheen.addColorStop(.22,'#ffffff55');sheen.addColorStop(.62,'#ffffff08');sheen.addColorStop(1,'#ffffff00');
+ sc.fillStyle=sheen;sc.beginPath();sc.ellipse(48,49,31,36,-.18,0,Math.PI*2);sc.fill();
+ sc.globalAlpha=.5;sc.fillStyle='#ffffff';
+ [[31,29,2.1],[37,25,1.1],[65,34,1.5],[27,58,1.1],[69,62,1.2]].forEach(([px,py,r])=>{sc.beginPath();sc.arc(px,py,r,0,Math.PI*2);sc.fill()});
+ sc.globalAlpha=.22;sc.strokeStyle='#ffffff';sc.lineWidth=1.6;sc.beginPath();sc.ellipse(48,49,30,34,-.16,3.55,5.45);sc.stroke();
+ sc.restore();
+}
+
 function mon(c,X,Y,ty,t){const k=KS[ty],Z=16*k,s=ER[ty],bob=ty==4?Math.sin(t/360+X*.025)*2:0,h=Z*(1+Math.sin(t/520+X*.025)*.018);
  c.fillStyle='#0004';c.beginPath();c.ellipse(X,Y+s,s*.9,s*.3,0,0,7);c.fill();
  const aura=['#fb7185','#c4b5fd','#cbd5e1','#fb7185','#7dd3fc','#e5e7eb','#86efac','#ffffff','#38bdf8'][ty]||'#ffffff';c.save();c.globalAlpha=ty===3?.22:.12;c.fillStyle=aura;c.beginPath();c.ellipse(X,Y-2,s*1.12,s*1.22,0,0,Math.PI*2);c.fill();c.restore();

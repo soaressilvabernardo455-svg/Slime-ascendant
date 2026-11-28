@@ -1,7 +1,7 @@
 /* Mestre Slime — tutorial integrado */
 (function(root){
 'use strict';
-const KEY='slimeTutorialSeen';
+const KEY='slimeTutorialSeen_v2';
 const steps=[
 ['Boas-vindas à Arena','Sou o Mestre Slime. Vou explicar o essencial para sua aventura.'],
 ['Lobby, classes e loja','No lobby você escolhe sua classe, mapa e equipamentos. Use moedas e cristais para desbloquear conteúdo.'],
@@ -16,7 +16,7 @@ function init(options){
  const host=document.getElementById('m')||document.body;
  const style=document.createElement('style');
  style.textContent=`
- #slime-tutorial-btn{position:absolute;top:calc(env(safe-area-inset-top,0px) + 112px);right:14px;z-index:26;width:38px;height:38px;min-height:38px;padding:0;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#2e7545,#102619);border:1px solid #a7f3b8;color:#effff2;font:900 18px system-ui;box-shadow:0 5px 18px #0009,0 0 18px #4ade8033}
+ #slime-tutorial-btn{position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + 92px);right:14px;z-index:26;width:38px;height:38px;min-height:38px;padding:0;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#2e7545,#102619);border:1px solid #a7f3b8;color:#effff2;font:900 18px system-ui;box-shadow:0 5px 18px #0009,0 0 18px #4ade8033}
  #slime-tutorial-backdrop{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:18px;background:#020a06c9;backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
  #slime-tutorial-backdrop[hidden]{display:none}
  #slime-tutorial-box{width:min(100%,410px);padding:19px;border-radius:22px;background:radial-gradient(circle at 10% 0,#28613a66,transparent 48%),linear-gradient(155deg,#142c1d,#08140d);border:1px solid #8ce5a177;color:#f1fff4;box-shadow:0 25px 70px #000d}
@@ -25,7 +25,7 @@ function init(options){
  .tut-msg{font-size:14px;line-height:1.55;margin:0;padding:16px;border-radius:15px;background:#06150dba;border:1px solid #8ce5a133;min-height:86px}
  .tut-progress{display:flex;gap:6px;margin:15px 0}.tut-progress i{height:5px;flex:1;border-radius:8px;background:#ffffff20}.tut-progress i.on{background:linear-gradient(90deg,#4ade80,#bbf7d0)}
  .tut-actions{display:flex;gap:8px}.tut-actions button{min-height:40px;border-radius:12px;padding:8px 13px;border:1px solid #ffffff2b;background:#1b3926;color:#effff2;font-weight:800}.tut-actions #tut-next{margin-left:auto;background:linear-gradient(120deg,#86efac,#22a653);color:#062412;border-color:#c5ffd2}
- @media(max-width:620px){#slime-tutorial-btn{top:calc(env(safe-area-inset-top,0px) + 112px);right:11px;width:35px;height:35px}}
+ @media(max-width:620px){#slime-tutorial-btn{bottom:calc(env(safe-area-inset-bottom,0px) + 92px);right:11px;width:38px;height:38px}}
  @media(prefers-reduced-motion:no-preference){#slime-tutorial-box{animation:tutPop .22s cubic-bezier(.2,.8,.2,1)}@keyframes tutPop{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}}
  `;
  document.head.appendChild(style);

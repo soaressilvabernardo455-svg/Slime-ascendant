@@ -1340,7 +1340,7 @@ function lobby(){
  '<div class="settings-row"><span><b>Áudio (Música e Efeitos)</b><small>Ativar ou desligar o som do jogo.</small></span><button id="setting-audio">'+(SV.mute?'Desligado':'Ligado')+'</button></div>'+
  '<div class="settings-row"><span><b>Volume Geral</b><small>Ajusta o volume da música e efeitos.</small></span><div class="settings-slider-wrap"><input id="setting-volume" class="settings-slider" type="range" min="0" max="100" step="5" value="'+SV.volume+'" aria-label="Volume"><span id="setting-volume-val" class="settings-val">'+SV.volume+'%</span></div></div>'+
  '<div class="settings-row"><span><b>Vibração Háptica</b><small>Feedback tátil no celular ao sofrer dano ou vencer chefes.</small></span><button id="setting-haptics">'+(SV.haptics?'Ligado':'Desligado')+'</button></div>'+
- '<div class="settings-row"><span><b>Qualidade gráfica</b><small>Escolha desempenho, padrão ou alto.</small></span><button id="setting-quality">'+(['Desempenho','Padrão','Alto'][Math.max(0,Math.min(2,SV.quality))])+'</button></div>'+
+ '<div class="settings-row"><span><b>Qualidade gráfica</b><small>Escolha o nível de efeitos e desempenho.</small></span><select id="setting-quality" aria-label="Qualidade gráfica" style="min-width:112px;padding:9px 8px;border-radius:10px;background:#10251a;color:#effff2;border:1px solid #6b9b75"><option value="0" '+(SV.quality===0?'selected':'')+'>Desempenho</option><option value="1" '+(SV.quality===1?'selected':'')+'>Padrão</option><option value="2" '+(SV.quality===2?'selected':'')+'>Alto</option></select></div>'+
  '<div class="settings-row"><span><b>Mostrar FPS</b><small>Exibe a taxa de quadros durante a partida.</small></span><button id="setting-fps">'+(SV.showFps?'Ligado':'Desligado')+'</button></div>'+
  '<div class="settings-row"><span><b>Resetar jogo</b><small>Apaga moedas, classes, itens e progresso deste perfil.</small></span><button id="reset-game">Resetar</button></div>'+
  '<div class="settings-row"><span><b>Ferramentas do desenvolvedor</b><small>Teste classes, mapas, habilidades e recursos em uma sessão separada.</small></span><button id="setting-dev">'+(developerModeEnabled?'Desativar':'Ativar')+'</button></div>';
@@ -1353,7 +1353,7 @@ function lobby(){
  }
  settings.querySelector('#setting-haptics').onclick=()=>{SV.haptics=SV.haptics?0:1;if(SV.haptics)haptic(24);save();lobby()};
  settings.querySelector('#setting-dev').onclick=toggleDeveloperMode;
- settings.querySelector('#setting-quality').onclick=()=>{SV.quality=(SV.quality+1)%3;DPR=Math.min(devicePixelRatio||1,qualityDprCap());resizeGame();save();lobby()};
+ settings.querySelector('#setting-quality').onchange=(event)=>{SV.quality=Math.max(0,Math.min(2,Number(event.target.value)||0));DPR=Math.min(devicePixelRatio||1,qualityDprCap());resizeGame();save();lobby()};
  settings.querySelector('#setting-fps').onclick=()=>{SV.showFps=SV.showFps?0:1;save();lobby()};
  settings.querySelector('#reset-game').onclick=async()=>{if(developerModeEnabled){toast('Desative o modo de teste antes de resetar o perfil.');return}if(!await askConfirm('Resetar progresso','Tem certeza? Todo o progresso local deste perfil será apagado.','Resetar'))return;SV={co:0,cr:0,economyVersion:ECONOMY_VERSION,mapAccessVersion:MAP_ACCESS_VERSION,cls:['normal'],sel:'normal',name:SV.name||'',createdAt:SV.createdAt||new Date().toISOString(),up:{vida:0,dano:0,vel:0,moeda:0},maps:[0],map:0,best:0,items:[],ach:[],day:'',streak:0,vip:false,difficulty:'medium',mute:SV.mute?1:0,volume:SV.volume??75,haptics:SV.haptics??1,quality:SV.quality===0?0:1,showFps:0};try{localStorage.setItem('slimeSave',JSON.stringify(SV))}catch(e){}scheduleCloudSave();toast('Progresso reiniciado.');lobby()};
  const cs=$('tc'),baseKey=CL.includes(SV.sel)?SV.sel:'normal',baseAttr=OCLS[baseKey]||{hp:100,dm:1,sp:4.8};
@@ -2021,7 +2021,7 @@ function ensureBiomeAmbient(cx,cy,W,H,count){
  if(ambientParticles.length>count)ambientParticles.length=count;
 }
 function drawWorldParticles(cx,cy,W,H,map,dt){
- const ambientCount=SV.quality===0?0:SV.quality===1?16:32;
+ const ambientCount=0; // partículas decorativas coloridas desativadas; VFX de combate continuam ativos.
  if(ambientCount>0){
   ensureBiomeAmbient(cx,cy,W,H,ambientCount);
   const colors=['#bef264','#fde68a','#e0f2fe','#fb923c'];

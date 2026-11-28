@@ -542,6 +542,46 @@ input,textarea,select{touch-action:auto;user-select:text}
 #u h2{animation:levelHeadingIn .26s cubic-bezier(.22,1,.36,1) both}
 #u .cd,#u #reroll-skills{animation:levelCardIn .34s cubic-bezier(.22,1,.36,1) var(--card-delay,0ms) both}
 @media(prefers-reduced-motion:reduce){#u,#u h2,#u .cd,#u #reroll-skills{animation:none}}
+
+/* Visual refresh: dark-fantasy arena, clearer hierarchy, restrained VFX */
+:root{--glass-bg:rgba(7,17,13,.82);--glass-border:rgba(177,245,193,.22);--mint:#83f2a5;--gold:#f5cc76;--text:#f2fff4}
+body{background:#07120c;color:var(--text)}
+#m.lobby-screen{background:radial-gradient(ellipse at 50% 42%,rgba(32,91,53,.18),transparent 56%),linear-gradient(180deg,rgba(3,10,6,.25),rgba(3,10,6,.62))}
+#m::before{background:linear-gradient(180deg,rgba(3,12,7,.12),transparent 35%,rgba(3,10,6,.35) 75%,rgba(3,10,6,.72));}
+.glass,.brand-panel,.account-top,.tab-panel,.account-panel{background:linear-gradient(145deg,rgba(15,34,23,.91),rgba(6,17,12,.88));border:1px solid rgba(174,239,188,.24);box-shadow:0 14px 38px rgba(0,0,0,.48),inset 0 1px rgba(255,255,255,.08);backdrop-filter:blur(16px) saturate(1.18);-webkit-backdrop-filter:blur(16px) saturate(1.18)}
+.brand-panel,.account-top{border-radius:17px}
+.brand-emblem{box-shadow:0 0 22px rgba(86,230,138,.35),inset 0 1px 5px #fff}
+.brand-title{letter-spacing:.075em;text-shadow:0 2px 14px rgba(90,220,130,.18)}
+.version-pill{border-color:rgba(245,204,118,.38);color:#f7dda2;background:rgba(245,204,118,.08)}
+#nav-tabs{background:rgba(5,15,10,.88);border:1px solid rgba(170,235,184,.22);box-shadow:0 12px 34px #0009;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+#nav-tabs button,.tabs button{border:1px solid rgba(167,220,178,.18);background:linear-gradient(160deg,#1a3524,#0d1d14);color:#dff6e5;border-radius:13px}
+#nav-tabs button.s,.tabs button.s{background:linear-gradient(145deg,#3c9b5b,#1b5834);border-color:#a5f3b8;box-shadow:0 0 0 1px rgba(116,240,153,.18),0 5px 16px rgba(34,197,94,.18)}
+.tab-panel{border-radius:20px}
+#tab-panels{filter:drop-shadow(0 12px 25px #0005)}
+#tc button{border-radius:16px;background:linear-gradient(155deg,rgba(36,73,48,.96),rgba(10,25,17,.98));border:1px solid rgba(168,235,181,.24);box-shadow:0 8px 20px #0005,inset 0 1px #ffffff12}
+#tc button.s{border-color:#a7f3b8;box-shadow:0 0 0 1px #76f1a055,0 0 22px #22c55e2b,inset 0 1px #ffffff22}
+.row{background:linear-gradient(145deg,rgba(27,54,36,.96),rgba(10,24,16,.96));border:1px solid rgba(172,225,181,.22);border-radius:14px}
+button,input{border-radius:13px}
+button:not(:disabled){transition:transform .16s cubic-bezier(.2,.8,.2,1),filter .16s,box-shadow .16s}
+button:not(:disabled):hover{filter:brightness(1.12);box-shadow:0 5px 18px #0005}
+button:not(:disabled):active{transform:translateY(1px) scale(.965)}
+#go{background:linear-gradient(115deg,#a5f3b8 0%,#4ade80 42%,#159447 100%);color:#062412;border:1px solid #d1fae0;box-shadow:0 5px 22px rgba(34,197,94,.27),inset 0 1px #fff9;text-shadow:0 1px #ffffff55}
+#off{background:linear-gradient(115deg,#9b83ff,#5b35bd);box-shadow:0 5px 18px #6d28d933}
+#priv{background:linear-gradient(145deg,#203c2a,#101f16);border-color:#6e9b77}
+#bal{color:#f8e2a9;text-shadow:0 2px 12px #f59e0b33}
+.skill-icon,.power-badge{box-shadow:inset 0 2px 7px #ffffff55,0 0 16px color-mix(in srgb,var(--skill-color,#38bdf8) 35%,transparent),0 4px 10px #0009}
+#powhud .power-badge{border-color:#e6ffe9}
+#fps-indicator{backdrop-filter:blur(10px);border-color:#8ce5a155}
+#fim{background:radial-gradient(ellipse at center,rgba(16,48,28,.72),rgba(0,0,0,.88))}
+#tt{box-shadow:0 8px 28px #0008;backdrop-filter:blur(12px)}
+/* Subtle ambient shimmer; no extra DOM and no interference with touch input */
+#m.lobby-screen:after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.26;background:radial-gradient(circle at 18% 28%,rgba(137,255,170,.14),transparent 24%),radial-gradient(circle at 82% 63%,rgba(245,204,118,.10),transparent 22%);animation:lobbyAura 9s ease-in-out infinite alternate}
+#m.lobby-screen>*{z-index:1}
+@keyframes lobbyAura{from{opacity:.13;transform:scale(1)}to{opacity:.32;transform:scale(1.035)}}
+@keyframes cardRise{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+.tab-panel{animation:cardRise .24s ease-out both}
+@media(prefers-reduced-motion:reduce){#m.lobby-screen:after,.tab-panel{animation:none!important}button{transition:none!important}}
+
 </style></head><body>
 <canvas id="c"></canvas><div id="item-hud" aria-label="Itens equipados"></div><button id="item-toggle" type="button" aria-label="Abrir inventário" aria-expanded="false" onclick="toggleItemInventory()"><span class="item-toggle-icon">🎒</span><span id="item-count" class="item-count">0</span></button><div id="fps-indicator" aria-live="off">FPS …</div><div id="ping-indicator" aria-live="off">PING …</div><div id="run-board" aria-live="off"><div class="run-board-top"><b id="run-board-wave">ONDA 1</b><b id="run-board-time">TEMPO 00:00</b></div><div id="run-board-boss">Próximo chefe em 02:30</div><div id="run-board-boss-bar" class="h"><i></i></div><div class="run-board-stats"><span id="run-board-level">NÍVEL 1</span><span id="run-board-health">VIDA 100/100</span><span id="run-board-enemies">INIMIGOS PRÓXIMOS 0</span></div></div><button id="ex" aria-label="Voltar ao lobby"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Lobby</span></button>
 <div id="m" class="lobby-screen">

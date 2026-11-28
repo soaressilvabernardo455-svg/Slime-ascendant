@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'capacitor.config.json'
+      - 'www/**'
       - 'package.json'
       - 'package-lock.json'
       - '.github/workflows/android-apk.yml'

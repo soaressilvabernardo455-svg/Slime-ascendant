@@ -8,7 +8,7 @@
     "build": "node --check server.js && node --check auth.js",
     "cap": "cap",
     "android": "cap sync android",
-    "test": "node scripts/smoke-test.js"
+    "test": "node scripts/visual-smoke-test.js"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.3",

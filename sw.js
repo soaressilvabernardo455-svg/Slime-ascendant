@@ -1,6 +1,6 @@
-const CACHE='slime-ascendant-shell-v55';
-const SHELL=['/','/manifest.webmanifest','/icon.svg','/cover.svg'];
-const STATIC_ASSETS=new Set(['/manifest.webmanifest','/icon.svg','/cover.svg']);
+const CACHE='slime-ascendant-shell-v56';
+const SHELL=['/','/manifest.webmanifest','/icon.svg','/cover.svg','/polish.css'];
+const STATIC_ASSETS=new Set(['/manifest.webmanifest','/icon.svg','/cover.svg','/polish.css']);
 
 self.addEventListener('install',event=>{
  event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting()));
